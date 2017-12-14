@@ -7,4 +7,3 @@ def main():
     node.learnTree(data) #learn RRT
     
 main()
-    

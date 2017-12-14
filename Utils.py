@@ -15,6 +15,10 @@ class Data(object):
         '''set facts from facts list'''
         self.facts = facts
 
+    def getFacts(self):
+        '''returns the facts in the data'''
+        return self.facts
+
     def setPos(self,pos):
         '''set positive examples from pos list'''
         for example in pos:

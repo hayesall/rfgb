@@ -1,1 +1,3 @@
 parent(var,var)
+male(var)
+female(var)

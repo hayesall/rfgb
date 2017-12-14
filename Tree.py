@@ -1,5 +1,5 @@
 from Utils import Utils
-from Logic import Logic
+from Logic import Logic,Prover
 class node(object):
     '''this is a node in a tree'''
     expandQueue = [] #Breadth first search node expansion strategy
@@ -61,11 +61,12 @@ class node(object):
             if curr.pos == "left":
                 clause += curr.parent.test+","
             elif curr.pos == "right":
-                clause += "!"+curr.parent.test+","
+                clause += ""#"!"+curr.parent.test+","
             curr = curr.parent
         if self.level == node.maxDepth:
             node.learnedDecisionTree.append(clause[:-1])
             return
+        print clause
         minWeightedVariance = 0 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
@@ -75,3 +76,7 @@ class node(object):
             literalName = literal
             literalTypeSpecification = literals[literal]
             tests = Logic.generateTests(literalName,literalTypeSpecification,clause)
+            print tests
+        print self.examples
+        print Prover.prove(data,"mother(a,b)","mother(X,Y):-female(X),parent(X,Y)")
+        exit()
