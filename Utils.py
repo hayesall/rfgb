@@ -102,4 +102,27 @@ class Utils(object):
         for example in examples: #calculate total squared difference from mean
             sumOfSquaredError += (Utils.data.getValue(example)-mean)**2
         return sumOfSquaredError/float(numberOfExamples) #return variance
+
+    @staticmethod
+    def cartesianProduct(itemSets):
+        '''returns cartesian product of all the sets
+           contained in the item sets
+        '''
+        modifiedItemSets = []
+        for itemSet in itemSets:
+            modifiedItemSet = []
+            for element in itemSet:
+                modifiedItemSet.append([element])
+            modifiedItemSets.append(modifiedItemSet)
+        while len(modifiedItemSets) > 1:
+            set1 = modifiedItemSets[0]
+            set2 = modifiedItemSets[1]
+            pairWiseProducts = []
+            for item1 in set1:
+                for item2 in set2:
+                    pairWiseProducts.append(item1+item2)
+            modifiedItemSets.remove(set1)
+            modifiedItemSets.remove(set2)
+            modifiedItemSets.insert(0,pairWiseProducts)
+        return modifiedItemSets[0]
             

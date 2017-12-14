@@ -59,12 +59,12 @@ class node(object):
         curr = self #while loop to obtain clause learned at this node
         while curr.parent!="root":
             if curr.pos == "left":
-                clause += curr.parent.test
+                clause += curr.parent.test+","
             elif curr.pos == "right":
-                clause += "!"+curr.parent.test
+                clause += "!"+curr.parent.test+","
             curr = curr.parent
         if self.level == node.maxDepth:
-            node.learnedDecisionTree.append(clause)
+            node.learnedDecisionTree.append(clause[:-1])
             return
         minWeightedVariance = 0 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
@@ -74,4 +74,4 @@ class node(object):
         for literal in literals: #for every literal generate test conditions
             literalName = literal
             literalTypeSpecification = literals[literal]
-            tests = Logic.generateTests(literalName,literalTypeSpecification,target)
+            tests = Logic.generateTests(literalName,literalTypeSpecification,clause)
