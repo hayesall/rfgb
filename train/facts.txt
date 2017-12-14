@@ -1,0 +1,4 @@
+parent(a,b)
+female(a)
+parent(b,c)
+male(b)
