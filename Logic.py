@@ -44,16 +44,16 @@ class Logic(object):
         allowedVariables = bodyVariables+targetVariables+freeVariables #allowed variables is combination of free and target variables
         permutations = [list(item) for item in list(itertools.permutations(allowedVariables,numberOfVariables))] #get all permutations of size number of variables
         specifications = [] #list of all possible type specifications including constants if any
-        if Logic.constantsPresentInLiteral(literalTypeSpecification):
-            cartesianProductInput = [[item] if item == "var" else item[1:-1].split(';') for item in literalTypeSpecification]
-            cartesianProduct = Utils.cartesianProduct(cartesianProductInput)
-            for itemSet in cartesianProduct:
+        if Logic.constantsPresentInLiteral(literalTypeSpecification): #check if constants present
+            cartesianProductInput = [[item] if item == "var" else item[1:-1].split(';') for item in literalTypeSpecification] 
+            cartesianProduct = Utils.cartesianProduct(cartesianProductInput) #perform cartesian product of variable specifications with each of the constants
+            for itemSet in cartesianProduct: #set the cartesian product as specifications
                 specifications.append(itemSet)
         else:
-            specifications.append(literalTypeSpecification)
-        literalCandidates = []
-        for specification in specifications:
-            for permutation in permutations:
+            specifications.append(literalTypeSpecification) #if no constants then the current specification is enough
+        literalCandidates = [] #initialize list that will hold all candidate test literals
+        for specification in specifications: #for each specification,
+            for permutation in permutations: #from each permutation of allowed variables,
                 permutationCopy = deepcopy(permutation)
                 specificationCopy = deepcopy(specification)
                 specificationLength = len(specification)
@@ -61,8 +61,8 @@ class Logic(object):
                     for i in range(specificationLength):
                         specificationType = specificationCopy[i]
                         if specificationType == "var":
-                            variable = permutationCopy.pop()
+                            variable = permutationCopy.pop() #substitute an allowed variable where type is "var"
                             specificationCopy[i] = variable
-                    literalCandidate = literalName+"("+ ",".join(specificationCopy)+")"
-                    literalCandidates.append(literalCandidate)
-        return literalCandidates
+                    literalCandidate = literalName+"("+ ",".join(specificationCopy)+")" #create predicate with name,variables and constants
+                    literalCandidates.append(literalCandidate) #add to all possible test candidates
+        return literalCandidates #return all test candidates for proving

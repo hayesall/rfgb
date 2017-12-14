@@ -108,21 +108,21 @@ class Utils(object):
         '''returns cartesian product of all the sets
            contained in the item sets
         '''
-        modifiedItemSets = []
+        modifiedItemSets = [] #have to create new input where each single element is in its own set
         for itemSet in itemSets:
             modifiedItemSet = []
             for element in itemSet:
-                modifiedItemSet.append([element])
+                modifiedItemSet.append([element]) #does the above task
             modifiedItemSets.append(modifiedItemSet)
-        while len(modifiedItemSets) > 1:
+        while len(modifiedItemSets) > 1: #perform cartesian product of first 2 sets
             set1 = modifiedItemSets[0]
             set2 = modifiedItemSets[1]
             pairWiseProducts = []
             for item1 in set1:
                 for item2 in set2:
-                    pairWiseProducts.append(item1+item2)
-            modifiedItemSets.remove(set1)
+                    pairWiseProducts.append(item1+item2) #cartesian product performed here
+            modifiedItemSets.remove(set1) #remove first 2 sets
             modifiedItemSets.remove(set2)
-            modifiedItemSets.insert(0,pairWiseProducts)
-        return modifiedItemSets[0]
+            modifiedItemSets.insert(0,pairWiseProducts) #insert cartesian product in its place and repeat
+        return modifiedItemSets[0] #return the final cartesian product sets
             
