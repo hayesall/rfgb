@@ -1,3 +1,1 @@
 parent(var,var)
-female(var)
-male(var)

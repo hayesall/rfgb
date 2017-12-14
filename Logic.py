@@ -1,3 +1,4 @@
+import itertools
 from Utils import Utils
 class Logic(object):
     '''class for logic operations'''
@@ -11,13 +12,17 @@ class Logic(object):
         for specification in literalTypeSpecification:
             if specification == "var":
                 numberOfVariables += 1
-
         targetVariables = [] #initialize target variable list
         targetVariables = target[:-1].split('(')[1].split(',') #obtain target variables
-
-        allowedVariables = [] #initialize allowed variables
-        while len(allowedVariables) < numberOfVariables:
-            for variable in Utils.UniqueVariableCollection:
-                if variable in targetVariables and variable not in allowedVariables:
-                    allowedVariables.append(variable)
-                    break
+        maxNumberOfFreeVariables = numberOfVariables-1 #get max number of free variables that literal can have
+        allowedVariables = [] #initialize variables allowed in the literal to be added
+        freeVariables = [variable for variable in Utils.UniqueVariableCollection if variable not in targetVariables][:maxNumberOfFreeVariables] #variables not in target
+        allowedVariables = targetVariables+freeVariables #allowed variables is combination of free and target variables
+        permutations = list(itertools.permutations(allowedVariables,numberOfVariables)) #get all permutations of size number of variables
+        print target
+        print literalName
+        print literalTypeSpecification
+        print permutations
+        exit()
+        
+        
