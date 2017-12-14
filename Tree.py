@@ -1,4 +1,5 @@
 from Utils import Utils
+from Logic import Logic
 class node(object):
     '''this is a node in a tree'''
     expandQueue = [] #Breadth first search node expansion strategy
@@ -53,5 +54,24 @@ class node(object):
 
     def expandOnBestTest(self,data=None):
         '''expands the node based on the best test'''
+        target = data.getTarget() #get the target
+        clause = target+":-" #initialize clause learned at this node with empty body
+        curr = self #while loop to obtain clause learned at this node
+        while curr.parent!="root":
+            if curr.pos == "left":
+                clause += curr.parent.test
+            elif curr.pos == "right":
+                clause += "!"+curr.parent.test
+            curr = curr.parent
         if self.level == node.maxDepth:
-            path = data.getTarget()+":-" #get path from root to leaf
+            node.learnedDecisionTree.append(clause)
+            return
+        minWeightedVariance = 0 #initialize minimum weighted variance to be 0
+        bestTest = "" #initalize best test to empty string
+        bestTExamples = [] #list for best test examples that satisfy clause
+        bestFExamples = [] #list for best test examples that don't satisfy clause
+        literals = data.getLiterals() #get all the literals that the data (facts) contains
+        for literal in literals: #for every literal generate test conditions
+            literalName = literal
+            literalTypeSpecification = literals[literal]
+            tests = Logic.generateTests(literalName,literalTypeSpecification,target)

@@ -9,6 +9,7 @@ class Data(object):
         self.pos = {} #positive examples
         self.neg = {} #negative examples
         self.target = None #target to be learned
+        self.literals = {} #literals present in facts and their type specs
 
     def setFacts(self,facts):
         '''set facts from facts list'''
@@ -47,6 +48,19 @@ class Data(object):
         for ex in self.neg: #check next among negative examples and return values
             if ex == example:
                 return self.neg[example]
+
+    def setBackground(self,bk):
+        '''obtains the literals and their type specifications
+           types can be variable or a list of constants
+        '''
+        for literalBk in bk: #for every literal obtain name and type specification
+            literalName = literalBk.split('(')[0]
+            literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
+            self.literals[literalName] = literalTypeSpecification
+            
+    def getLiterals(self):
+        '''gets all the literals in the facts'''
+        return self.literals
         
 class Utils(object):
     '''class for utilities used by program
@@ -67,6 +81,9 @@ class Utils(object):
         with open("train/neg.txt") as fp: #read negative examples from train folder
             neg = fp.read().splitlines()
             Utils.data.setNeg(neg)
+        with open("train/bk.txt") as fp: #read background information from train folder
+            bk = fp.read().splitlines()
+            Utils.data.setBackground(bk)
         Utils.data.setTarget()
         return Utils.data
 
