@@ -1,6 +1,7 @@
 import string
 from random import sample
 from math import exp
+
 class Data(object):
     '''contains the relational data'''
 
@@ -102,6 +103,18 @@ class Utils(object):
             Utils.data.setBackground(bk)
         Utils.data.setTarget()
         return Utils.data
+
+    @staticmethod
+    def readTestData():
+        '''reads the testing data from files'''
+        testData = Data() #create object to hold data
+        with open("test/facts.txt") as fp:
+            testData.setFacts(fp.read().splitlines()) #read facts from test folder
+        with open("test/pos.txt") as fp:
+            testData.setPos(fp.read().splitlines()) #read positive examples from test folder
+        with open("test/neg.txt") as fp:
+            testData.setNeg(fp.read().splitlines()) #read negative examples from test folder
+        return testData #return the data for testing
 
     @staticmethod
     def variance(examples):

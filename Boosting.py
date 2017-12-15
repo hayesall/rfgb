@@ -1,5 +1,5 @@
 from Utils import Utils
-from math import log
+from math import log,exp
 from Logic import Prover
 from copy import deepcopy
 class Boosting(object):
@@ -42,3 +42,14 @@ class Boosting(object):
             probabilityOfExample = Utils.sigmoid(sumOfGradients)
             updatedGradient = 0 - probabilityOfExample
             data.neg[example] = updatedGradient
+
+    @staticmethod
+    def performInference(testData,trees):
+        '''computes probability for test examples'''
+        logPrior = log(0.5) #initialize log of assumed prior probability for example
+        for example in testData.pos:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as e^logP
+        for example in testData.neg:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as e^logP
