@@ -72,6 +72,17 @@ class Utils(object):
     '''
     data = None #attribute to store data (facts,positive and negative examples)
     UniqueVariableCollection = set(list(string.uppercase))
+
+    @staticmethod
+    def getleafValue(examples):
+        '''returns average of regression values for examples'''
+        if not examples:
+            return 0
+        total = 0
+        for example in examples:
+            total += Utils.data.getValue(example)
+        return total/float(len(examples))
+    
     @staticmethod
     def readTrainingData():
         '''reads the training data from files'''

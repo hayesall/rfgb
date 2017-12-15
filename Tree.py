@@ -68,19 +68,39 @@ class node(object):
                 tExamples.append(example)
         return tExamples
 
+    def getFalseExamples(self,clause,test,data):
+        '''returns all examples that satisfy clause
+           with conjoined test literal
+        '''
+        fExamples = [] #intialize list of true examples
+        clauseCopy = deepcopy(clause)
+        if clauseCopy[-1] == "-": #construct clause for prover
+            clauseCopy += test
+        elif clauseCopy[-1] == ';':
+            clauseCopy = clauseCopy.replace(';',',')+test
+        for example in self.examples:
+            if not Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
+                fExamples.append(example)
+        return fExamples
+
     def expandOnBestTest(self,data=None):
         '''expands the node based on the best test'''
         target = data.getTarget() #get the target
         clause = target+":-" #initialize clause learned at this node with empty body
         curr = self #while loop to obtain clause learned at this node
+        ancestorTests = []
         while curr.parent!="root":
             if curr.pos == "left":
                 clause += curr.parent.test+";"
+                ancestorTests.append(curr.parent.test)
             elif curr.pos == "right":
-                clause += ";"#"!"+curr.parent.test+","
+                clause += ""#"!"+curr.parent.test+","
             curr = curr.parent
         if self.level == node.maxDepth:
-            node.learnedDecisionTree.append(clause[:-1])
+            if clause[-1]!='-':
+                node.learnedDecisionTree.append(clause[:-1]+" "+str(Utils.getleafValue(self.examples)))
+            else:
+                node.learnedDecisionTree.append(clause+" "+str(Utils.getleafValue(self.examples)))
             return
         if clause[-2] == '-':
             clause = clause[:-1]
@@ -92,7 +112,7 @@ class node(object):
             print "test at parent: ",self.parent.test
         print "clause for generate test at current node: ",clause
         print "examples at current node: ",self.examples
-        minScore = 0 #initialize minimum weighted variance to be 0
+        minScore = 999 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
         bestFExamples = [] #list for best test examples that don't satisfy clause
@@ -101,11 +121,13 @@ class node(object):
             literalName = literal
             literalTypeSpecification = literals[literal]
             tests = Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
+            if self.parent!="root":
+                tests = [test for test in tests if not test in ancestorTests]
             for test in tests: #see which test scores the best
                 tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
-                fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
+                fExamples = self.getFalseExamples(clause,test,data) #get examples unsatsified (closed world assumption made)
                 score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
-                if score <= minScore: #if score lower than current lowest
+                if score < minScore: #if score lower than current lowest
                     minScore = score #assign new minimum
                     bestTest = test #assign new best test
                     bestTExamples = tExamples #collect satisfied examples
@@ -117,9 +139,12 @@ class node(object):
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
-            if len(bestFExamples) > 0: #if examples still left, create right node and add to queue
-                self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
-                if self.level+1 > node.depth:
-                    node.depth = self.level+1
+        if len(bestFExamples) > 0: #if examples still left, create right node and add to queue
+            self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
+            if self.level+1 > node.depth:
+                node.depth = self.level+1
         if self.test == "": #if no examples append clause as is
-            node.learnedDecisionTree.append(clause[:-1])
+            if clause[-1]!='-':
+                node.learnedDecisionTree.append(clause[:-1])
+            else:
+                node.learnedDecisionTree.append(clause)
