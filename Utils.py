@@ -1,5 +1,6 @@
 import string
 from random import sample
+from math import exp
 class Data(object):
     '''contains the relational data'''
 
@@ -119,6 +120,11 @@ class Utils(object):
         for example in examples: #calculate total squared difference from mean
             sumOfSquaredError += (Utils.data.getValue(example)-mean)**2
         return sumOfSquaredError/float(numberOfExamples) #return variance
+
+    @staticmethod
+    def sigmoid(x):
+        '''returns sigmoid of x'''
+        return exp(x)/float(1+exp(x))
 
     @staticmethod
     def cartesianProduct(itemSets):

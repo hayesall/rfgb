@@ -104,6 +104,7 @@ class node(object):
             return
         if clause[-2] == '-':
             clause = clause[:-1]
+        print '-'*80
         print "facts: ",data.getFacts()
         print "pos: ",self.pos
         print "node depth: ",self.level
@@ -134,7 +135,6 @@ class node(object):
                     bestFExamples = fExamples #collect unsatisfied examples
         self.test = bestTest #assign best test after going through all literal specs
         print "best test found at current node: ",self.test
-        raw_input()
         if len(bestTExamples) > 0: #if examples still left create left node and add to queue
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
