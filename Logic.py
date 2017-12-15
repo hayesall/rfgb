@@ -126,8 +126,8 @@ class Logic(object):
     @staticmethod
     def getVariables(literal):
         '''returns variables in the literal'''
-        variablesAndConstants = literal.split[:-1].split('(')[1].split(',') #get variables and constants in body literal
-        variables = [item for item in variableAndConstants if item in Utils.UniqueVariableCollection] #get only the variables
+        variablesAndConstants = literal[:-1].split('(')[1].split(',') #get variables and constants in body literal
+        variables = [item for item in variablesAndConstants if item in Utils.UniqueVariableCollection] #get only the variables
         return variables
 
     @staticmethod
@@ -139,7 +139,7 @@ class Logic(object):
         body = clause.split(":-")[1] #get clause body
         bodyVariables = [] #initialize body variables list
         if body:
-            bodyLiterals = body.split(",") #get clause body literals
+            bodyLiterals = [literal for literal in body.split(";") if literal] #get clause body literals
             for literal in bodyLiterals:
                 bodyVariables += Logic.getVariables(literal)
         numberOfVariables = 0 #initialize number of variables to 0
@@ -151,7 +151,7 @@ class Logic(object):
         maxNumberOfFreeVariables = numberOfVariables-1 #get max number of free variables that literal can have
         allowedVariables = [] #initialize variables allowed in the literal to be added
         freeVariables = [variable for variable in Utils.UniqueVariableCollection if variable not in targetVariables][:maxNumberOfFreeVariables] #variables not in target
-        allowedVariables = bodyVariables+targetVariables+freeVariables #allowed variables is combination of free and target variables
+        allowedVariables = list(set(bodyVariables+targetVariables+freeVariables)) #allowed variables is combination of free and target variables
         permutations = [list(item) for item in list(itertools.permutations(allowedVariables,numberOfVariables))] #get all permutations of size number of variables
         specifications = [] #list of all possible type specifications including constants if any
         if Logic.constantsPresentInLiteral(literalTypeSpecification): #check if constants present

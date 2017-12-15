@@ -1,5 +1,6 @@
 from Utils import Utils
 from Logic import Logic,Prover
+from copy import deepcopy
 class node(object):
     '''this is a node in a tree'''
     expandQueue = [] #Breadth first search node expansion strategy
@@ -57,12 +58,13 @@ class node(object):
            with conjoined test literal
         '''
         tExamples = [] #intialize list of true examples
-        if clause[-1] == "-": #construct clause for prover
-            clause += test
-        elif clause[-1] == ')':
-            clause += ","+test
+        clauseCopy = deepcopy(clause)
+        if clauseCopy[-1] == "-": #construct clause for prover
+            clauseCopy += test
+        elif clauseCopy[-1] == ';':
+            clauseCopy = clauseCopy.replace(';',',')+test
         for example in self.examples:
-            if Prover.prove(data,example,clause): #prove if example satisfies clause
+            if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
                 tExamples.append(example)
         return tExamples
 
@@ -73,13 +75,23 @@ class node(object):
         curr = self #while loop to obtain clause learned at this node
         while curr.parent!="root":
             if curr.pos == "left":
-                clause += curr.parent.test+","
+                clause += curr.parent.test+";"
             elif curr.pos == "right":
-                clause += ","#"!"+curr.parent.test+","
+                clause += ";"#"!"+curr.parent.test+","
             curr = curr.parent
         if self.level == node.maxDepth:
             node.learnedDecisionTree.append(clause[:-1])
             return
+        if clause[-2] == '-':
+            clause = clause[:-1]
+        print "facts: ",data.getFacts()
+        print "pos: ",self.pos
+        print "node depth: ",self.level
+        print "parent: ",self.parent
+        if self.parent != "root":
+            print "test at parent: ",self.parent.test
+        print "clause for generate test at current node: ",clause
+        print "examples at current node: ",self.examples
         minScore = 0 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
@@ -99,6 +111,8 @@ class node(object):
                     bestTExamples = tExamples #collect satisfied examples
                     bestFExamples = fExamples #collect unsatisfied examples
         self.test = bestTest #assign best test after going through all literal specs
+        print "best test found at current node: ",self.test
+        raw_input()
         if len(bestTExamples) > 0: #if examples still left create left node and add to queue
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
