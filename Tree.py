@@ -52,6 +52,20 @@ class node(object):
             curr = node.expandQueue.pop()
             curr.expandOnBestTest(data)
 
+    def getTrueExamples(self,clause,test,data):
+        '''returns all examples that satisfy clause
+           with conjoined test literal
+        '''
+        tExamples = [] #intialize list of true examples
+        if clause[-1] == "-": #construct clause for prover
+            clause += test
+        elif clause[-1] == ')':
+            clause += ","+test
+        for example in self.examples:
+            if Prover.prove(data,example,clause): #prove if example satisfies clause
+                tExamples.append(example)
+        return tExamples
+
     def expandOnBestTest(self,data=None):
         '''expands the node based on the best test'''
         target = data.getTarget() #get the target
@@ -61,13 +75,12 @@ class node(object):
             if curr.pos == "left":
                 clause += curr.parent.test+","
             elif curr.pos == "right":
-                clause += ""#"!"+curr.parent.test+","
+                clause += ","#"!"+curr.parent.test+","
             curr = curr.parent
         if self.level == node.maxDepth:
             node.learnedDecisionTree.append(clause[:-1])
             return
-        print clause
-        minWeightedVariance = 0 #initialize minimum weighted variance to be 0
+        minScore = 0 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
         bestFExamples = [] #list for best test examples that don't satisfy clause
@@ -75,8 +88,24 @@ class node(object):
         for literal in literals: #for every literal generate test conditions
             literalName = literal
             literalTypeSpecification = literals[literal]
-            tests = Logic.generateTests(literalName,literalTypeSpecification,clause)
-            print tests
-        print self.examples
-        print Prover.prove(data,"mother(a,b)","mother(X,Y):-female(X),parent(X,Y)")
-        exit()
+            tests = Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
+            for test in tests: #see which test scores the best
+                tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
+                fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
+                score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
+                if score <= minScore: #if score lower than current lowest
+                    minScore = score #assign new minimum
+                    bestTest = test #assign new best test
+                    bestTExamples = tExamples #collect satisfied examples
+                    bestFExamples = fExamples #collect unsatisfied examples
+        self.test = bestTest #assign best test after going through all literal specs
+        if len(bestTExamples) > 0: #if examples still left create left node and add to queue
+            self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
+            if self.level+1 > node.depth:
+                node.depth = self.level+1
+            if len(bestFExamples) > 0: #if examples still left, create right node and add to queue
+                self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
+                if self.level+1 > node.depth:
+                    node.depth = self.level+1
+        if self.test == "": #if no examples append clause as is
+            node.learnedDecisionTree.append(clause[:-1])

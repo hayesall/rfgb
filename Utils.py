@@ -97,6 +97,8 @@ class Utils(object):
            in regression values for all
            examples
         '''
+        if not examples:
+            return 0
         total = 0 #initialize total regression value 
         for example in examples:
             total += Utils.data.getValue(example) #cimpute total
