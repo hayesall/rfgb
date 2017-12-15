@@ -46,7 +46,7 @@ class Boosting(object):
     @staticmethod
     def performInference(testData,trees):
         '''computes probability for test examples'''
-        logPrior = log(0.5) #initialize log of assumed prior probability for example
+        logPrior = log(0.5/float(1-0.5)) #initialize log of assumed prior probability for example
         for example in testData.pos:
             sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
             testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as e^logP
