@@ -1,1 +1,2 @@
-mother(a,b)
+xor(s2)
+xor(s3)

@@ -1,3 +1,1 @@
-parent(var,var)
-male(var)
-female(var)
+value(var,[x1;x2],[v0;v1])

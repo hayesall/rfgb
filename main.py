@@ -4,7 +4,7 @@ from Tree import node
 def main():
     '''main method'''
     data = Utils.readTrainingData() #read training data
-    node.setMaxDepth(2)
+    node.setMaxDepth(4)
     node.learnTree(data) #learn RRT
     print node.learnedDecisionTree
 main()
