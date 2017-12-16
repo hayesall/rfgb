@@ -5,7 +5,7 @@ from Boosting import Boosting
 def main():
     '''main method'''
     data = Utils.readTrainingData() #read training data
-    numberOfTrees = 25 #number of trees for boosting
+    numberOfTrees = 1 #number of trees for boosting
     trees = [] #initialize place holder for trees
     for i in range(numberOfTrees): #learn each tree and update gradient
         node.setMaxDepth(4)

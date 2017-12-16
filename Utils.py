@@ -12,6 +12,7 @@ class Data(object):
         self.neg = {} #negative examples
         self.target = None #target to be learned
         self.literals = {} #literals present in facts and their type specs
+        self.variableType = {} #type of variable used for facts and target
 
     def setFacts(self,facts):
         '''set facts from facts list'''
@@ -31,8 +32,9 @@ class Data(object):
         for example in neg:
             self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self):
+    def setTarget(self,targetSpecification):
         '''sets the target'''
+        targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
         firstPositiveInstance = self.pos.keys()[0] #get the first positive example in the dictionary
         targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
         targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
@@ -40,6 +42,7 @@ class Data(object):
         self.target = targetPredicate+"(" #construct target string
         for variable in targetVariables:
             self.target += variable+","
+            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
         self.target = self.target[:-1]+")"
 
     def getTarget(self):
@@ -76,6 +79,19 @@ class Utils(object):
     UniqueVariableCollection = set(list(string.uppercase))
 
     @staticmethod
+    def addVariableTypes(literal):
+        '''adds type of variables contained in literal'''
+        literalName = literal.split('(')[0] #get literal name
+        literalTypeSpecification = Utils.data.literals[literalName] #get background info
+        literalArguments = literal[:-1].split('(')[1].split(',') #get arguments
+        numberOfArguments = len(literalArguments)
+        for i in range(numberOfArguments):
+            if literalTypeSpecification[i][0]!='[':
+                variable = literalArguments[i]
+                if variable not in Utils.data.variableType.keys():
+                    Utils.data.variableType[variable] = literalTypeSpecification[i][1:]
+
+    @staticmethod
     def getleafValue(examples):
         '''returns average of regression values for examples'''
         if not examples:
@@ -100,8 +116,8 @@ class Utils(object):
             Utils.data.setNeg(neg)
         with open("train/bk.txt") as fp: #read background information from train folder
             bk = fp.read().splitlines()
-            Utils.data.setBackground(bk)
-        Utils.data.setTarget()
+            Utils.data.setBackground(bk[1:])
+            Utils.data.setTarget(bk[0])
         return Utils.data
 
     @staticmethod

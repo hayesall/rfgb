@@ -133,6 +133,7 @@ class node(object):
                     bestTest = test #assign new best test
                     bestTExamples = tExamples #collect satisfied examples
                     bestFExamples = fExamples #collect unsatisfied examples
+        Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
         print "best test found at current node: ",self.test
         if len(bestTExamples) > 0: #if examples still left create left node and add to queue
