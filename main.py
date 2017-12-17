@@ -9,7 +9,7 @@ def main():
     trees = [] #initialize place holder for trees
     for i in range(numberOfTrees): #learn each tree and update gradient
         print '='*20,"learning tree",str(i),'='*20
-        node.setMaxDepth(4)
+        node.setMaxDepth(3)
         node.learnTree(data) #learn RRT
         trees.append(node.learnedDecisionTree)
         Boosting.updateGradients(data,trees)

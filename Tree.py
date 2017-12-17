@@ -82,7 +82,7 @@ class node(object):
             elif curr.pos == "right":
                 clause += ""#"!"+curr.parent.test+","
             curr = curr.parent
-        if self.level == node.maxDepth:
+        if self.level == node.maxDepth or round(self.information,1) == 0:
             if clause[-1]!='-':
                 node.learnedDecisionTree.append(clause[:-1]+" "+str(Utils.getleafValue(self.examples)))
             else:
@@ -115,8 +115,8 @@ class node(object):
         for test in tests: #see which test scores the best
             tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
             fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
-            score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
-            #score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
+            #score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
+            score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
             if score < minScore: #if score lower than current lowest
                 minScore = score #assign new minimum
                 bestTest = test #assign new best test
@@ -125,16 +125,17 @@ class node(object):
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
         print "best test found at current node: ",self.test
-        if len(bestTExamples) > 0: #if examples still left create left node and add to queue
+        if len(bestTExamples) > 0: #if examples still need explaining create left node and add to queue
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
-        if len(bestFExamples) > 0: #if examples still left, create right node and add to queue
+        if len(bestFExamples) > 0: #if examples still need explaining, create right node and add to queue
             self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
-        if self.test == "": #if no examples append clause as is
+        if self.test == "" or round(self.information,1) == 0: #if no examples append clause as is
             if clause[-1]!='-':
                 node.learnedDecisionTree.append(clause[:-1])
             else:
                 node.learnedDecisionTree.append(clause)
+            return
