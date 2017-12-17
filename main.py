@@ -12,8 +12,11 @@ def main():
         node.learnTree(data) #learn RRT
         trees.append(node.learnedDecisionTree)
         Boosting.updateGradients(data,trees)
+    for tree in trees:
+        for clause in tree:
+            print clause
     testData = Utils.readTestData() #read testing data
     Boosting.performInference(testData,trees) #get probability of test examples
-    print testData.pos
-    print testData.neg
+    #print testData.pos --> uncomment to see test query probabilities
+    #print testData.neg
 main()

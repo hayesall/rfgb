@@ -1,0 +1,3 @@
+put(state,pos)
+present(+state,+pos)
+adj(+state,+pos,-pos)

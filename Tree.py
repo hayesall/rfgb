@@ -1,6 +1,7 @@
 from Utils import Utils
 from Logic import Logic,Prover
 from copy import deepcopy
+
 class node(object):
     '''this is a node in a tree'''
     expandQueue = [] #Breadth first search node expansion strategy
@@ -68,21 +69,6 @@ class node(object):
                 tExamples.append(example)
         return tExamples
 
-    def getFalseExamples(self,clause,test,data):
-        '''returns all examples that satisfy clause
-           with conjoined test literal
-        '''
-        fExamples = [] #intialize list of true examples
-        clauseCopy = deepcopy(clause)
-        if clauseCopy[-1] == "-": #construct clause for prover
-            clauseCopy += test
-        elif clauseCopy[-1] == ';':
-            clauseCopy = clauseCopy.replace(';',',')+test
-        for example in self.examples:
-            if not Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
-                fExamples.append(example)
-        return fExamples
-
     def expandOnBestTest(self,data=None):
         '''expands the node based on the best test'''
         target = data.getTarget() #get the target
@@ -105,34 +91,37 @@ class node(object):
         if clause[-2] == '-':
             clause = clause[:-1]
         print '-'*80
-        print "facts: ",data.getFacts()
-        print "pos: ",self.pos
+        #print "facts: ",data.getFacts()
+        #print "pos: ",self.pos
         print "node depth: ",self.level
         print "parent: ",self.parent
         if self.parent != "root":
             print "test at parent: ",self.parent.test
         print "clause for generate test at current node: ",clause
-        print "examples at current node: ",self.examples
+        #print "examples at current node: ",self.examples
         minScore = 999 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
         bestFExamples = [] #list for best test examples that don't satisfy clause
         literals = data.getLiterals() #get all the literals that the data (facts) contains
+        tests = []
         for literal in literals: #for every literal generate test conditions
             literalName = literal
             literalTypeSpecification = literals[literal]
-            tests = Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
-            if self.parent!="root":
+            tests += Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
+        if self.parent!="root":
                 tests = [test for test in tests if not test in ancestorTests]
-            for test in tests: #see which test scores the best
-                tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
-                fExamples = self.getFalseExamples(clause,test,data) #get examples unsatsified (closed world assumption made)
-                score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
-                if score < minScore: #if score lower than current lowest
-                    minScore = score #assign new minimum
-                    bestTest = test #assign new best test
-                    bestTExamples = tExamples #collect satisfied examples
-                    bestFExamples = fExamples #collect unsatisfied examples
+        tests = set(tests)
+        for test in tests: #see which test scores the best
+            tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
+            fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
+            score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
+            #score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
+            if score < minScore: #if score lower than current lowest
+                minScore = score #assign new minimum
+                bestTest = test #assign new best test
+                bestTExamples = tExamples #collect satisfied examples
+                bestFExamples = fExamples #collect unsatisfied examples
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
         print "best test found at current node: ",self.test

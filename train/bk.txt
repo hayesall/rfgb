@@ -1,2 +1,0 @@
-xor(example)
-value(+example,[x1;x2],[v0;v1])

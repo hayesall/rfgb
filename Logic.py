@@ -142,7 +142,7 @@ class Logic(object):
             bodyLiterals = [literal for literal in body.split(";") if literal] #get clause body literals
             for literal in bodyLiterals:
                 bodyVariables += Logic.getVariables(literal)
-        clauseVariables = targetVariables+bodyVariables #get all clause variables
+        clauseVariables = set(targetVariables+bodyVariables) #get all clause variables
         lengthOfSpecification = len(literalTypeSpecification) #get length of specification
         testSpecification = []
         for i in range(lengthOfSpecification):
@@ -173,7 +173,6 @@ class Logic(object):
             else: #if data type is constant
                 listToAppend = literalTypeSpecification[i][1:-1].split(';')
                 testSpecification.append(listToAppend)
-
         testVariablesAndConstants =  Utils.cartesianProduct(testSpecification)
         literalCandidates = []
         for item in testVariablesAndConstants: #form predicates and return all the test candidates for this literal
