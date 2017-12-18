@@ -92,7 +92,7 @@ class node(object):
             clause = clause[:-1]
         print '-'*80
         #print "facts: ",data.getFacts()
-        #print "pos: ",self.pos
+        print "pos: ",self.pos
         print "node depth: ",self.level
         print "parent: ",self.parent
         if self.parent != "root":

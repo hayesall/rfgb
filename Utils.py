@@ -22,20 +22,30 @@ class Data(object):
         '''returns the facts in the data'''
         return self.facts
 
-    def setPos(self,pos):
+    def setPos(self,pos,target):
         '''set positive examples from pos list'''
         for example in pos:
-            self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
+            if example.split('(')[0] == target:
+                self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
 
-    def setNeg(self,neg):
+    def setNeg(self,neg,target):
         '''set negative examples from neg list'''
         for example in neg:
-            self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
+            if example.split('(')[0] == target:
+                self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self,targetSpecification):
+    def setTarget(self,bk,target):
         '''sets the target'''
+        targetSpecification = None
+        for line in bk:
+            if line.split('(')[0] == target:
+                targetSpecification = line
         targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
-        firstPositiveInstance = self.pos.keys()[0] #get the first positive example in the dictionary
+        firstPositiveInstance = None
+        for posEx in self.pos.keys(): #get the first positive example in the dictionary
+            if posEx.split('(')[0] == target:
+                firstPositiveInstance = posEx
+                break
         targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
         targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
         targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
@@ -62,7 +72,8 @@ class Data(object):
         '''obtains the literals and their type specifications
            types can be variable or a list of constants
         '''
-        for literalBk in bk: #for every literal obtain name and type specification
+        bkWithoutTargets = [line for line in bk if '+' in line or '-' in line]
+        for literalBk in bkWithoutTargets: #for every literal obtain name and type specification
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
             self.literals[literalName] = literalTypeSpecification
@@ -102,7 +113,7 @@ class Utils(object):
         return total/float(len(examples))
     
     @staticmethod
-    def readTrainingData():
+    def readTrainingData(target):
         '''reads the training data from files'''
         Utils.data = Data() #create object to hold data for each tree
         with open("train/facts.txt") as fp: #read facts from train folder
@@ -110,26 +121,26 @@ class Utils(object):
             Utils.data.setFacts(facts)
         with open("train/pos.txt") as fp: #read positive examples from train folder
             pos = fp.read().splitlines()
-            Utils.data.setPos(pos)
+            Utils.data.setPos(pos,target)
         with open("train/neg.txt") as fp: #read negative examples from train folder
             neg = fp.read().splitlines()
-            Utils.data.setNeg(neg)
+            Utils.data.setNeg(neg,target)
         with open("train/bk.txt") as fp: #read background information from train folder
             bk = fp.read().splitlines()
-            Utils.data.setBackground(bk[1:])
-            Utils.data.setTarget(bk[0])
+            Utils.data.setBackground(bk)
+            Utils.data.setTarget(bk,target)
         return Utils.data
 
     @staticmethod
-    def readTestData():
+    def readTestData(target):
         '''reads the testing data from files'''
         testData = Data() #create object to hold data
         with open("test/facts.txt") as fp:
             testData.setFacts(fp.read().splitlines()) #read facts from test folder
         with open("test/pos.txt") as fp:
-            testData.setPos(fp.read().splitlines()) #read positive examples from test folder
+            testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
         with open("test/neg.txt") as fp:
-            testData.setNeg(fp.read().splitlines()) #read negative examples from test folder
+            testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
         return testData #return the data for testing
 
     @staticmethod
