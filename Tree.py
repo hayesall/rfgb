@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from Utils import Utils
 from Logic import Logic,Prover
 from copy import deepcopy
@@ -44,7 +46,11 @@ class node(object):
         node.expandQueue = [] #reset node queue for every tree to be learned
         node.learnedDecisionTree = [] #reset clauses for every tree to be learned
         if not trainingData.regression:
-            examples = trainingData.pos.keys()+trainingData.neg.keys() #collect all examples
+            """@batflyer
+            In Python 2, .keys() returns a list, whereas in Python 3 it returns a dictionary view.
+            ===> Forcing a list.
+            """
+            examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys()) #collect all examples
             node(None,examples,Utils.variance(examples),0,"root") #create root node
         elif trainingData.regression:
             examples = trainingData.examples.keys() #collect regression examples
@@ -96,15 +102,15 @@ class node(object):
             return
         if clause[-2] == '-':
             clause = clause[:-1]
-        print '-'*80
+        print('-'*80)
         #print "facts: ",data.getFacts()
-        print "pos: ",self.pos
-        print "node depth: ",self.level
-        print "parent: ",self.parent
-        print "examples at node: ",self.examples
+        print("pos: ",self.pos)
+        print("node depth: ",self.level)
+        print("parent: ",self.parent)
+        print("examples at node: ",self.examples)
         if self.parent != "root":
-            print "test at parent: ",self.parent.test
-        print "clause for generate test at current node: ",clause
+            print("test at parent: ",self.parent.test)
+        print("clause for generate test at current node: ",clause)
         #print "examples at current node: ",self.examples
         minScore = 999 #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
@@ -131,7 +137,7 @@ class node(object):
                 bestFExamples = fExamples #collect unsatisfied examples
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
-        print "best test found at current node: ",self.test
+        print("best test found at current node: ",self.test)
         if len(bestTExamples) > 0: #if examples still need explaining create left node and add to queue
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:

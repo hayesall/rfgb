@@ -1,5 +1,6 @@
 # ignore to rst readme
 README
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
