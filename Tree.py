@@ -43,8 +43,12 @@ class node(object):
         node.data = trainingData
         node.expandQueue = [] #reset node queue for every tree to be learned
         node.learnedDecisionTree = [] #reset clauses for every tree to be learned
-        examples = trainingData.pos.keys()+trainingData.neg.keys() #collect all examples
-        node(None,examples,Utils.variance(examples),0,"root") #create root node
+        if not trainingData.regression:
+            examples = trainingData.pos.keys()+trainingData.neg.keys() #collect all examples
+            node(None,examples,Utils.variance(examples),0,"root") #create root node
+        elif trainingData.regression:
+            examples = trainingData.examples.keys() #collect regression examples
+            node(None,examples,Utils.variance(examples),0,"root")
 
     @staticmethod
     def learnTree(data):
@@ -53,7 +57,9 @@ class node(object):
         while len(node.expandQueue) > 0:
             curr = node.expandQueue.pop()
             curr.expandOnBestTest(data)
-
+        node.learnedDecisionTree.sort(key = len)
+        node.learnedDecisionTree = node.learnedDecisionTree[::-1]
+        
     def getTrueExamples(self,clause,test,data):
         '''returns all examples that satisfy clause
            with conjoined test literal
@@ -95,6 +101,7 @@ class node(object):
         print "pos: ",self.pos
         print "node depth: ",self.level
         print "parent: ",self.parent
+        print "examples at node: ",self.examples
         if self.parent != "root":
             print "test at parent: ",self.parent.test
         print "clause for generate test at current node: ",clause
@@ -115,8 +122,8 @@ class node(object):
         for test in tests: #see which test scores the best
             tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
             fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
-            #score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
-            score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
+            score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
+            #score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
             if score < minScore: #if score lower than current lowest
                 minScore = score #assign new minimum
                 bestTest = test #assign new best test

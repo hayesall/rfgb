@@ -1,0 +1,6 @@
+value(insurance0) 10
+value(insurance1) 8
+value(insurance2) 6
+value(insurance3) 4
+value(insurance4) 2
+value(insurance5) 0
