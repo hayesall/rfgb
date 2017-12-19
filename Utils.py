@@ -111,8 +111,16 @@ class Utils(object):
     '''class for utilities used by program
        reading files
     '''
+
+    """@batflyer
+    
+    'string' module can cause compatability issues between Python 2 and Python 3,
+    switched from using string.uppercase to using string.ascii_uppsercase,
+    the latter should work with both versions.
+    """
+
     data = None #attribute to store data (facts,positive and negative examples)
-    UniqueVariableCollection = set(list(string.uppercase))
+    UniqueVariableCollection = set(list(string.ascii_uppercase))
 
     @staticmethod
     def addVariableTypes(literal):

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import itertools,re
 from Utils import Utils
 from copy import deepcopy
@@ -69,23 +71,23 @@ class Prover(object):
         unify = Prover.unify
         goalId = 0
         returnValue = False
-        if trace : print "search", term
+        if trace : print("search", term)
         goal = Goal(Rule("got(goal):-x(y)"))      # Anything- just get a rule object
         goal.rule.goals = [term]                  # target is the single goal
-        if trace : print "stack", goal
+        if trace : print("stack", goal)
         stack = [goal]                            # Start our search
         while stack :
             c = stack.pop()        # Next goal to consider
-            if trace : print "  pop", c
+            if trace : print("  pop", c)
             if c.inx >= len(c.rule.goals) :       # Is this one finished?
                 if c.parent == None :             # Yes. Our original goal?
-                    if c.env : print  c.env       # Yes. tell user we
+                    if c.env : print(c.env)       # Yes. tell user we
                     else     : returnValue = True #print "Yes"        # have a solution
                     continue
                 parent = deepcopy(c.parent)  # Otherwise resume parent goal
                 unify (c.rule.head,c.env,parent.rule.goals[parent.inx],parent.env)
                 parent.inx = parent.inx+1         # advance to next goal in body
-                if trace : print "stack", parent
+                if trace : print("stack", parent)
                 stack.append(parent)              # let it wait its turn
                 continue
             # No. more to do with this goal.
@@ -96,7 +98,7 @@ class Prover(object):
                 child = Goal(rule, c)               # A possible subgoal
                 ans = unify (term, c.env, rule.head, child.env)
                 if ans :                            # if unifies, stack it up
-                    if trace : print "stack", child
+                    if trace : print("stack", child)
                     stack.append(child)
         return returnValue
 

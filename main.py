@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from Utils import Utils
 from Tree import node
 from Boosting import Boosting
@@ -17,15 +19,15 @@ def main():
         numberOfTrees = 2 #number of trees for boosting
         trees = [] #initialize place holder for trees
         for i in range(numberOfTrees): #learn each tree and update gradient
-            print '='*20,"learning tree",str(i),'='*20
+            print('='*20,"learning tree",str(i),'='*20)
             node.setMaxDepth(2)
             node.learnTree(data) #learn RRT
             trees.append(node.learnedDecisionTree)
             Boosting.updateGradients(data,trees)
         for tree in trees:
-            print '='*30,"tree",str(trees.index(tree)),'='*30
+            print('='*30,"tree",str(trees.index(tree)),'='*30)
             for clause in tree:
-                print clause
+                print(clause)
         if regression:
             testData = Utils.readTestData(target,regression = True) #read testing data
         else:
