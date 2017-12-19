@@ -18,10 +18,15 @@ def main():
         trees = [] #initialize place holder for trees
         for i in range(numberOfTrees): #learn each tree and update gradient
             print '='*20,"learning tree",str(i),'='*20
+            print "current values: ",[data.getValue(example) for example in data.examples]
             node.setMaxDepth(2)
             node.learnTree(data) #learn RRT
             trees.append(node.learnedDecisionTree)
+            print "tree: ",node.learnedDecisionTree
+            print "true values: ",[data.getExampleTrueValue(example) for example in data.examples]
             Boosting.updateGradients(data,trees)
+            print "gradients: ",data.examples
+            raw_input()
         for tree in trees:
             print '='*30,"tree",str(trees.index(tree)),'='*30
             for clause in tree:

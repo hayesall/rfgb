@@ -47,7 +47,7 @@ class Boosting(object):
             for example in data.examples: #compute gradient as y-y_hat
                 sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
                 trueValue = data.getExampleTrueValue(example)
-                exampleValue = data.getValue(example)
+                exampleValue = sumOfGradients
                 if loss == "LS":
                     updatedGradient = trueValue - exampleValue
                     data.examples[example] = updatedGradient
