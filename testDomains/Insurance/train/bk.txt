@@ -1,0 +1,3 @@
+value(insurance)
+coverage(+insurance,-car,[good;bad])
+premiumDecreaseRate(+insurance,-accident,[nominal;steap])

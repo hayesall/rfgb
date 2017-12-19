@@ -7,9 +7,12 @@ class Data(object):
 
     def __init__(self):
         '''constructor for the Data class'''
+        self.regression = False
         self.facts = [] #facts
         self.pos = {} #positive examples
         self.neg = {} #negative examples
+        self.examples = {} #for regression
+        self.examplesTrueValue = {} #for regression
         self.target = None #target to be learned
         self.literals = {} #literals present in facts and their type specs
         self.variableType = {} #type of variable used for facts and target
@@ -28,13 +31,22 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
 
+    def setExamples(self,examples,target):
+        '''set examples for regression'''
+        for example in examples:
+            predicate = example.split(' ')[0] #get predicate
+            value = float(example.split(' ')[1]) # get true regression value
+            if predicate.split('(')[0] == target:
+                self.examplesTrueValue[predicate] = value #store true value of example
+                self.examples[predicate] = value #set value for example, otherwise no variance
+
     def setNeg(self,neg,target):
         '''set negative examples from neg list'''
         for example in neg:
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self,bk,target):
+    def setTarget(self,bk,target,regression = False):
         '''sets the target'''
         targetSpecification = None
         for line in bk:
@@ -42,10 +54,17 @@ class Data(object):
                 targetSpecification = line
         targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
         firstPositiveInstance = None
-        for posEx in self.pos.keys(): #get the first positive example in the dictionary
-            if posEx.split('(')[0] == target:
-                firstPositiveInstance = posEx
-                break
+        if not regression:
+            for posEx in self.pos.keys(): #get the first positive example in the dictionary
+                if posEx.split('(')[0] == target:
+                    firstPositiveInstance = posEx
+                    break
+        elif regression:
+            for example in self.examples.keys(): #get first regression example
+                predicate = example.split(' ')[0]
+                if predicate.split('(')[0] == target:
+                    firstPositiveInstance = predicate
+                    break
         targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
         targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
         targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
@@ -59,8 +78,14 @@ class Data(object):
         '''returns the target'''
         return self.target
 
+    def getExampleTrueValue(self,example):
+        '''returns true regression value of example during regression'''
+        return self.examplesTrueValue[example]
+
     def getValue(self,example):
         '''returns regression value for example'''
+        if Utils.data.regression:
+            return self.examples[example]
         for ex in self.pos: #check first among positive examples and return value
             if ex == example:
                 return self.pos[example]
@@ -113,34 +138,49 @@ class Utils(object):
         return total/float(len(examples))
     
     @staticmethod
-    def readTrainingData(target):
+    def readTrainingData(target,regression = False):
         '''reads the training data from files'''
         Utils.data = Data() #create object to hold data for each tree
+        Utils.data.regression = regression
         with open("train/facts.txt") as fp: #read facts from train folder
             facts = fp.read().splitlines()
             Utils.data.setFacts(facts)
-        with open("train/pos.txt") as fp: #read positive examples from train folder
-            pos = fp.read().splitlines()
-            Utils.data.setPos(pos,target)
-        with open("train/neg.txt") as fp: #read negative examples from train folder
-            neg = fp.read().splitlines()
-            Utils.data.setNeg(neg,target)
+        if not regression:
+            with open("train/pos.txt") as fp: #read positive examples from train folder
+                pos = fp.read().splitlines()
+                Utils.data.setPos(pos,target)
+            with open("train/neg.txt") as fp: #read negative examples from train folder
+                neg = fp.read().splitlines()
+                Utils.data.setNeg(neg,target)
+        elif regression:
+            with open("train/examples.txt") as fp: #read training examples for regression
+                examples = fp.read().splitlines()
+                Utils.data.setExamples(examples,target)
         with open("train/bk.txt") as fp: #read background information from train folder
             bk = fp.read().splitlines()
             Utils.data.setBackground(bk)
-            Utils.data.setTarget(bk,target)
+            if not regression:
+                Utils.data.setTarget(bk,target)
+            elif regression:
+                Utils.data.setTarget(bk,target,regression = True)
         return Utils.data
 
     @staticmethod
-    def readTestData(target):
+    def readTestData(target,regression = False):
         '''reads the testing data from files'''
         testData = Data() #create object to hold data
+        testData.regression = regression
         with open("test/facts.txt") as fp:
             testData.setFacts(fp.read().splitlines()) #read facts from test folder
-        with open("test/pos.txt") as fp:
-            testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
-        with open("test/neg.txt") as fp:
-            testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
+        if not regression:
+            with open("test/pos.txt") as fp:
+                testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
+            with open("test/neg.txt") as fp:
+                testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
+        elif regression:
+            with open("test/examples.txt") as fp: #read testing examples for regression
+                examples = fp.read().splitlines()
+                testData.setExamples(examples,target)
         return testData #return the data for testing
 
     @staticmethod

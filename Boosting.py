@@ -29,27 +29,56 @@ class Boosting(object):
         return sumOfGradients #return the sum
 
     @staticmethod
-    def updateGradients(data,trees):
+    def updateGradients(data,trees,loss="LS",delta=None):
         '''updates the gradients of the data'''
-        #P = sigmoid of sum of gradients given by each tree learned so far
-        for example in data.pos: #for each positive example compute 1 - P
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-            probabilityOfExample = Utils.sigmoid(sumOfGradients)
-            updatedGradient = 1 - probabilityOfExample
-            data.pos[example] = updatedGradient
-        for example in data.neg: #for each negative example compute 0 - P
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-            probabilityOfExample = Utils.sigmoid(sumOfGradients)
-            updatedGradient = 0 - probabilityOfExample
-            data.neg[example] = updatedGradient
+        if not data.regression:
+            #P = sigmoid of sum of gradients given by each tree learned so far
+            for example in data.pos: #for each positive example compute 1 - P
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+                probabilityOfExample = Utils.sigmoid(sumOfGradients)
+                updatedGradient = 1 - probabilityOfExample
+                data.pos[example] = updatedGradient
+            for example in data.neg: #for each negative example compute 0 - P
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+                probabilityOfExample = Utils.sigmoid(sumOfGradients)
+                updatedGradient = 0 - probabilityOfExample
+                data.neg[example] = updatedGradient
+        if data.regression:
+            for example in data.examples: #compute gradient as y-y_hat
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+                trueValue = data.getExampleTrueValue(example)
+                exampleValue = data.getValue(example)
+                if loss == "LS":
+                    updatedGradient = trueValue - exampleValue
+                    data.examples[example] = updatedGradient
+                elif loss == "LAD":
+                    updatedGradient = 0
+                    gradient = trueValue - exampleValue
+                    if gradient:
+                        updatedGradient = gradient/float(abs(gradient))
+                    data.examples[example] = updatedGradient
+                elif loss == "Huber":
+                    gradient = trueValue - exampleValue
+                    updatedGradient = 0
+                    if gradient:
+                        if gradient > float(delta):
+                            updatedGradient = gradient/float(abs(gradient))
+                        elif gradient <= float(delta):
+                            updatedGradient = gradient
+                    data.examples[example] = updatedGradient
 
     @staticmethod
     def performInference(testData,trees):
         '''computes probability for test examples'''
-        logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
-        for example in testData.pos:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
-            testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
-        for example in testData.neg:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
-            testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
+        if not testData.regression:
+            logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
+            for example in testData.pos:
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+                testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
+            for example in testData.neg:
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+                testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
+        elif testData.regression:
+            for example in testData.examples:
+                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData)
+                testData.examples[example] = sumOfGradients

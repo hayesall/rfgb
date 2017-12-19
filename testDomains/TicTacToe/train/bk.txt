@@ -1,6 +1,6 @@
 put(board,state)
 dontput(board,state)
-present(+board,+state,['X';'O'])
+present(+board,+state,[x;o])
 adj(+board,+state,-state)
 adj(+board,-state,+state)
 diag(+board,+state,-state)
