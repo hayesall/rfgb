@@ -17,7 +17,7 @@ Developing gradient boosting for relational data
 
 1. Copy a classification example from test domains (for now Tic Tac toe or XOR) to same directory as .py files
 
-2. Run command: *python main.py -target <list of target(s)>
+2. Run command: *python main.py -target <list of target(s)>*
 
 3. For the TicTacToe example: python main.py -target [put,dontput]
 
