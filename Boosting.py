@@ -4,6 +4,8 @@ from Logic import Prover
 from copy import deepcopy
 class Boosting(object):
     '''boosting class'''
+    
+    logPrior = log(0.5/float(1-0.5))
 
     @staticmethod
     def inferTreeValue(clauses,query,data):
@@ -32,15 +34,16 @@ class Boosting(object):
     def updateGradients(data,trees,loss="LS",delta=None):
         '''updates the gradients of the data'''
         if not data.regression:
+            logPrior = Boosting.logPrior
             #P = sigmoid of sum of gradients given by each tree learned so far
             for example in data.pos: #for each positive example compute 1 - P
                 sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-                probabilityOfExample = Utils.sigmoid(sumOfGradients)
+                probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
                 updatedGradient = 1 - probabilityOfExample
                 data.pos[example] = updatedGradient
             for example in data.neg: #for each negative example compute 0 - P
                 sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-                probabilityOfExample = Utils.sigmoid(sumOfGradients)
+                probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
                 updatedGradient = 0 - probabilityOfExample
                 data.neg[example] = updatedGradient
         if data.regression:
@@ -70,6 +73,7 @@ class Boosting(object):
     @staticmethod
     def performInference(testData,trees):
         '''computes probability for test examples'''
+        logPrior = Boosting.logPrior
         if not testData.regression:
             logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
             for example in testData.pos:
