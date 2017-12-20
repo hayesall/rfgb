@@ -8,6 +8,19 @@ class Boosting(object):
     logPrior = log(0.5/float(1-0.5))
 
     @staticmethod
+    def computeAdviceGradient(example):
+        '''computes the advice gradients as nt-nf'''
+        nt,nf = 0,0
+        target = Utils.data.target.split('(')[0]
+        for clause in Utils.data.adviceClauses:
+            if Prover.prove(Utils.data,example,clause):
+                if target in Utils.data.adviceClauses[clause]['preferred']:
+                    nt += 1
+                if target in Utils.data.adviceClauses[clause]['nonPreferred']:
+                    nf += 1
+        return (nt-nf)
+
+    @staticmethod
     def inferTreeValue(clauses,query,data):
         '''returns probability of query
            given data and clauses learned
@@ -40,11 +53,17 @@ class Boosting(object):
                 sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
                 probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
                 updatedGradient = 1 - probabilityOfExample
+                if data.advice:
+                    adviceGradient = Boosting.computeAdviceGradient(example)
+                    updatedGradient += adviceGradient
                 data.pos[example] = updatedGradient
             for example in data.neg: #for each negative example compute 0 - P
                 sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
                 probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
                 updatedGradient = 0 - probabilityOfExample
+                if data.advice:
+                    adviceGradient = Boosting.computeAdviceGradient(example)
+                    updatedGradient += adviceGradient
                 data.neg[example] = updatedGradient
         if data.regression:
             for example in data.examples: #compute gradient as y-y_hat

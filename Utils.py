@@ -7,7 +7,9 @@ class Data(object):
 
     def __init__(self):
         '''constructor for the Data class'''
-        self.regression = False
+        self.regression = False #flag for regression
+        self.advice = False #flag for advice
+        self.adviceClauses = {} #advice clauses stored here
         self.facts = [] #facts
         self.pos = {} #positive examples
         self.neg = {} #negative examples
@@ -146,10 +148,27 @@ class Utils(object):
         return total/float(len(examples))
     
     @staticmethod
-    def readTrainingData(target,regression = False):
+    def readTrainingData(target,regression = False,advice=False):
         '''reads the training data from files'''
         Utils.data = Data() #create object to hold data for each tree
         Utils.data.regression = regression
+        Utils.data.advice = True
+        if advice:
+            with open("train/advice.txt") as fp: #read advice from train folder
+                adviceFileLines = fp.read().splitlines()
+                for line in adviceFileLines:
+                    adviceClause = line.split(' ')[0] #get advice clause
+                    Utils.data.adviceClauses[adviceClause] = {}
+                    preferredTargets = line.split(' ')[1][1:-1].split(',')
+                    if preferredTargets[0]:
+                        Utils.data.adviceClauses[adviceClause]['preferred'] = preferredTargets
+                    elif not preferredTargets[0]:
+                        Utils.data.adviceClauses[adviceClause]['preferred'] = []
+                    nonPreferredTargets = line.split(' ')[2][1:-1].split(',')
+                    if nonPreferredTargets[0]:
+                        Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
+                    elif not nonPreferredTargets[0]:
+                        Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
         with open("train/facts.txt") as fp: #read facts from train folder
             facts = fp.read().splitlines()
             Utils.data.setFacts(facts)

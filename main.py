@@ -8,14 +8,13 @@ from sys import argv
 def main():
     '''main method'''
     targets = argv[argv.index("-target")+1][1:-1].split(',') #read targets from input
-    regression = False
+    regression,advice = False,False
     if "-reg" in argv:
         regression = True
+    if "-advice" in argv:
+        advice = True
     for target in targets:
-        if regression:
-            data = Utils.readTrainingData(target,regression = True) #read training data
-        else:
-            data = Utils.readTrainingData(target)
+        data = Utils.readTrainingData(target,regression,advice) #read training data
         numberOfTrees = 2 #number of trees for boosting
         trees = [] #initialize place holder for trees
         for i in range(numberOfTrees): #learn each tree and update gradient
@@ -28,10 +27,7 @@ def main():
             print('='*30,"tree",str(trees.index(tree)),'='*30)
             for clause in tree:
                 print(clause)
-        if regression:
-            testData = Utils.readTestData(target,regression = True) #read testing data
-        else:
-            testData = Utils.readTestData(target)
+        testData = Utils.readTestData(target,regression) #read testing data
         Boosting.performInference(testData,trees) #get probability of test examples
         
         #print testData.pos #--> uncomment to see test query probabilities (for classification)
