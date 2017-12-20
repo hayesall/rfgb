@@ -27,7 +27,7 @@ Developing gradient boosting for relational data
 
 2. Include advice.txt file in train folder
 
-3. The file contains pieces of advice of the form *advice clause <list of preferred target(s)> <list of non preferred target(s)>*
+3. The file contains pieces of advice of the form: *advice clause <list of preferred target(s)> <list of non preferred target(s)>*
   
 4. Run command: *python main.py -target <list of target(s)> -expAdvice*
   
