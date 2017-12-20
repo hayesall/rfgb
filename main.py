@@ -11,7 +11,7 @@ def main():
     regression,advice = False,False
     if "-reg" in argv:
         regression = True
-    if "-advice" in argv:
+    if "-expAdvice" in argv:
         advice = True
     for target in targets:
         data = Utils.readTrainingData(target,regression,advice) #read training data
