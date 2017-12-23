@@ -76,6 +76,7 @@ class node(object):
             clauseCopy += test
         elif clauseCopy[-1] == ';':
             clauseCopy = clauseCopy.replace(';',',')+test
+        print ("testing clause: ",clauseCopy) # --> to keep track of output, following for loop can be parallelized
         for example in self.examples:
             if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
                 tExamples.append(example)
