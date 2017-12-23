@@ -5,7 +5,7 @@ Developing gradient boosting for relational data
 **To run regression:**
 
 
-1. Copy a regression example from test domains both train and test (for now it is the insurance example) to same directory as the python files or you can write your own.
+1. Copy a regression example from test domains both train and test (ex: Boston Housing) to same directory as the python files or you can write your own.
 
 2. Run command: *python main.py -target <list of target(s)> -reg*
 
@@ -15,7 +15,7 @@ Developing gradient boosting for relational data
 **To run classification:**
 
 
-1. Copy a classification example from test domains both train and test (for now Tic Tac toe or XOR) to same directory as .py files or you can write your own.
+1. Copy a classification example from test domains both train and test (ex: Toy Cancer) to same directory as .py files or you can write your own.
 
 2. Run command: *python main.py -target <list of target(s)>*
 
