@@ -15,7 +15,7 @@ def main():
         advice = True
     for target in targets:
         data = Utils.readTrainingData(target,regression,advice) #read training data
-        numberOfTrees = 2 #number of trees for boosting
+        numberOfTrees = 10 #number of trees for boosting
         trees = [] #initialize place holder for trees
         for i in range(numberOfTrees): #learn each tree and update gradient
             print('='*20,"learning tree",str(i),'='*20)
