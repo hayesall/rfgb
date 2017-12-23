@@ -9,7 +9,7 @@ Developing gradient boosting for relational data
 
 2. Run command: *python main.py -target <list of target(s)> -reg*
 
-3. For the insurance example: python main.py -target [medv] -reg
+3. For the BostonHousing example: python main.py -target [medv] -reg
 
 
 **To run classification:**
@@ -19,7 +19,7 @@ Developing gradient boosting for relational data
 
 2. Run command: *python main.py -target <list of target(s)>*
 
-3. For the TicTacToe example: python main.py -target [cancer]
+3. For the ToyCancer: python main.py -target [cancer]
 
 **To run classification with expert advice:**
 
