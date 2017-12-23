@@ -112,7 +112,7 @@ class node(object):
             print("test at parent: ",self.parent.test)
         print("clause for generate test at current node: ",clause)
         #print "examples at current node: ",self.examples
-        minScore = 999 #initialize minimum weighted variance to be 0
+        minScore = float('inf') #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
         bestFExamples = [] #list for best test examples that don't satisfy clause
