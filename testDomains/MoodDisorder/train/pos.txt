@@ -1,0 +1,5 @@
+bipolar(p3)
+bipolar(p4)
+bipolar(p5)
+bipolar(p7)
+bipolar(p9)

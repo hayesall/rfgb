@@ -1,0 +1,2 @@
+bipolar(J):-pattern(J) [bipolar] []
+bipolar(U):-ego(U) [bipolar] []

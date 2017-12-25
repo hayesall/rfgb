@@ -1,0 +1,5 @@
+unload(state,truck)
+bon(+state,+box,+truck)
+tin(+state,+truck,+city)
+isd(+state,+city)
+dname(+state,+city,[c1;c2;c3])

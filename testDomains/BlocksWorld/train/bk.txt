@@ -1,0 +1,3 @@
+putdown(state)
+ontable(+state,+block,[table])
+on(+state,-block,+block)

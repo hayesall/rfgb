@@ -1,0 +1,5 @@
+putdown(s4)
+putdown(s5)
+putdown(s6)
+putdown(s8)
+putdown(s9)
