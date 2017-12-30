@@ -152,7 +152,7 @@ class Utils(object):
         '''reads the training data from files'''
         Utils.data = Data() #create object to hold data for each tree
         Utils.data.regression = regression
-        Utils.data.advice = True
+        Utils.data.advice = advice
         if advice:
             with open("train/advice.txt") as fp: #read advice from train folder
                 adviceFileLines = fp.read().splitlines()
