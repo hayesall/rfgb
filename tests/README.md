@@ -20,7 +20,7 @@ Unit tests should be organized so that they test functionality pertaining to a s
 
 Running the full unit testing framework (`tests/tests.py`) tests the contents of the `/rfgb/` directory.
 
-A new file can be created by wrapping the tests with Python's unittest framework (additional documentation should be consulted online [Python 2](https://docs.python.org/2/library/unittest.html)[Python 3](https://docs.python.org/3/library/unittest.html)).
+A new file can be created by wrapping the tests with Python's unittest framework (additional documentation should be consulted online [Python 2](https://docs.python.org/2/library/unittest.html) [Python 3](https://docs.python.org/3/library/unittest.html)).
 
 ```python
 import sys
