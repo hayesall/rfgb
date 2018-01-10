@@ -8,8 +8,8 @@ from Boosting import Boosting
 import argparse
 
 class Arguments:
-    """
-    @batflyer:
+    """@batflyer:
+
     For backward compatability reasons, flags should function the same as they do in the Java code base.
     All flags which are valid in the Java distribution should also be valid in the Python version.
 
@@ -19,23 +19,21 @@ class Arguments:
     """
 
     def __init__(self):
-
-        self.advice = False      # -expAdvice
-        self.regression = False  # -reg
-        self.verbose = False     # -v, -verbose, --verbose
-        self.train = 'train'     # -train, --train
-        self.test = 'test'       # -test, --test
-        self.target = []         # -target, --target
-        self.trees = 10          # -trees, --trees
-
+        
         # Create an argument parser for interpreting user inputs.
         parser = argparse.ArgumentParser(prog="\n\n $ python RFGB.py",
                                          description="RFGB: Functional Gradient Boosting is a gradient-boosting approach to learning statistical relational models.",
                                          epilog="Copyright 2018 Free Software Foundation, Inc. License GPLv3+: GPU GPL version 3 or later <http://gnu.org/licenses/gpl.html>. This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.")
 
+        # Mutually exclusive group for learning or inference.
+        learn_or_infer = parser.add_mutually_exclusive_group()
+        learn_or_infer.add_argument("-l", "--learn", action="store_true", help="Learn a model from data.")
+        learn_or_infer.add_argument("-i", "--infer", action="store_true", help="Make inferences about data using a model.")
+
         # Add in the arguments.
         parser.add_argument("-v", "-verbose", "--verbose",
                             help="Increase verbosity to help with debugging.",
+                            default=False,
                             action="store_true")
         parser.add_argument("-trees", "--trees",
                             help="Specify a number of boosted trees to learn. Default: 10.",
@@ -44,29 +42,45 @@ class Arguments:
         parser.add_argument("-target", "--target",
                             help="Target predicates to perform learning or inference on.",
                             type=str,
+                            default=None,
                             action="append")
-        parser.add_argument("-expAdvice",
+        parser.add_argument("-expAdvice", "--expAdvice",
                             help="...",
+                            default=False,
                             action="store_true")
-        parser.add_argument("-reg",
+        parser.add_argument("-reg", "--reg",
                             help="Use relational regression instead of classification.",
+                            default=False,
                             action="store_true")
+
+        # Optionally set the paths for train/test directory (Utils.py will need to be updated to reference these.)
+        parser.add_argument("-train", "--train", type=str, default="train/")
+        parser.add_argument("-test", "--test", type=str, default="test/")
 
         # Get the arguments.
         self.args = parser.parse_args()
-        
+
+
+        """@batflyer
+
+        Adding these here for completeness, currently they are not referenced anywhere in the program.
+        """
+        self.expAdvice = self.args.expAdvice   # -expAdvice, --expAdvice
+        self.verbose = self.args.verbose       # -v, -verbose, --verbose
+        self.trees = self.args.trees           # -trees, --trees
+        self.target = self.args.target         # -target, --target
+        self.reg = self.args.reg               # -reg, --reg
+
 def main():
     '''main method'''
     parameters = Arguments().args
-    print(parameters)
+    #print(parameters)
 
     for target in parameters.target:
 
         # Read the training data.
         data = Utils.readTrainingData(target, parameters.reg, parameters.expAdvice)
 
-        #print(data.facts)
-        
         # Initialize an empty place holder for the trees.
         trees = []
 
