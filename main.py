@@ -64,6 +64,9 @@ def main():
 
         # Read the training data.
         data = Utils.readTrainingData(target, parameters.reg, parameters.expAdvice)
+
+        #print(data.facts)
+        
         # Initialize an empty place holder for the trees.
         trees = []
 

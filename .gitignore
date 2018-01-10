@@ -2,6 +2,10 @@
 README
 .DS_Store
 
+# Ignore test/ and train/ directories since they will be redundant.
+test/
+train/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
