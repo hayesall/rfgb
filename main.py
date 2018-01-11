@@ -79,7 +79,7 @@ def main():
     for target in parameters.target:
 
         # Read the training data.
-        data = Utils.readTrainingData(target, parameters.reg, parameters.expAdvice)
+        data = Utils.readTrainingData(target, path=parameters.train, regression=parameters.reg, advice=parameters.expAdvice)
 
         # Initialize an empty place holder for the trees.
         trees = []
@@ -104,7 +104,7 @@ def main():
                 print(clause)
 
         # Read the testing data.
-        testData = Utils.readTestData(target, parameters.reg)
+        testData = Utils.readTestData(target, path=parameters.test, regression=parameters.reg)
         # Get the probability of the test examples.
         Boosting.performInference(testData, trees)
 

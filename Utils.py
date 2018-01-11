@@ -148,13 +148,14 @@ class Utils(object):
         return total/float(len(examples))
     
     @staticmethod
-    def readTrainingData(target,regression = False,advice=False):
+    def readTrainingData(target, path='train/', regression=False, advice=False):
         '''reads the training data from files'''
         Utils.data = Data() #create object to hold data for each tree
         Utils.data.regression = regression
         Utils.data.advice = advice
         if advice:
-            with open("train/advice.txt") as fp: #read advice from train folder
+            with open(path + "advice.txt") as fp: #read advice from train folder
+                #with open("train/advice.txt") as fp: #read advice from train folder
                 adviceFileLines = fp.read().splitlines()
                 for line in adviceFileLines:
                     adviceClause = line.split(' ')[0] #get advice clause
@@ -169,21 +170,26 @@ class Utils(object):
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
                     elif not nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
-        with open("train/facts.txt") as fp: #read facts from train folder
+        with open(path + "facts.txt") as fp: #read facts from train folder
+            #with open("train/facts.txt") as fp: #read facts from train folder
             facts = fp.read().splitlines()
             Utils.data.setFacts(facts)
         if not regression:
-            with open("train/pos.txt") as fp: #read positive examples from train folder
+            with open(path + "pos.txt") as fp: #read positive examples from train folder
+                #with open("train/pos.txt") as fp: #read positive examples from train folder
                 pos = fp.read().splitlines()
                 Utils.data.setPos(pos,target)
-            with open("train/neg.txt") as fp: #read negative examples from train folder
+            with open(path + "neg.txt") as fp: #read negative examples from train folder
+                #with open("train/neg.txt") as fp: #read negative examples from train folder
                 neg = fp.read().splitlines()
                 Utils.data.setNeg(neg,target)
         elif regression:
-            with open("train/examples.txt") as fp: #read training examples for regression
+            with open(path + "examples.txt") as fp: #read training examples for regression
+                #with open("train/examples.txt") as fp: #read training examples for regression
                 examples = fp.read().splitlines()
                 Utils.data.setExamples(examples,target)
-        with open("train/bk.txt") as fp: #read background information from train folder
+        with open(path + "bk.txt") as fp: #read background information from train folder
+            #with open("train/bk.txt") as fp: #read background information from train folder
             bk = fp.read().splitlines()
             Utils.data.setBackground(bk)
             if not regression:
@@ -193,19 +199,23 @@ class Utils(object):
         return Utils.data
 
     @staticmethod
-    def readTestData(target,regression = False):
+    def readTestData(target, path='test/', regression=False):
         '''reads the testing data from files'''
         testData = Data() #create object to hold data
         testData.regression = regression
-        with open("test/facts.txt") as fp:
+        with open(path + "facts.txt") as fp:
+            #with open("test/facts.txt") as fp:
             testData.setFacts(fp.read().splitlines()) #read facts from test folder
         if not regression:
-            with open("test/pos.txt") as fp:
+            with open(path + "pos.txt") as fp:
+                #with open("test/pos.txt") as fp:
                 testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
-            with open("test/neg.txt") as fp:
+            with open(path + "neg.txt") as fp:
+                #with open("test/neg.txt") as fp:
                 testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
         elif regression:
-            with open("test/examples.txt") as fp: #read testing examples for regression
+            with open(path + "examples.txt") as fp: #read testing examples for regression
+                #with open("test/examples.txt") as fp: #read testing examples for regression
                 examples = fp.read().splitlines()
                 testData.setExamples(examples,target)
         return testData #return the data for testing
