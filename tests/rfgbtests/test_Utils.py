@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-sys.path.append('.')
+sys.path.append('./src/')
 from Utils import Utils
 
 class UtilsTest(unittest.TestCase):

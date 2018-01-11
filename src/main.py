@@ -1,3 +1,21 @@
+"""
+Copyright (C) 2017-2018 RFGB Contributors
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program (at the base of this repository). If not,
+see <http://www.gnu.org/licenses/>
+"""
+
 from __future__ import print_function
 
 from Utils import Utils
@@ -23,7 +41,7 @@ class Arguments:
         # Create an argument parser for interpreting user inputs.
         parser = argparse.ArgumentParser(prog="\n\n $ python RFGB.py",
                                          description="RFGB: Functional Gradient Boosting is a gradient-boosting approach to learning statistical relational models.",
-                                         epilog="Copyright 2018 Free Software Foundation, Inc. License GPLv3+: GPU GPL version 3 or later <http://gnu.org/licenses/gpl.html>. This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.")
+                                         epilog="Copyright 2017-2018 RFGB Developers. License GPLv3+: GPU GPL version 3 or later <http://gnu.org/licenses/gpl.html>. This is free software: you are free to change and redistribute it. There is NO WARRANTY, to the extent permitted by law.")
 
         # Mutually exclusive group for learning or inference.
         learn_or_infer = parser.add_mutually_exclusive_group()
@@ -108,10 +126,13 @@ def main():
         # Get the probability of the test examples.
         Boosting.performInference(testData, trees)
 
-        #print testData.pos #--> uncomment to see test query probabilities (for classification)
-        #print testData.neg
-
-        #print testData.examples #--> uncomment to see test example values (for regression)
+        if parameters.reg:
+            # View test example values (for regression)
+            print(testData.examples)
+        else:
+            # View test query probabilities (for classification)
+            print(testData.pos)
+            print(testData.neg)
 
 if __name__ == '__main__':
     """

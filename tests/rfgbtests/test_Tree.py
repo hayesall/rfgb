@@ -3,7 +3,7 @@ from __future__ import print_function
 import sys
 import unittest
 
-sys.path.append('.')
+sys.path.append('./src/')
 
 from Tree import node
 
