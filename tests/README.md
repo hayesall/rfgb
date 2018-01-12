@@ -26,7 +26,7 @@ A new file can be created by wrapping the tests with Python's unittest framework
 import sys
 import unittest
 
-sys.path.append('.')
+sys.path.append('./src/')
 
 # import the appropriate module(s)
 from (module) import (something)

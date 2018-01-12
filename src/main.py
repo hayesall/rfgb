@@ -21,14 +21,13 @@ from __future__ import print_function
 from Utils import Utils
 from Tree import node
 from Boosting import Boosting
-#from sys import argv
 
 import argparse
 
 class Arguments:
     """@batflyer:
 
-    For backward compatability reasons, flags should function the same as they do in the Java code base.
+    For backward compatability reasons, flags ideally should function the same as they do in the Java code base.
     All flags which are valid in the Java distribution should also be valid in the Python version.
 
     For example, arguments for the former should work on the latter:
@@ -79,15 +78,14 @@ class Arguments:
         self.args = parser.parse_args()
 
 
-        """@batflyer
-
-        Adding these here for completeness, currently they are not referenced anywhere in the program.
         """
+        # Options such as this are possible, but not used in this way.
         self.expAdvice = self.args.expAdvice   # -expAdvice, --expAdvice
         self.verbose = self.args.verbose       # -v, -verbose, --verbose
         self.trees = self.args.trees           # -trees, --trees
         self.target = self.args.target         # -target, --target
         self.reg = self.args.reg               # -reg, --reg
+        """
 
 def main():
     '''main method'''
@@ -135,9 +133,4 @@ def main():
             print(testData.neg)
 
 if __name__ == '__main__':
-    """
-    @batflyer
-    Adding this section so RFGB can be either ran as an executable, or
-    imported as a Python package (a la boostsrl-python-package).
-    """
     main()

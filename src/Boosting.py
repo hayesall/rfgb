@@ -20,6 +20,7 @@ from Utils import Utils
 from math import log,exp
 from Logic import Prover
 from copy import deepcopy
+
 class Boosting(object):
     '''boosting class'''
     
