@@ -1,7 +1,7 @@
 import sys
 import unittest
 
-sys.path.append('./src/')
+sys.path.append('./rfgb/')
 from Utils import Utils
 
 class UtilsTest(unittest.TestCase):
