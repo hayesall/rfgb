@@ -56,7 +56,7 @@ Four datasets (BlocksWorld, HeartAttack, Logistics, and MoodDisorder) have an ad
 
 ## Targets
 
-Targets specify what is learned in each dataset, positive and negative examples of these are provided for each dataset (or just examples for regression). These may be seen in the `pos.txt`, `neg.txt`, or `examples.txt` files for each dataset, and are provided here for convenience.
+"Targets" specify what is learned, examples of the target are provided in `pos.txt`, `neg.txt`, or `examples.txt` (for regression). These are specified here for convenience.
 
 | **Dataset** | **Target** |
 | :---------: | :--------: |
