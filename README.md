@@ -1,37 +1,101 @@
-# RFGB
-Developing gradient boosting for relational data
+# Relational Functional Gradient Boosting (RFGB)
 
+RFGB in pure Python, inspired by [BoostSRL](https://github.com/boost-starai/BoostSRL).
 
-**To run regression:**
+| **License** | **Release** | **Build Status** | **Codecov** |
+| :---------: | :---------: | :--------------: | :---------: |
+| [![][license img]][license] | [![][release img]][release] | [![][build img]][build link] | [![][codecov img]][codecov link] |
 
+## Getting Started
 
-1. Copy a regression example from test domains both train and test (ex: Boston Housing) to same directory as the python files or you can write your own.
+**Prerequisites**
 
-2. Run command: *python main.py -target <list of target(s)> -reg*
+* Python (2.7, 3.3, 3.4, 3.5, 3.6)
 
-3. For the BostonHousing example: python main.py -target [medv] -reg
+**Installation**
 
+None currently. Clone the repository with git or download a zip archive, then run the scripts from the command line.
 
-**To run classification:**
+## Sample Usage
 
+**Regression (-reg)**
 
-1. Copy a classification example from test domains both train and test (ex: Toy Cancer) to same directory as .py files or you can write your own.
+Two regression datasets are included in the testDomains directory: *Insurance* and *BostonHousing*.
 
-2. Run command: *python main.py -target <list of target(s)>*
+1. BostonHousing
 
-3. For the ToyCancer: python main.py -target [cancer]
+        python src/main.py -reg -target medv -train testDomains/BostonHousing/train/ -test testDomains/BostonHousing/test/ -trees 10
 
-**To run classification with expert advice:**
+2. Insurance
 
-1. Copy an expert advice based classification example from test domains both train and test (for now heart attack) to same directory as .py files or you can write your own.
+        python src/main.py -reg -target value -train testDomains/Insurance/train/ -test testDomains/Insurance/test/ -trees 20
 
-2. Include advice.txt file in train folder
+**Classification**
 
-3. The file contains pieces of advice of the form: *advice clause <list of preferred target(s)> <list of non preferred target(s)>*
-  
-4. Run command: *python main.py -target <list of target(s)> -expAdvice*
-  
-5. For the HeartAttack example: python main.py -target [ha] -expAdvice
+Seven classification datasets are included in the testDomains directory for tasks such as game playing, moving boxes between cities, evaluating the health of a patient, and social network analysis.
 
+Classification is the default behavior of RFGB, no additional flags need be specified.
 
-**Still in development, pending -> further testing, commenting, cleaning up code and adding more functionality such as MLN learning, soft margin etc.**
+1. Logistics
+
+        python src/main.py -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+
+**Classification with Expert Advice (-expAdvice)**
+
+Preferred and non-preferred labels may be provided as advice during classification via logical rules. This advice may be specified in a file named `advice.txt` in the train directory for a dataset.
+
+Four datasets (BlocksWorld, HeartAttack, Logistics, and MoodDisorder) have an advice file included.
+
+1. Logistics
+
+        python src/main.py -expAdvice -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+
+2. HeartAttack
+
+        python src/main.py -expAdvice -target ha -train testDomains/HeartAttack/train/ -test testDomains/HeartAttack/test/ -trees 10
+
+## Targets
+
+Targets specify what is learned in each dataset, positive and negative examples of these are provided for each dataset (or just examples for regression). These may be seen in the `pos.txt`, `neg.txt`, or `examples.txt` files for each dataset, and are provided here for convenience.
+
+| **Dataset** | **Target** |
+| :---------: | :--------: |
+| BlocksWorld | `putdown` |
+| BostonHousing | `medv` |
+| HeartAttack | `ha` |
+| Insurance | `value` |
+| Logistics | `unload` |
+| MoodDisorder | `bipolar` |
+| TicTacToe | `put` or `dontput` |
+| ToyCancer | `cancer` |
+| XOR | `xor` |
+
+## In Development
+
+* [ ] Test cases (codecov >90%)
+* [ ] Learning Markov Logic Networks
+* [ ] Learning with Soft-Margin
+
+## License
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+A full [copy of the license](https://github.com/kkroy36/RFGB/blob/master/LICENSE) is available in the base of this repository. For more information, see https://www.gnu.org/licenses/
+
+## Acknowledgements
+
+The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and fellow members of the [StARLinG Lab](https://starling.utdallas.edu) at the University of Texas at Dallas.
+
+[license]:LICENSE
+[license img]:https://img.shields.io/github/license/kkroy36/RFGB.svg
+
+[release]: https://github.com/kkroy36/RFGB/releases
+[release img]:https://img.shields.io/github/tag/kkroy36/RFGB.svg
+
+[build img]:https://travis-ci.org/kkroy36/RFGB.svg?branch=master
+[build link]:https://travis-ci.org/kkroy36/RFGB
+
+[codecov img]:https://codecov.io/gh/kkroy36/RFGB/branch/master/graphs/badge.svg?branch=master
+[codecov link]:https://codecov.io/gh/kkroy36/RFGB?branch=master
