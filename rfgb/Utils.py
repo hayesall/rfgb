@@ -135,6 +135,22 @@ class Data(object):
     def getLiterals(self):
         '''gets all the literals in the facts'''
         return self.literals
+
+    def variance(self, examples):
+        '''
+        Calculates the variance of the regression values from a subset of the data.
+        '''
+        print(examples)
+
+        if not examples:
+            return 0
+        
+        total = sum([self.getValue(example) for example in examples])
+        numberOfExamples = len(examples)
+        mean = total/float(numberOfExamples)
+        sumOfSquaredError = sum([(self.getValue(example) - mean)**2 for example in examples])
+
+        return sumOfSquaredError/float(numberOfExamples) #return variance
         
 class Utils(object):
     '''class for utilities used by program
@@ -294,6 +310,12 @@ class Utils(object):
         
         return testData
 
+    """
+    @batflyer:
+    It makes very little sense to declare something as a static method when
+    it references the contents of a data object. This was moved into the
+    Data object.
+
     @staticmethod
     def variance(examples):
         '''method to calculate variance
@@ -304,16 +326,14 @@ class Utils(object):
 
         if not examples:
             return 0
-        total = 0 #initialize total regression value 
-        for example in examples:
-            #print(getValue(example))
-            total += Utils.data.getValue(example) #cimpute total
-        numberOfExamples = len(examples) #get number of examples
-        mean = total/float(numberOfExamples) #calc mean as total/number
-        sumOfSquaredError = 0 #initialize sum of squared errors
-        for example in examples: #calculate total squared difference from mean
-            sumOfSquaredError += (Utils.data.getValue(example)-mean)**2
+        
+        total = sum([Utils.data.getValue(example) for example in examples])
+        numberOfExamples = len(examples)
+        mean = total/float(numberOfExamples)
+        sumOfSquaredError = sum([(Utils.data.getValue(example) - mean)**2 for example in examples])
+
         return sumOfSquaredError/float(numberOfExamples) #return variance
+    """
 
     @staticmethod
     def sigmoid(x):
