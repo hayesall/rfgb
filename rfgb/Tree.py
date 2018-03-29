@@ -77,6 +77,7 @@ class node(object):
     @staticmethod
     def learnTree(data):
         '''method to learn the decision tree'''
+
         node.initTree(data) #create the root
         while len(node.expandQueue) > 0:
             curr = node.expandQueue.pop()
