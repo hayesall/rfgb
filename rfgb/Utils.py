@@ -66,7 +66,7 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self,bk,target,regression = False):
+    def setTarget(self, bk, target, regression = False):
         '''sets the target'''
         targetSpecification = None
         for line in bk:
@@ -218,25 +218,40 @@ class Utils(object):
 
     @staticmethod
     def readTestData(target, path='test/', regression=False):
-        '''reads the testing data from files'''
-        testData = Data() #create object to hold data
+
+        """
+        Reads the testing data from files.
+
+        Input:
+            target: the target predicate.
+            path: (default: 'test/')
+                The path to the testing data.
+            regression: (default: False)
+                If regression is true, reads from 'examples.txt' instead of
+                'pos.txt' and 'neg.txt'
+
+        Returns:
+            A Data object representing the test data.
+        """
+
+        testData = Data()
         testData.regression = regression
+
         with open(path + "facts.txt") as fp:
-            #with open("test/facts.txt") as fp:
-            testData.setFacts(fp.read().splitlines()) #read facts from test folder
-        if not regression:
-            with open(path + "pos.txt") as fp:
-                #with open("test/pos.txt") as fp:
-                testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
-            with open(path + "neg.txt") as fp:
-                #with open("test/neg.txt") as fp:
-                testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
-        elif regression:
-            with open(path + "examples.txt") as fp: #read testing examples for regression
-                #with open("test/examples.txt") as fp: #read testing examples for regression
+            testData.setFacts(fp.read().splitlines())
+        
+        if regression:
+            with open(path + "examples.txt") as fp:
                 examples = fp.read().splitlines()
-                testData.setExamples(examples,target)
-        return testData #return the data for testing
+                testData.setExamples(examples, target)
+        else:
+            # If we are not using regression, read from pos.txt and neg.txt
+            with open(path + "pos.txt") as fp:
+                testData.setPos(fp.read().splitlines(), target)
+            with open(path + "neg.txt") as fp:
+                testData.setNeg(fp.read().splitlines(), target)
+        
+        return testData
 
     @staticmethod
     def variance(examples):
