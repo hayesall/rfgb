@@ -17,6 +17,7 @@ see <http://www.gnu.org/licenses/>
 """
 
 from __future__ import print_function
+from __future__ import division
 
 from Utils import Utils
 from Logic import Logic,Prover
@@ -35,7 +36,7 @@ class node(object):
         '''method to set max depth'''
         node.maxDepth = depth
 
-    def __init__(self,test=None,examples=None,information=None,level=None,parent=None,pos=None):
+    def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
         '''constructor for node class
            contains test condition or clause
            contains examples
@@ -59,24 +60,25 @@ class node(object):
 
     @staticmethod
     def initTree(trainingData):
-        '''method to create the root node'''
+        """Method for creating the root node."""
+        
         node.data = trainingData
         node.expandQueue = [] #reset node queue for every tree to be learned
         node.learnedDecisionTree = [] #reset clauses for every tree to be learned
-        if not trainingData.regression:
-            """@batflyer
-            In Python 2, .keys() returns a list, whereas in Python 3 it returns a dictionary view.
-            ===> Forcing a list.
-            """
-            examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys()) #collect all examples
-            node(None,examples,Utils.variance(examples),0,"root") #create root node
-        elif trainingData.regression:
-            examples = trainingData.examples.keys() #collect regression examples
-            node(None,examples,Utils.variance(examples),0,"root")
+        
+        if trainingData.regression:
+            # Regression examples can be collected from trainingData.examples (since there are no pos/neg).
+            examples = trainingData.examples.keys()
+        else:
+            # For all other models, we consider a set of positive and negative examples.
+            examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys())
+
+        node(None, examples, trainingData.variance(examples), 0, 'root')
 
     @staticmethod
     def learnTree(data):
         '''method to learn the decision tree'''
+
         node.initTree(data) #create the root
         while len(node.expandQueue) > 0:
             curr = node.expandQueue.pop()
@@ -84,7 +86,7 @@ class node(object):
         node.learnedDecisionTree.sort(key = len)
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
         
-    def getTrueExamples(self,clause,test,data):
+    def getTrueExamples(self, clause, test, data):
         '''returns all examples that satisfy clause
            with conjoined test literal
         '''
@@ -93,14 +95,14 @@ class node(object):
         if clauseCopy[-1] == "-": #construct clause for prover
             clauseCopy += test
         elif clauseCopy[-1] == ';':
-            clauseCopy = clauseCopy.replace(';',',')+test
+            clauseCopy = clauseCopy.replace(';', ',') + test
         print ("testing clause: ",clauseCopy) # --> to keep track of output, following for loop can be parallelized
         for example in self.examples:
             if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
                 tExamples.append(example)
         return tExamples
 
-    def expandOnBestTest(self,data=None):
+    def expandOnBestTest(self, data=None):
         '''expands the node based on the best test'''
         target = data.getTarget() #get the target
         clause = target+":-" #initialize clause learned at this node with empty body
@@ -145,11 +147,22 @@ class node(object):
         if self.parent!="root":
                 tests = [test for test in tests if not test in ancestorTests]
         tests = set(tests)
-        for test in tests: #see which test scores the best
-            tExamples = self.getTrueExamples(clause,test,data) #get examples satisfied
-            fExamples = [example for example in self.examples if example not in tExamples] #get examples unsatsified (closed world assumption made)
-            score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples)) #calculate weighted variance
-            #score = len([example for example in tExamples if example in data.pos.keys()]) - len([example for example in tExamples if example in data.neg.keys()])
+
+        # Check which test scores the best.
+        for test in tests:
+            # Examples which are satisfied.
+            tExamples = self.getTrueExamples(clause, test, data)
+            # Examples which are not satisfied (under closed world assumption).
+            fExamples = [example for example in self.examples if example not in tExamples]
+            # Total number of examples.
+            example_len = len(self.examples)
+            
+            # Calculated the weighted variance:
+            score = ((len(tExamples)/example_len) * data.variance(tExamples) +
+                     (len(fExamples)/example_len) * data.variance(fExamples))
+
+            #score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples))
+            
             if score < minScore: #if score lower than current lowest
                 minScore = score #assign new minimum
                 bestTest = test #assign new best test
@@ -157,13 +170,26 @@ class node(object):
                 bestFExamples = fExamples #collect unsatisfied examples
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
+
         print("best test found at current node: ",self.test)
-        if len(bestTExamples) > 0: #if examples still need explaining create left node and add to queue
-            self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
+
+
+        # If True examples need further explaining, create left node and add to the queue.
+        if len(bestTExamples) > 0:
+
+            self.left = node(None, bestTExamples, data.variance(bestTExamples), self.level+1, self, "left")
+            
+            #self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
-        if len(bestFExamples) > 0: #if examples still need explaining, create right node and add to queue
-            self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
+
+        # If False examples need further explaining, create right node and add to the queue.
+        if len(bestFExamples) > 0:
+            
+            self.right = node(None, bestFExamples, data.variance(bestFExamples), self.level+1, self, "right")
+
+            #self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
+            
             if self.level+1 > node.depth:
                 node.depth = self.level+1
         if self.test == "" or round(self.information,3) == 0: #if no examples append clause as is

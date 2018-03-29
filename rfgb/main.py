@@ -95,7 +95,7 @@ def main():
     for target in parameters.target:
 
         # Read the training data.
-        data = Utils.readTrainingData(target, path=parameters.train, regression=parameters.reg, advice=parameters.expAdvice)
+        trainData = Utils.readTrainingData(target, path=parameters.train, regression=parameters.reg, advice=parameters.expAdvice)
 
         # Initialize an empty place holder for the trees.
         trees = []
@@ -107,9 +107,9 @@ def main():
                 print('='*20, "learning tree", str(i), '='*20)
                 
             node.setMaxDepth(2)
-            node.learnTree(data) # Learn relational regression tree
+            node.learnTree(trainData) # Learn relational regression tree
             trees.append(node.learnedDecisionTree)
-            Boosting.updateGradients(data, trees)
+            Boosting.updateGradients(trainData, trees)
 
         for tree in trees:
 

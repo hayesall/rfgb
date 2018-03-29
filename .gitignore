@@ -6,6 +6,10 @@ README
 test/
 train/
 
+# Ignore some of testing utilities and Emacs backup files.
+*~
+run_all.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

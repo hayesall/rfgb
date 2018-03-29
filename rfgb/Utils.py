@@ -23,10 +23,10 @@ from math import exp
 class Data(object):
     '''contains the relational data'''
 
-    def __init__(self):
+    def __init__(self, regression=False, advice=False):
         '''constructor for the Data class'''
-        self.regression = False #flag for regression
-        self.advice = False #flag for advice
+        self.regression = regression
+        self.advice = advice
         self.adviceClauses = {} #advice clauses stored here
         self.facts = [] #facts
         self.pos = {} #positive examples
@@ -66,7 +66,7 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self,bk,target,regression = False):
+    def setTarget(self, bk, target, regression = False):
         '''sets the target'''
         targetSpecification = None
         for line in bk:
@@ -102,16 +102,25 @@ class Data(object):
         '''returns true regression value of example during regression'''
         return self.examplesTrueValue[example]
 
-    def getValue(self,example):
-        '''returns regression value for example'''
-        if Utils.data.regression:
+    def getValue(self, example):
+        """
+        Returns the regression value for an example.
+
+        Example:
+        
+            trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
+            x = trainingData.getValue('cancer(watson)')
+
+            x == -0.5
+            True
+        """
+        if self.regression:
             return self.examples[example]
-        for ex in self.pos: #check first among positive examples and return value
-            if ex == example:
-                return self.pos[example]
-        for ex in self.neg: #check next among negative examples and return values
-            if ex == example:
-                return self.neg[example]
+
+        if example in self.pos:
+            return self.pos[example]
+        else:
+            return self.neg[example]
 
     def setBackground(self,bk):
         '''obtains the literals and their type specifications
@@ -126,6 +135,22 @@ class Data(object):
     def getLiterals(self):
         '''gets all the literals in the facts'''
         return self.literals
+
+    def variance(self, examples):
+        '''
+        Calculates the variance of the regression values from a subset of the data.
+        '''
+        print(examples)
+
+        if not examples:
+            return 0
+        
+        total = sum([self.getValue(example) for example in examples])
+        numberOfExamples = len(examples)
+        mean = total/float(numberOfExamples)
+        sumOfSquaredError = sum([(self.getValue(example) - mean)**2 for example in examples])
+
+        return sumOfSquaredError/float(numberOfExamples) #return variance
         
 class Utils(object):
     '''class for utilities used by program
@@ -164,79 +189,132 @@ class Utils(object):
         for example in examples:
             total += Utils.data.getValue(example)
         return total/float(len(examples))
-    
+
     @staticmethod
     def readTrainingData(target, path='train/', regression=False, advice=False):
-        '''reads the training data from files'''
-        Utils.data = Data() #create object to hold data for each tree
-        Utils.data.regression = regression
-        Utils.data.advice = advice
+        
+        """
+        Reads the training data from files.
+
+        Required Arguments:
+            target: the target predicate.
+
+        Optional Arguments:
+            path: (default: 'train/')
+                The path to the testing data.
+            regression: (default: False)
+                If regression is true, reads from 'examples.txt' instead of
+                'pos.txt' and 'neg.txt'
+            advice: (default: False)
+                If advice is true, reads from an advice file, which should
+                be contained in the same directory as 'pos.txt' and 'neg.txt'
+
+        Returns:
+            A Data object representing the train data.
+        """
+        
+        Utils.data = Data(regression=regression, advice=advice)
+        #trainData = Data(regression=regression, advice=advice)
+        #Utils.data.regression = regression
+        #Utils.data.advice = advice
+
         if advice:
             with open(path + "advice.txt") as fp: #read advice from train folder
-                #with open("train/advice.txt") as fp: #read advice from train folder
                 adviceFileLines = fp.read().splitlines()
+
                 for line in adviceFileLines:
                     adviceClause = line.split(' ')[0] #get advice clause
+                    
                     Utils.data.adviceClauses[adviceClause] = {}
+                    #trainData.adviceClauses[adviceClause] = {}
+
                     preferredTargets = line.split(' ')[1][1:-1].split(',')
                     if preferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['preferred'] = preferredTargets
+                        #trainData.adviceClauses[adviceClause]['preferred'] = preferredTargets
                     elif not preferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['preferred'] = []
+                        #trainData.adviceClauses[adviceClause]['preferred'] = []
+                    
                     nonPreferredTargets = line.split(' ')[2][1:-1].split(',')
                     if nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
+                        #trainData.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
                     elif not nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
-        with open(path + "facts.txt") as fp: #read facts from train folder
-            #with open("train/facts.txt") as fp: #read facts from train folder
-            facts = fp.read().splitlines()
-            Utils.data.setFacts(facts)
-        if not regression:
-            with open(path + "pos.txt") as fp: #read positive examples from train folder
-                #with open("train/pos.txt") as fp: #read positive examples from train folder
-                pos = fp.read().splitlines()
-                Utils.data.setPos(pos,target)
-            with open(path + "neg.txt") as fp: #read negative examples from train folder
-                #with open("train/neg.txt") as fp: #read negative examples from train folder
-                neg = fp.read().splitlines()
-                Utils.data.setNeg(neg,target)
-        elif regression:
-            with open(path + "examples.txt") as fp: #read training examples for regression
-                #with open("train/examples.txt") as fp: #read training examples for regression
-                examples = fp.read().splitlines()
-                Utils.data.setExamples(examples,target)
-        with open(path + "bk.txt") as fp: #read background information from train folder
-            #with open("train/bk.txt") as fp: #read background information from train folder
+                        #trainData.adviceClauses[adviceClause]['nonPreferred'] = []
+        
+        with open(path + "facts.txt") as fac:
+            Utils.data.setFacts(fac.read().splitlines())
+            #trainData.setFacts(fac.read().splitlines())
+
+        if regression:
+            with open(path + "examples.txt") as exam:
+                Utils.data.setExamples(exam.read().splitlines(), target)
+                #trainData.setExamples(exam.read().splitlines(), target)
+        else:
+            with open(path + "pos.txt") as pos:
+                Utils.data.setPos(pos.read().splitlines(), target)
+                #trainData.setPos(pos.read().splitlines(), target)
+            with open(path + "neg.txt") as neg:
+                Utils.data.setNeg(neg.read().splitlines(), target)
+                #trainData.setNeg(neg.read().splitlines(), target)
+
+        with open(path + "bk.txt") as fp:
             bk = fp.read().splitlines()
+
             Utils.data.setBackground(bk)
-            if not regression:
-                Utils.data.setTarget(bk,target)
-            elif regression:
-                Utils.data.setTarget(bk,target,regression = True)
+            Utils.data.setTarget(bk, target, regression=regression)
+            #trainData.setBackground(bk)
+            #trainData.setTarget(bk, target, regression=regression)
+        
         return Utils.data
+        #return trainData
 
     @staticmethod
     def readTestData(target, path='test/', regression=False):
-        '''reads the testing data from files'''
-        testData = Data() #create object to hold data
+
+        """
+        Reads the testing data from files.
+
+        Required Arguments:
+            target: the target predicate.
+
+        Optional Arguments:
+            path: (default: 'test/')
+                The path to the testing data.
+            regression: (default: False)
+                If regression is true, reads from 'examples.txt' instead of
+                'pos.txt' and 'neg.txt'
+
+        Returns:
+            A Data object representing the test data.
+        """
+
+        testData = Data()
         testData.regression = regression
-        with open(path + "facts.txt") as fp:
-            #with open("test/facts.txt") as fp:
-            testData.setFacts(fp.read().splitlines()) #read facts from test folder
-        if not regression:
-            with open(path + "pos.txt") as fp:
-                #with open("test/pos.txt") as fp:
-                testData.setPos(fp.read().splitlines(),target) #read positive examples from test folder
-            with open(path + "neg.txt") as fp:
-                #with open("test/neg.txt") as fp:
-                testData.setNeg(fp.read().splitlines(),target) #read negative examples from test folder
-        elif regression:
-            with open(path + "examples.txt") as fp: #read testing examples for regression
-                #with open("test/examples.txt") as fp: #read testing examples for regression
-                examples = fp.read().splitlines()
-                testData.setExamples(examples,target)
-        return testData #return the data for testing
+
+        with open(path + "facts.txt") as facts:
+            testData.setFacts(facts.read().splitlines())
+        
+        if regression:
+            with open(path + "examples.txt") as exam:
+                examples = exam.read().splitlines()
+                testData.setExamples(examples, target)
+        else:
+            # If we are not using regression, read from pos.txt and neg.txt
+            with open(path + "pos.txt") as pos:
+                testData.setPos(pos.read().splitlines(), target)
+            with open(path + "neg.txt") as neg:
+                testData.setNeg(neg.read().splitlines(), target)
+        
+        return testData
+
+    """
+    @batflyer:
+    It makes very little sense to declare something as a static method when
+    it references the contents of a data object. This was moved into the
+    Data object.
 
     @staticmethod
     def variance(examples):
@@ -244,17 +322,18 @@ class Utils(object):
            in regression values for all
            examples
         '''
+        print(examples)
+
         if not examples:
             return 0
-        total = 0 #initialize total regression value 
-        for example in examples:
-            total += Utils.data.getValue(example) #cimpute total
-        numberOfExamples = len(examples) #get number of examples
-        mean = total/float(numberOfExamples) #calc mean as total/number
-        sumOfSquaredError = 0 #initialize sum of squared errors
-        for example in examples: #calculate total squared difference from mean
-            sumOfSquaredError += (Utils.data.getValue(example)-mean)**2
+        
+        total = sum([Utils.data.getValue(example) for example in examples])
+        numberOfExamples = len(examples)
+        mean = total/float(numberOfExamples)
+        sumOfSquaredError = sum([(Utils.data.getValue(example) - mean)**2 for example in examples])
+
         return sumOfSquaredError/float(numberOfExamples) #return variance
+    """
 
     @staticmethod
     def sigmoid(x):
