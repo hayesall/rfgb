@@ -23,10 +23,10 @@ from math import exp
 class Data(object):
     '''contains the relational data'''
 
-    def __init__(self):
+    def __init__(self, regression=False, advice=False):
         '''constructor for the Data class'''
-        self.regression = False #flag for regression
-        self.advice = False #flag for advice
+        self.regression = regression
+        self.advice = advice
         self.adviceClauses = {} #advice clauses stored here
         self.facts = [] #facts
         self.pos = {} #positive examples
@@ -102,7 +102,7 @@ class Data(object):
         '''returns true regression value of example during regression'''
         return self.examplesTrueValue[example]
 
-    def getValue(self,example):
+    def getValue(self, example):
         '''returns regression value for example'''
         if Utils.data.regression:
             return self.examples[example]
@@ -164,10 +164,30 @@ class Utils(object):
         for example in examples:
             total += Utils.data.getValue(example)
         return total/float(len(examples))
-    
+
     @staticmethod
     def readTrainingData(target, path='train/', regression=False, advice=False):
-        '''reads the training data from files'''
+        
+        """
+        Reads the training data from files.
+
+        Required Arguments:
+            target: the target predicate.
+
+        Optional Arguments:
+            path: (default: 'train/')
+                The path to the testing data.
+            regression: (default: False)
+                If regression is true, reads from 'examples.txt' instead of
+                'pos.txt' and 'neg.txt'
+            advice: (default: False)
+                If advice is true, reads from an advice file, which should
+                be contained in the same directory as 'pos.txt' and 'neg.txt'
+
+        Returns:
+            A Data object representing the train data.
+        """
+        
         Utils.data = Data() #create object to hold data for each tree
         Utils.data.regression = regression
         Utils.data.advice = advice
@@ -222,8 +242,10 @@ class Utils(object):
         """
         Reads the testing data from files.
 
-        Input:
+        Required Arguments:
             target: the target predicate.
+
+        Optional Arguments:
             path: (default: 'test/')
                 The path to the testing data.
             regression: (default: False)
@@ -237,19 +259,19 @@ class Utils(object):
         testData = Data()
         testData.regression = regression
 
-        with open(path + "facts.txt") as fp:
-            testData.setFacts(fp.read().splitlines())
+        with open(path + "facts.txt") as facts:
+            testData.setFacts(facts.read().splitlines())
         
         if regression:
-            with open(path + "examples.txt") as fp:
-                examples = fp.read().splitlines()
+            with open(path + "examples.txt") as exam:
+                examples = exam.read().splitlines()
                 testData.setExamples(examples, target)
         else:
             # If we are not using regression, read from pos.txt and neg.txt
-            with open(path + "pos.txt") as fp:
-                testData.setPos(fp.read().splitlines(), target)
-            with open(path + "neg.txt") as fp:
-                testData.setNeg(fp.read().splitlines(), target)
+            with open(path + "pos.txt") as pos:
+                testData.setPos(pos.read().splitlines(), target)
+            with open(path + "neg.txt") as neg:
+                testData.setNeg(neg.read().splitlines(), target)
         
         return testData
 
