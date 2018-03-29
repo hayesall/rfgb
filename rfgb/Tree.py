@@ -20,7 +20,7 @@ from __future__ import print_function
 
 from Utils import Utils
 from Logic import Logic,Prover
-from copy import deepcopy
+from copy import deepcopy        
 
 class node(object):
     '''this is a node in a tree'''
@@ -35,7 +35,7 @@ class node(object):
         '''method to set max depth'''
         node.maxDepth = depth
 
-    def __init__(self,test=None,examples=None,information=None,level=None,parent=None,pos=None):
+    def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
         '''constructor for node class
            contains test condition or clause
            contains examples
@@ -59,20 +59,20 @@ class node(object):
 
     @staticmethod
     def initTree(trainingData):
-        '''method to create the root node'''
+        """Method for creating the root node."""
+        
         node.data = trainingData
         node.expandQueue = [] #reset node queue for every tree to be learned
         node.learnedDecisionTree = [] #reset clauses for every tree to be learned
-        if not trainingData.regression:
-            """@batflyer
-            In Python 2, .keys() returns a list, whereas in Python 3 it returns a dictionary view.
-            ===> Forcing a list.
-            """
-            examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys()) #collect all examples
-            node(None,examples,Utils.variance(examples),0,"root") #create root node
-        elif trainingData.regression:
-            examples = trainingData.examples.keys() #collect regression examples
-            node(None,examples,Utils.variance(examples),0,"root")
+        
+        if trainingData.regression:
+            # Regression examples can be collected from trainingData.examples (since there are no pos/neg).
+            examples = trainingData.examples.keys()
+        else:
+            # For all other models, we consider a set of positive and negative examples.
+            examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys())
+
+        node(None, examples, Utils.variance(examples), 0, 'root')
 
     @staticmethod
     def learnTree(data):
@@ -93,14 +93,14 @@ class node(object):
         if clauseCopy[-1] == "-": #construct clause for prover
             clauseCopy += test
         elif clauseCopy[-1] == ';':
-            clauseCopy = clauseCopy.replace(';',',')+test
+            clauseCopy = clauseCopy.replace(';', ',') + test
         print ("testing clause: ",clauseCopy) # --> to keep track of output, following for loop can be parallelized
         for example in self.examples:
             if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
                 tExamples.append(example)
         return tExamples
 
-    def expandOnBestTest(self,data=None):
+    def expandOnBestTest(self, data=None):
         '''expands the node based on the best test'''
         target = data.getTarget() #get the target
         clause = target+":-" #initialize clause learned at this node with empty body
@@ -157,11 +157,13 @@ class node(object):
                 bestFExamples = fExamples #collect unsatisfied examples
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
+
         print("best test found at current node: ",self.test)
         if len(bestTExamples) > 0: #if examples still need explaining create left node and add to queue
             self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
+                
         if len(bestFExamples) > 0: #if examples still need explaining, create right node and add to queue
             self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
             if self.level+1 > node.depth:
