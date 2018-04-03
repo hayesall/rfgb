@@ -34,4 +34,4 @@ Developing gradient boosting for relational data
 5. For the HeartAttack example: python main.py -target [ha] -expAdvice
 
 
-**Still in development, pending -> further testing, commenting, cleaning up code and adding more functionality such as MLN learning, soft margin etc.**
+**Still in development, pending -> further testing, commenting, cleaning up code and adding more functionality such as MLN learning, soft margin etc. Also, adding more thoroughly updated paramaters about the log priors and regression initialization. Stay tuned over this month for the final version of regression. Classification is fine as of now, but more testing required.**
