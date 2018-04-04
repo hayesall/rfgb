@@ -92,8 +92,8 @@ The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Ku
 [release]: https://github.com/batflyer/RFGB/releases
 [release img]:https://img.shields.io/github/tag/batflyer/RFGB.svg?style=flat-square
 
-[build link]:https://travis-ci.org/batflyer/RFGB
-[build img]:https://travis-ci.org/batflyer/RFGB.svg?branch=master
+[build link]:https://travis-ci.org/batflyer/RFGB.svg?branch=master
+[build img]:https://img.shields.io/travis/batflyer/RFGB.svg?style=flat-square
 
 [codecov link]:https://codecov.io/gh/batflyer/RFGB?branch=master
-[codecov img]:https://codecov.io/gh/batflyer/RFGB/branch/master/graphs/badge.svg?branch=master
+[codecov img]:https://img.shields.io/codecov/c/github/batflyer/RFGB/master.svg?style=flat-square
