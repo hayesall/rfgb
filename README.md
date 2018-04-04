@@ -89,7 +89,7 @@ A full [copy of the license](https://github.com/batflyer/RFGB/blob/master/LICENS
 The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and fellow members of the [StARLinG Lab](https://starling.utdallas.edu) at the University of Texas at Dallas.
 
 [license]:LICENSE
-[license img]:https://img.shields.io/github/license/batfyer/RFGB.svg
+[license img]:https://img.shields.io/github/license/batflyer/RFGB.svg
 
 [release]: https://github.com/batflyer/RFGB/releases
 [release img]:https://img.shields.io/github/tag/batflyer/RFGB.svg
