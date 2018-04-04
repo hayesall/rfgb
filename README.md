@@ -1,10 +1,8 @@
 # Relational Functional Gradient Boosting (RFGB)
 
-Alexander's fork of Kaushik Roy's RFGB implementation (diverged at `47b1cb79e91a5ff41cc6d7f86a008ffe44dd2df9`). Inspired by [BoostSRL](https://github.com/boost-starai/BoostSRL).
+[![][license img]][license] [![][release img]][release] [![][build img]][build link] [![][codecov img]][codecov link]
 
-| **License** | **Release** | **Build Status** | **Codecov** |
-| :---------: | :---------: | :--------------: | :---------: |
-| [![][license img]][license] | [![][release img]][release] | [![][build img]][build link] | [![][codecov img]][codecov link] |
+Alexander's fork of Kaushik Roy's RFGB implementation (diverged at `47b1cb79e91a5ff41cc6d7f86a008ffe44dd2df9`). Inspired by [BoostSRL](https://github.com/boost-starai/BoostSRL).
 
 ## Getting Started
 
@@ -89,13 +87,13 @@ A full [copy of the license](https://github.com/batflyer/RFGB/blob/master/LICENS
 The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and fellow members of the [StARLinG Lab](https://starling.utdallas.edu) at the University of Texas at Dallas.
 
 [license]:LICENSE
-[license img]:https://img.shields.io/github/license/batflyer/RFGB.svg
+[license img]:https://img.shields.io/github/license/batflyer/RFGB.svg?style=flat-square
 
 [release]: https://github.com/batflyer/RFGB/releases
-[release img]:https://img.shields.io/github/tag/batflyer/RFGB.svg
+[release img]:https://img.shields.io/github/tag/batflyer/RFGB.svg?style=flat-square
 
-[build img]:https://travis-ci.org/batflyer/RFGB.svg?branch=master
 [build link]:https://travis-ci.org/batflyer/RFGB
+[build img]:https://travis-ci.org/batflyer/RFGB.svg?branch=master
 
-[codecov img]:https://codecov.io/gh/batflyer/RFGB/branch/master/graphs/badge.svg?branch=master
 [codecov link]:https://codecov.io/gh/batflyer/RFGB?branch=master
+[codecov img]:https://codecov.io/gh/batflyer/RFGB/branch/master/graphs/badge.svg?branch=master
