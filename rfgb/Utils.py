@@ -66,25 +66,32 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self, bk, target, regression = False):
+    def setTarget(self, bk, target, regression=False):
         '''sets the target'''
-        targetSpecification = None
-        for line in bk:
-            if line.split('(')[0] == target:
-                targetSpecification = line
+        
+        def getBkTarget(bk, target):
+            for line in bk:
+                if line.split('(')[0] == target:
+                    return line
+
+
+
+        targetSpecification = getBkTarget(bk, target)
+
         targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
-        firstPositiveInstance = None
-        if not regression:
-            for posEx in self.pos.keys(): #get the first positive example in the dictionary
-                if posEx.split('(')[0] == target:
-                    firstPositiveInstance = posEx
-                    break
-        elif regression:
-            for example in self.examples.keys(): #get first regression example
+
+        if regression:
+            for example in self.examples.keys():
                 predicate = example.split(' ')[0]
                 if predicate.split('(')[0] == target:
                     firstPositiveInstance = predicate
                     break
+        else:
+            for posEx in self.pos.keys():
+                if posEx.split('(')[0] == target:
+                    firstPositiveInstance = posEx
+                    break
+        
         targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
         targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
         targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
