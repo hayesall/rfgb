@@ -2,7 +2,7 @@
 
 [![][license img]][license] [![][release img]][release] [![][build img]][build link] [![][codecov img]][codecov link]
 
-Alexander's fork of Kaushik Roy's RFGB implementation (diverged at `47b1cb79e91a5ff41cc6d7f86a008ffe44dd2df9`). Inspired by [BoostSRL](https://github.com/boost-starai/BoostSRL).
+RFGB in Python. Inspired by [BoostSRL](https://github.com/boost-starai/BoostSRL).
 
 ## Getting Started
 
