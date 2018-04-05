@@ -40,9 +40,9 @@ from Utils import Utils
 
 class UtilsTest(unittest.TestCase):
 
-    def test_setTarget(self):
+    def test_setTarget_1(self):
         """
-        tests: Data.setTarget.
+        tests: Data.setTarget (attribute case).
         """
 
         # Some setup that needs to take place.
@@ -56,19 +56,14 @@ class UtilsTest(unittest.TestCase):
 
         # setTarget has some random behavior, but always returns the target bound to a letter.
         # 1. Check that cancer is part of the target string.
-        
-        data.setTarget(background, target)
-        self.assertTrue('cancer' in data.target)
 
-        data.setTarget(background, target)
-        self.assertTrue('cancer' in data.target)
-
-        data.setTarget(background, target)
-        self.assertTrue('cancer' in data.target)
+        for _ in range(10):
+            data.setTarget(background, target)
+            self.assertTrue('cancer' in data.target)
 
         # 2. Check that a random letter is bound to the target string.
 
-        for t in range(100):
+        for _ in range(100):
             # Set the target (introducing a random variable).
             data.setTarget(background, target)
 
@@ -77,7 +72,37 @@ class UtilsTest(unittest.TestCase):
 
             # Assert that the random variable belongs to the UniqueVariableCollection.
             self.assertTrue(instance in Utils.UniqueVariableCollection)
-            
+
+    def test_setTarget_2(self):
+        """
+        tests: Data.setTarget (relation case).
+        """
+
+        # Some setup that needs to take place.
+        target = 'friends'
+        background = ['friends(+person,-person)', 'friends(-person,+person)',
+                      'smokes(+person)', 'cancer(person)']
+
+        data = Data(regression=False)
+        data.setBackground(background)
+        data.setPos(['friends(Ulrich,Odd)', 'friends(Odd,Jeremy)'], target)
+
+        for _ in range(10):
+            data.setTarget(background, target)
+            self.assertTrue('friends' in data.target)
+
+        for _ in range(100):
+            # Set the target (introducing two random variables).
+            data.setTarget(background, target)
+
+            # Get the two random variables.
+            instance = data.target.split('(')[1].split(')')[0].split(',')
+
+            # Assert arity of friendship is 2, and that variables belong to UniqueVariableCollection.
+            self.assertEqual(len(instance), 2)
+            self.assertTrue(instance[0] in Utils.UniqueVariableCollection)
+            self.assertTrue(instance[1] in Utils.UniqueVariableCollection)
+
 
     def test_read_test_data_toy_cancer(self):
         """
