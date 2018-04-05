@@ -69,13 +69,14 @@ class Data(object):
     def setTarget(self, bk, target, regression=False):
         """
         Sets self.target as a target string.
+        Sets self.variableType
 
         Example:
 
             # Instantiate a data object.
             data = Data(regression=False)
             background = ['friends(+person,-person)', friends(-person,+person),
-                          'smokes(+person)', 'cancer(+person']
+                          'smokes(+person)', 'cancer(+person)']
             target = 'cancer'
 
             # set the target as a string we will try to prove.
@@ -103,6 +104,8 @@ class Data(object):
 
         targetSpecification = getBkTarget(bk, target)
         targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
+        targetSpecification = list(map(Utils.removeModeSymbols, targetSpecification))
+        #print(targetSpecification)
 
         firstPositiveInstance = getFirstPositiveInstance(regression)
 
@@ -115,7 +118,7 @@ class Data(object):
         # Collect variables in accordance with the arity.
 
         targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
-        print(targetVariables)
+        #print(targetVariables)
 
         self.target = targetPredicate + "(" #construct target string
         
@@ -123,7 +126,24 @@ class Data(object):
             self.target += variable + ","
             self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
         
-        self.target = self.target[:-1]+")"
+        self.target = self.target[:-1] + ")"
+
+        #print(self.variableType)
+        #print(self.target)
+
+        """
+        # @batflyer: Attempting to refactor the setTarget function.
+        
+        targetArity = len([i[:-1].split('(')[1].split(',') for i in bk if target in i][0])
+        targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
+
+        self.target = target + '('
+        for variable in targetVariables:
+            self.target += variable + ','
+            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
+        self.target = self.target[:-1] + ')'
+
+        """
         
     def getTarget(self):
         '''returns the target'''
@@ -197,6 +217,29 @@ class Utils(object):
 
     data = None #attribute to store data (facts,positive and negative examples)
     UniqueVariableCollection = set(list(string.ascii_uppercase))
+
+    @staticmethod
+    def sigmoid(x):
+        '''returns sigmoid of x'''
+        return exp(x)/float(1+exp(x))
+
+    @staticmethod
+    def removeModeSymbols(inputString):
+        """
+        Returns a string with the mode symbols (+,-,#) removed.
+
+        Example:
+            >>> i = "#city"
+            >>> o = removeModeSymbols(i)
+            >>> print(o)
+            city
+
+            >>> i = ["+drinks", "-drink", "-city"]
+            >>> o = list(map(removeModeSymbols, i))
+            >>> print(o)
+            ["drinks", "drink", "city"]
+        """
+        return inputString.replace('+', '').replace('-', '').replace('#', '')
 
     @staticmethod
     def addVariableTypes(literal):
@@ -341,10 +384,6 @@ class Utils(object):
         
         return testData
 
-    @staticmethod
-    def sigmoid(x):
-        '''returns sigmoid of x'''
-        return exp(x)/float(1+exp(x))
 
     @staticmethod
     def cartesianProduct(itemSets):
