@@ -66,34 +66,38 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self, bk, target, regression = False):
-        '''sets the target'''
-        targetSpecification = None
-        for line in bk:
-            if line.split('(')[0] == target:
-                targetSpecification = line
-        targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
-        firstPositiveInstance = None
-        if not regression:
-            for posEx in self.pos.keys(): #get the first positive example in the dictionary
-                if posEx.split('(')[0] == target:
-                    firstPositiveInstance = posEx
-                    break
-        elif regression:
-            for example in self.examples.keys(): #get first regression example
-                predicate = example.split(' ')[0]
-                if predicate.split('(')[0] == target:
-                    firstPositiveInstance = predicate
-                    break
-        targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
-        targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
-        targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
-        self.target = targetPredicate+"(" #construct target string
-        for variable in targetVariables:
-            self.target += variable+","
-            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
-        self.target = self.target[:-1]+")"
+    def setTarget(self, bk, target):
+        """
+        Sets self.target as a target string.
+        Sets self.variableType
 
+        Example:
+
+            # Instantiate a data object.
+            data = Data(regression=False)
+            background = ['friends(+person,-person)', friends(-person,+person),
+                          'smokes(+person)', 'cancer(+person)']
+            target = 'cancer'
+
+            # set the target as a string we will try to prove.
+            data.setTarget(background, target)
+            
+            print(data.target)
+            'cancer(C)'
+        """
+        # targetTypes are the types of variables in the target predicate.
+        targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
+        targetTypes = list(map(Utils.removeModeSymbols, targetTypes))
+        
+        targetArity = len(targetTypes)
+        targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
+
+        self.target = target + '('
+        for variable in targetVariables:
+            self.target += variable + ','
+            self.variableType[variable] = targetTypes[targetVariables.index(variable)]
+        self.target = self.target[:-1] + ')'
+        
     def getTarget(self):
         '''returns the target'''
         return self.target
@@ -140,7 +144,7 @@ class Data(object):
         '''
         Calculates the variance of the regression values from a subset of the data.
         '''
-        print(examples)
+        #print(examples)
 
         if not examples:
             return 0
@@ -166,6 +170,29 @@ class Utils(object):
 
     data = None #attribute to store data (facts,positive and negative examples)
     UniqueVariableCollection = set(list(string.ascii_uppercase))
+
+    @staticmethod
+    def sigmoid(x):
+        '''returns sigmoid of x'''
+        return exp(x)/float(1+exp(x))
+
+    @staticmethod
+    def removeModeSymbols(inputString):
+        """
+        Returns a string with the mode symbols (+,-,#) removed.
+
+        Example:
+            >>> i = "#city"
+            >>> o = removeModeSymbols(i)
+            >>> print(o)
+            city
+
+            >>> i = ["+drinks", "-drink", "-city"]
+            >>> o = list(map(removeModeSymbols, i))
+            >>> print(o)
+            ["drinks", "drink", "city"]
+        """
+        return inputString.replace('+', '').replace('-', '').replace('#', '')
 
     @staticmethod
     def addVariableTypes(literal):
@@ -264,7 +291,7 @@ class Utils(object):
             bk = fp.read().splitlines()
 
             Utils.data.setBackground(bk)
-            Utils.data.setTarget(bk, target, regression=regression)
+            Utils.data.setTarget(bk, target)
             #trainData.setBackground(bk)
             #trainData.setTarget(bk, target, regression=regression)
         
@@ -310,10 +337,6 @@ class Utils(object):
         
         return testData
 
-    @staticmethod
-    def sigmoid(x):
-        '''returns sigmoid of x'''
-        return exp(x)/float(1+exp(x))
 
     @staticmethod
     def cartesianProduct(itemSets):
