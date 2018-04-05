@@ -310,31 +310,6 @@ class Utils(object):
         
         return testData
 
-    """
-    @batflyer:
-    It makes very little sense to declare something as a static method when
-    it references the contents of a data object. This was moved into the
-    Data object.
-
-    @staticmethod
-    def variance(examples):
-        '''method to calculate variance
-           in regression values for all
-           examples
-        '''
-        print(examples)
-
-        if not examples:
-            return 0
-        
-        total = sum([Utils.data.getValue(example) for example in examples])
-        numberOfExamples = len(examples)
-        mean = total/float(numberOfExamples)
-        sumOfSquaredError = sum([(Utils.data.getValue(example) - mean)**2 for example in examples])
-
-        return sumOfSquaredError/float(numberOfExamples) #return variance
-    """
-
     @staticmethod
     def sigmoid(x):
         '''returns sigmoid of x'''
