@@ -16,24 +16,6 @@ None currently. Clone the repository with git or download a zip archive, then ru
 
 ## Sample Usage
 
-**Regression (-reg)**
-
-Two regression datasets are included in the testDomains directory: *Insurance* and *BostonHousing*.
-
-1. BostonHousing
-
-        python src/main.py -reg -target medv -train testDomains/BostonHousing/train/ -test testDomains/BostonHousing/test/ -trees 10
-
-2. Insurance
-
-        python src/main.py -reg -target value -train testDomains/Insurance/train/ -test testDomains/Insurance/test/ -trees 20
-
-**Classification**
-
-Seven classification datasets are included in the testDomains directory for tasks such as game playing, moving boxes between cities, evaluating the health of a patient, and social network analysis.
-
-Classification is the default behavior of RFGB, no additional flags need be specified.
-
 1. Logistics
 
         python src/main.py -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
