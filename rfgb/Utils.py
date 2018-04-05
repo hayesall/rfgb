@@ -67,40 +67,64 @@ class Data(object):
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
     def setTarget(self, bk, target, regression=False):
-        '''sets the target'''
-        
+        """
+        Sets self.target as a target string.
+
+        Example:
+
+            # Instantiate a data object.
+            data = Data(regression=False)
+            background = ['friends(+person,-person)', friends(-person,+person),
+                          'smokes(+person)', 'cancer(+person']
+            target = 'cancer'
+
+            # set the target as a string we will try to prove.
+            data.setTarget(background, target)
+            
+            print(data.target)
+            'cancer(C)'
+        """
+
         def getBkTarget(bk, target):
             for line in bk:
                 if line.split('(')[0] == target:
                     return line
 
-
+        def getFirstPositiveInstance(regression):
+            if regression:
+                for example in self.examples.keys():
+                    predicate = example.split(' ')[0]
+                    if predicate.split('(')[0] == target:
+                        return predicate
+            else:
+                for posEx in self.pos.keys():
+                    if posEx.split('(')[0] == target:
+                        return posEx
 
         targetSpecification = getBkTarget(bk, target)
-
         targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
 
-        if regression:
-            for example in self.examples.keys():
-                predicate = example.split(' ')[0]
-                if predicate.split('(')[0] == target:
-                    firstPositiveInstance = predicate
-                    break
-        else:
-            for posEx in self.pos.keys():
-                if posEx.split('(')[0] == target:
-                    firstPositiveInstance = posEx
-                    break
-        
-        targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
-        targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
-        targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
-        self.target = targetPredicate+"(" #construct target string
-        for variable in targetVariables:
-            self.target += variable+","
-            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
-        self.target = self.target[:-1]+")"
+        firstPositiveInstance = getFirstPositiveInstance(regression)
 
+        # Name of the predicate
+        targetPredicate = firstPositiveInstance.split('(')[0]
+
+        # Arity of the predicate
+        targetArity = len(firstPositiveInstance.split('(')[1].split(','))
+        
+        # Collect variables in accordance with the arity.
+
+        targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
+        print(targetVariables)
+
+        self.target = targetPredicate + "(" #construct target string
+        
+        for variable in targetVariables:
+            self.target += variable + ","
+            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
+        
+        self.target = self.target[:-1]+")"
+        
     def getTarget(self):
         '''returns the target'''
         return self.target
@@ -147,7 +171,7 @@ class Data(object):
         '''
         Calculates the variance of the regression values from a subset of the data.
         '''
-        print(examples)
+        #print(examples)
 
         if not examples:
             return 0
