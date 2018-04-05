@@ -55,17 +55,12 @@ class UtilsTest(unittest.TestCase):
         data.setPos(['cancer(Ulrich)', 'cancer(Odd)'], target)
 
         # setTarget has some random behavior, but always returns the target bound to a letter.
-        # 1. Check that cancer is part of the target string.
-
-        for _ in range(10):
-            data.setTarget(background, target)
-            self.assertTrue('cancer' in data.target)
-
-        # 2. Check that a random letter is bound to the target string.
-
         for _ in range(100):
             # Set the target (introducing a random variable).
             data.setTarget(background, target)
+
+            # Assert the presence of the target.
+            self.assertTrue(target in data.target)
 
             # Get the random variable.
             instance = data.target.split('(')[1][0]
@@ -87,13 +82,12 @@ class UtilsTest(unittest.TestCase):
         data.setBackground(background)
         data.setPos(['friends(Ulrich,Odd)', 'friends(Odd,Jeremy)'], target)
 
-        for _ in range(10):
-            data.setTarget(background, target)
-            self.assertTrue('friends' in data.target)
-
         for _ in range(100):
             # Set the target (introducing two random variables).
             data.setTarget(background, target)
+
+            # Assert the presence of the target.
+            self.assertTrue(target in data.target)
 
             # Get the two random variables.
             instance = data.target.split('(')[1].split(')')[0].split(',')
@@ -103,6 +97,36 @@ class UtilsTest(unittest.TestCase):
             self.assertTrue(instance[0] in Utils.UniqueVariableCollection)
             self.assertTrue(instance[1] in Utils.UniqueVariableCollection)
 
+    def test_setTarget_3(self):
+        """
+        tests: Data.setTarget (3-arity case).
+        """
+
+        target = 'drinks'
+        background = ['drinks(+person,-drink,-city)']
+        
+        data = Data(regression=False)
+        data.setPos(['drinks(Jeremy,Wine,Paris)', 'drinks(Ulrich,Beer,Frankfurt)'], target)
+
+        for _ in range(10):
+            data.setTarget(background, target)
+            self.assertTrue('drinks' in data.target)
+
+        for _ in range(100):
+            # Set the target (introducing three random variables).
+            data.setTarget(background, target)
+
+            # Assert the presence of the target.
+            self.assertTrue(target in data.target)
+
+            # Get the three random variables.
+            instance = data.target.split('(')[1].split(')')[0].split(',')
+
+            # Assert arity of drinks is 3, variables are not duplicated, and belong to UniqueVariableCollection.
+            self.assertEqual(len(instance), 3)
+            self.assertTrue(instance[0] in Utils.UniqueVariableCollection)
+            self.assertTrue(instance[1] in Utils.UniqueVariableCollection)
+            self.assertTrue(instance[2] in Utils.UniqueVariableCollection)
 
     def test_read_test_data_toy_cancer(self):
         """
