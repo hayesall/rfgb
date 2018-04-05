@@ -85,65 +85,18 @@ class Data(object):
             print(data.target)
             'cancer(C)'
         """
-
-        def getBkTarget(bk, target):
-            for line in bk:
-                if line.split('(')[0] == target:
-                    return line
-
-        def getFirstPositiveInstance(regression):
-            if regression:
-                for example in self.examples.keys():
-                    predicate = example.split(' ')[0]
-                    if predicate.split('(')[0] == target:
-                        return predicate
-            else:
-                for posEx in self.pos.keys():
-                    if posEx.split('(')[0] == target:
-                        return posEx
-
-        targetSpecification = getBkTarget(bk, target)
-        targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
-        targetSpecification = list(map(Utils.removeModeSymbols, targetSpecification))
-        #print(targetSpecification)
-
-        firstPositiveInstance = getFirstPositiveInstance(regression)
-
-        # Name of the predicate
-        targetPredicate = firstPositiveInstance.split('(')[0]
-
-        # Arity of the predicate
-        targetArity = len(firstPositiveInstance.split('(')[1].split(','))
+        # targetTypes are the types of variables in the target predicate.
+        targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
+        targetTypes = list(map(Utils.removeModeSymbols, targetTypes))
         
-        # Collect variables in accordance with the arity.
-
-        targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
-        #print(targetVariables)
-
-        self.target = targetPredicate + "(" #construct target string
-        
-        for variable in targetVariables:
-            self.target += variable + ","
-            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
-        
-        self.target = self.target[:-1] + ")"
-
-        #print(self.variableType)
-        #print(self.target)
-
-        """
-        # @batflyer: Attempting to refactor the setTarget function.
-        
-        targetArity = len([i[:-1].split('(')[1].split(',') for i in bk if target in i][0])
+        targetArity = len(targetTypes)
         targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
 
         self.target = target + '('
         for variable in targetVariables:
             self.target += variable + ','
-            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
+            self.variableType[variable] = targetTypes[targetVariables.index(variable)]
         self.target = self.target[:-1] + ')'
-
-        """
         
     def getTarget(self):
         '''returns the target'''

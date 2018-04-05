@@ -77,7 +77,6 @@ class UtilsTest(unittest.TestCase):
             # Set the target (introducing a random variable).
             data = Data(regression=False)
             data.setBackground(background)
-            data.setPos(['cancer(Ulrich)', 'cancer(Odd)'], target)
             data.setTarget(background, target)
 
             # Assert the presence of the target.
@@ -103,7 +102,6 @@ class UtilsTest(unittest.TestCase):
             # Set the target (introducing two random variables).
             data = Data(regression=False)
             data.setBackground(background)
-            data.setPos(['friends(Ulrich,Odd)', 'friends(Odd,Jeremy)'], target)
             data.setTarget(background, target)
 
             # Assert the presence of the target.
