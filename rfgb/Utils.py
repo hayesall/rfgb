@@ -66,7 +66,7 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self, bk, target, regression=False):
+    def setTarget(self, bk, target):
         """
         Sets self.target as a target string.
         Sets self.variableType
@@ -291,7 +291,7 @@ class Utils(object):
             bk = fp.read().splitlines()
 
             Utils.data.setBackground(bk)
-            Utils.data.setTarget(bk, target, regression=regression)
+            Utils.data.setTarget(bk, target)
             #trainData.setBackground(bk)
             #trainData.setTarget(bk, target, regression=regression)
         
