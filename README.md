@@ -62,7 +62,7 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-A full [copy of the license](https://github.com/batflyer/RFGB/blob/master/LICENSE) is available in the base of this repository. For more information, see https://www.gnu.org/licenses/
+A full [copy of the license](https://github.com/starling-lab/RFGB/blob/master/LICENSE) is available in the base of this repository. For more information, see https://www.gnu.org/licenses/
 
 ## Acknowledgements
 
