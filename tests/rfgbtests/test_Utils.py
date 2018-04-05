@@ -108,10 +108,6 @@ class UtilsTest(unittest.TestCase):
         data = Data(regression=False)
         data.setPos(['drinks(Jeremy,Wine,Paris)', 'drinks(Ulrich,Beer,Frankfurt)'], target)
 
-        for _ in range(10):
-            data.setTarget(background, target)
-            self.assertTrue('drinks' in data.target)
-
         for _ in range(100):
             # Set the target (introducing three random variables).
             data.setTarget(background, target)
