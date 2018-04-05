@@ -34,9 +34,50 @@ Tests should be ordered in the same manner as they are defined in Utils.py
 """
 
 sys.path.append('./rfgb/')
+
+from Utils import Data
 from Utils import Utils
 
 class UtilsTest(unittest.TestCase):
+
+    def test_setTarget(self):
+        """
+        tests: Data.setTarget.
+        """
+
+        # Some setup that needs to take place.
+        
+        target = 'cancer'
+        background = ['friends(+person,-person)', 'friends(-person,+person)',
+                      'smokes(+person)', 'cancer(person)']
+        data = Data(regression=False)
+        data.setBackground(background)
+        data.setPos(['cancer(Ulrich)', 'cancer(Odd)'], target)
+
+        # setTarget has some random behavior, but always returns the target bound to a letter.
+        # 1. Check that cancer is part of the target string.
+        
+        data.setTarget(background, target)
+        self.assertTrue('cancer' in data.target)
+
+        data.setTarget(background, target)
+        self.assertTrue('cancer' in data.target)
+
+        data.setTarget(background, target)
+        self.assertTrue('cancer' in data.target)
+
+        # 2. Check that a random letter is bound to the target string.
+
+        for t in range(100):
+            # Set the target (introducing a random variable).
+            data.setTarget(background, target)
+
+            # Get the random variable.
+            instance = data.target.split('(')[1][0]
+
+            # Assert that the random variable belongs to the UniqueVariableCollection.
+            self.assertTrue(instance in Utils.UniqueVariableCollection)
+            
 
     def test_read_test_data_toy_cancer(self):
         """
