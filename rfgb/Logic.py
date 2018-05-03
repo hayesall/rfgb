@@ -20,7 +20,6 @@ from __future__ import print_function
 
 import itertools,re
 
-#from Utils import Utils
 from .Utils import Utils
 
 from copy import deepcopy
