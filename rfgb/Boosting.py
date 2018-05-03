@@ -1,4 +1,17 @@
 """
+rfgb.Boosting.py
+================
+
+Provides
+--------
+
+    1. Core methods for performing learning and inference.
+
+Documentation
+-------------
+
+License
+-------
 Copyright (C) 2017-2018 RFGB Contributors
 
 This program is free software: you can redistribute it and/or modify
@@ -16,56 +29,85 @@ along with this program (at the base of this repository). If not,
 see <http://www.gnu.org/licenses/>
 """
 
-#from Utils import Utils
+from __future__ import division
+
 from .Utils import Utils
-
-from math import log, exp
-
-#from Logic import Prover
 from .Logic import Prover
 
+from math import log
+from math import exp
 from copy import deepcopy
 
+__logPrior__ = log(0.5/float(1-0.5))
+
+"""
 class Boosting(object):
     '''boosting class'''
 
+    # Wouldn't `logPrior = 0.0` be easier?
     logPrior = log(0.5/float(1-0.5))
+"""
 
-    @staticmethod
-    def computeAdviceGradient(example):
-        '''computes the advice gradients as nt-nf'''
-        nt,nf = 0,0
-        target = Utils.data.target.split('(')[0]
-        for clause in Utils.data.adviceClauses:
-            if Prover.prove(Utils.data,example,clause):
-                if target in Utils.data.adviceClauses[clause]['preferred']:
-                    nt += 1
-                if target in Utils.data.adviceClauses[clause]['nonPreferred']:
-                    nf += 1
-        return (nt-nf)
+def computeAdviceGradient(example):
+    """
+    Name:
+        rfgb.Boosting.computeAdviceGradient
+    Performs:
+        Computes the advice gradients as 'NumberTrue - NumberFalse'.
+    """
 
-    @staticmethod
-    def inferTreeValue(clauses,query,data):
-        '''returns probability of query
-           given data and clauses learned
-        '''
-        for clause in clauses: #for every clause in the tree
-            clauseCopy = deepcopy(clause)
-            clauseValue = float(clauseCopy.split(" ")[1])
-            clauseRule = clauseCopy.split(" ")[0].replace(";",",")
-            if not clauseRule.split(":-")[1]:
-                return clauseValue
-            if Prover.prove(data,query,clauseRule): #check if query satisfies clause
-                return clauseValue
+    nt, nf = 0, 0
+    target = Utils.data.target.split('(')[0]
+    for clause in Utils.data.adviceClauses:
+        if Prover.prove(Utils.data, example, clause):
+            if target in Utils.data.adviceClauses[clause]['preferred']:
+                nt += 1
+            if target in Utils.data.adviceClauses[clause]['nonPreferred']:
+                nf += 1
+    return (nt-nf)
 
-    @staticmethod
-    def computeSumOfGradients(example,trees,data):
-        '''computes new gradient for example'''
-        sumOfGradients = 0
-        for tree in trees: #add leaf values satisfied by example in each tree
-            gradient = Boosting.inferTreeValue(tree,example,data)
-            sumOfGradients += gradient
-        return sumOfGradients #return the sum
+def inferTreeValue(clauses, query, data):
+    """
+    Name:
+        rfgb.Boosting.inferTreeValue
+    Performs:
+        Returns the probability of query given data and clauses learned.
+    """
+    for clause in clauses:
+        clauseCopy = deepcopy(clause)
+        clauseValue = float(clauseCopy.split(" ")[1])
+        clauseRule = clauseCopy.split(" ")[0].replace(";",",")
+        if not clauseRule.split(":-")[1]:
+            return clauseValue
+        if Prover.prove(data,query,clauseRule): #check if query satisfies clause
+            return clauseValue
+
+def computeSumOfGradients(example, trees, data):
+    """
+    Overview:
+    ---------
+    Name:
+        rfgb.Boosting.computeSumOfGradients
+    Performs:
+        Computes new gradients for an example.
+
+    ==========================================================================
+    Positional arguments:
+    ---------------------
+
+    @param  {str}
+    @param  {list}
+    @param  {object}
+    """
+
+    sumOfGradients = 0
+
+    # Add leaf values satisfied by example in each tree.
+    for tree in trees:
+        gradient = inferTreeValue(tree, example, data)
+        sumOfGradients += gradient
+    return sumOfGradients
+
 
 def updateGradients(data, trees, loss='LS', delta=None):
     """
@@ -90,6 +132,7 @@ def updateGradients(data, trees, loss='LS', delta=None):
     ------------------
 
     @param  {str}           loss            Loss function for regression.
+                                            allowed: ['LS', 'LAD', 'Huber']
     @param  {float}         delta           Delta value for Huber loss.
 
     ==========================================================================
@@ -103,12 +146,8 @@ def updateGradients(data, trees, loss='LS', delta=None):
         # If this is regression data, compute gradient as y - y_hat
 
         for example in data.examples:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            sumOfGradients = computeSumOfGradients(example,trees,data)
             trueValue = data.getExampleTrueValue(example)
-
-            # Is this variable ever used?
-            # It can be removed pretty easily.
-            exampleValue = sumOfGradients
 
             if loss == "LS":
                 # Least Squares
@@ -116,19 +155,15 @@ def updateGradients(data, trees, loss='LS', delta=None):
 
             elif loss == "LAD":
                 # Least Absolute Deviation
-
-                gradient = trueValue - exampleValue
-
                 updatedGradient = 0
-                gradient = trueValue - exampleValue
+                gradient = trueValue - sumOfGradients
                 if gradient:
                     updatedGradient = gradient/float(abs(gradient))
                 data.examples[example] = updatedGradient
 
             elif loss == "Huber":
                 # Huber Loss
-
-                gradient = trueValue - exampleValue
+                gradient = trueValue - sumOfGradients
                 updatedGradient = 0
                 if gradient:
                     if gradient > float(delta):
@@ -138,48 +173,67 @@ def updateGradients(data, trees, loss='LS', delta=None):
                 data.examples[example] = updatedGradient
 
     else:
-        logPrior = Boosting.logPrior
+        # If this is classification data, compute 1 - P for each positive.
+        """
+        logPrior = __logPrior__
+
+        for example in data.pos:
+            sumOfGradients = computeSumOfGradients(example, trees, data)
+        """
+
+        logPrior = __logPrior__
         #P = sigmoid of sum of gradients given by each tree learned so far
         for example in data.pos: #for each positive example compute 1 - P
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            sumOfGradients = computeSumOfGradients(example,trees,data)
             probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
             updatedGradient = 1 - probabilityOfExample
             if data.advice:
-                adviceGradient = Boosting.computeAdviceGradient(example)
+                adviceGradient = computeAdviceGradient(example)
                 updatedGradient += adviceGradient
             data.pos[example] = updatedGradient
         for example in data.neg: #for each negative example compute 0 - P
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            sumOfGradients = computeSumOfGradients(example,trees,data)
             probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
             updatedGradient = 0 - probabilityOfExample
             if data.advice:
-                adviceGradient = Boosting.computeAdviceGradient(example)
+                adviceGradient = computeAdviceGradient(example)
                 updatedGradient += adviceGradient
             data.neg[example] = updatedGradient
 
 def performInference(testData, trees):
     """
-    Compute the probabilities for test examples.
+    Overview:
+    ---------
+    Name:
+        rfgb.Boosting.performInference
+    Performs:
+        Computes the probabilities for test examples.
 
-    @method performInference
+    ==========================================================================
+    Positional arguments:
+    ---------------------
+
     @param  {object}            testData        Data object for testing.
     @param  {list}              trees           List of strings representing
                                                 learned decision trees.
+
+    ==========================================================================
+    Examples:
+    ---------
+
+    >>> from rfgb.Boosting import performInference
     """
 
-    #import pdb; pdb.set_trace()
-
-    '''computes probability for test examples'''
-    logPrior = Boosting.logPrior
+    logPrior = __logPrior__
     if not testData.regression:
         logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
         for example in testData.pos:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            sumOfGradients = computeSumOfGradients(example,trees,testData) #compute sum of gradients
             testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
         for example in testData.neg:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            sumOfGradients = computeSumOfGradients(example,trees,testData) #compute sum of gradients
             testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
     elif testData.regression:
         for example in testData.examples:
-            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData)
+            sumOfGradients = computeSumOfGradients(example,trees,testData)
             testData.examples[example] = sumOfGradients
