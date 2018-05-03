@@ -62,22 +62,13 @@ class Data(object):
                 self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
 
     def setExamples(self,examples,target):
-        #set examples for regression'''
-        values = []
-        for example in examples:
-            predicate = examples.split(' ')[0] #get predicate
-            value = float(example.split(' ')[1]) #get true regression value
-            if predicate.split('(')[0] == target:
-                self.examplesTrueValue[predicate] = value #store true value of example
-                self.examples[predicate] = value - sum(values)/float(len(values)) #set value for example as average
-        '''
+        '''set examples for regression'''
         for example in examples:
             predicate = example.split(' ')[0] #get predicate
             value = float(example.split(' ')[1]) # get true regression value
             if predicate.split('(')[0] == target:
                 self.examplesTrueValue[predicate] = value #store true value of example
                 self.examples[predicate] = value #set value for example, otherwise no variance
-        '''
 
     def setNeg(self,neg,target):
         '''set negative examples from neg list'''
