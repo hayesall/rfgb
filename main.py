@@ -18,9 +18,13 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
-from Utils import Utils
-from Tree import node
-from Boosting import Boosting
+#import rfgb
+
+from rfgb.Utils import Utils
+from rfgb.Tree import node
+#from Boosting import Boosting
+from rfgb.Boosting import updateGradients
+from rfgb.Boosting import performInference
 
 import argparse
 
@@ -36,7 +40,7 @@ class Arguments:
     """
 
     def __init__(self):
-        
+
         # Create an argument parser for interpreting user inputs.
         parser = argparse.ArgumentParser(prog="\n\n $ python RFGB.py",
                                          description="RFGB: Functional Gradient Boosting is a gradient-boosting approach to learning statistical relational models.",
@@ -102,27 +106,28 @@ def main():
 
         # Learn each tree and update the gradient.
         for i in range(parameters.trees):
-            
+
             if parameters.verbose:
                 print('='*20, "learning tree", str(i), '='*20)
-                
+
             node.setMaxDepth(2)
             node.learnTree(trainData) # Learn relational regression tree
             trees.append(node.learnedDecisionTree)
-            Boosting.updateGradients(trainData, trees)
+            updateGradients(trainData, trees)
 
         for tree in trees:
 
             if parameters.verbose:
                 print('='*30, "tree", str(trees.index(tree)), '='*30)
-                
+
             for clause in tree:
                 print(clause)
 
         # Read the testing data.
         testData = Utils.readTestData(target, path=parameters.test, regression=parameters.reg)
         # Get the probability of the test examples.
-        Boosting.performInference(testData, trees)
+        #Boosting.performInference(testData, trees)
+        performInference(testData, trees)
 
         if parameters.reg:
             # View test example values (for regression)

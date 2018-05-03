@@ -16,14 +16,19 @@ along with this program (at the base of this repository). If not,
 see <http://www.gnu.org/licenses/>
 """
 
-from Utils import Utils
-from math import log,exp
-from Logic import Prover
+#from Utils import Utils
+from .Utils import Utils
+
+from math import log, exp
+
+#from Logic import Prover
+from .Logic import Prover
+
 from copy import deepcopy
 
 class Boosting(object):
     '''boosting class'''
-    
+
     logPrior = log(0.5/float(1-0.5))
 
     @staticmethod
@@ -52,7 +57,7 @@ class Boosting(object):
                 return clauseValue
             if Prover.prove(data,query,clauseRule): #check if query satisfies clause
                 return clauseValue
-    
+
     @staticmethod
     def computeSumOfGradients(example,trees,data):
         '''computes new gradient for example'''
@@ -62,65 +67,119 @@ class Boosting(object):
             sumOfGradients += gradient
         return sumOfGradients #return the sum
 
-    @staticmethod
-    def updateGradients(data,trees,loss="LS",delta=None):
-        '''updates the gradients of the data'''
-        if not data.regression:
-            logPrior = Boosting.logPrior
-            #P = sigmoid of sum of gradients given by each tree learned so far
-            for example in data.pos: #for each positive example compute 1 - P
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-                probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
-                updatedGradient = 1 - probabilityOfExample
-                if data.advice:
-                    adviceGradient = Boosting.computeAdviceGradient(example)
-                    updatedGradient += adviceGradient
-                data.pos[example] = updatedGradient
-            for example in data.neg: #for each negative example compute 0 - P
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-                probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
-                updatedGradient = 0 - probabilityOfExample
-                if data.advice:
-                    adviceGradient = Boosting.computeAdviceGradient(example)
-                    updatedGradient += adviceGradient
-                data.neg[example] = updatedGradient
-        if data.regression:
-            for example in data.examples: #compute gradient as y-y_hat
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
-                trueValue = data.getExampleTrueValue(example)
-                exampleValue = sumOfGradients
-                if loss == "LS":
-                    updatedGradient = trueValue - exampleValue
-                    data.examples[example] = updatedGradient
-                elif loss == "LAD":
-                    updatedGradient = 0
-                    gradient = trueValue - exampleValue
-                    if gradient:
-                        updatedGradient = gradient/float(abs(gradient))
-                    data.examples[example] = updatedGradient
-                elif loss == "Huber":
-                    gradient = trueValue - exampleValue
-                    updatedGradient = 0
-                    if gradient:
-                        if gradient > float(delta):
-                            updatedGradient = gradient/float(abs(gradient))
-                        elif gradient <= float(delta):
-                            updatedGradient = gradient
-                    data.examples[example] = updatedGradient
+def updateGradients(data, trees, loss='LS', delta=None):
+    """
+    Overview:
+    ---------
 
-    @staticmethod
-    def performInference(testData,trees):
-        '''computes probability for test examples'''
+    Name:
+        rfgb.Boosting.updateGradients
+    Performs:
+        Updates the gradients of the data.
+
+    ==========================================================================
+    Positional arguments:
+    ---------------------
+
+    @param  {object}        data            rfgb data object for training or
+                                            testing data (and parameters).
+    @param  {list}          trees           List of strings representing trees.
+
+    ==========================================================================
+    Keyword arguments:
+    ------------------
+
+    @param  {str}           loss            Loss function for regression.
+    @param  {float}         delta           Delta value for Huber loss.
+
+    ==========================================================================
+    Examples:
+    ---------
+
+    >>> from rfgb.Boosting import updateGradients
+    """
+
+    if data.regression:
+        # If this is regression data, compute gradient as y - y_hat
+
+        for example in data.examples:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            trueValue = data.getExampleTrueValue(example)
+
+            # Is this variable ever used?
+            # It can be removed pretty easily.
+            exampleValue = sumOfGradients
+
+            if loss == "LS":
+                # Least Squares
+                data.examples[example] = trueValue - sumOfGradients
+
+            elif loss == "LAD":
+                # Least Absolute Deviation
+
+                gradient = trueValue - exampleValue
+
+                updatedGradient = 0
+                gradient = trueValue - exampleValue
+                if gradient:
+                    updatedGradient = gradient/float(abs(gradient))
+                data.examples[example] = updatedGradient
+
+            elif loss == "Huber":
+                # Huber Loss
+
+                gradient = trueValue - exampleValue
+                updatedGradient = 0
+                if gradient:
+                    if gradient > float(delta):
+                        updatedGradient = gradient/float(abs(gradient))
+                    elif gradient <= float(delta):
+                        updatedGradient = gradient
+                data.examples[example] = updatedGradient
+
+    else:
         logPrior = Boosting.logPrior
-        if not testData.regression:
-            logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
-            for example in testData.pos:
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
-                testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
-            for example in testData.neg:
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
-                testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
-        elif testData.regression:
-            for example in testData.examples:
-                sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData)
-                testData.examples[example] = sumOfGradients
+        #P = sigmoid of sum of gradients given by each tree learned so far
+        for example in data.pos: #for each positive example compute 1 - P
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
+            updatedGradient = 1 - probabilityOfExample
+            if data.advice:
+                adviceGradient = Boosting.computeAdviceGradient(example)
+                updatedGradient += adviceGradient
+            data.pos[example] = updatedGradient
+        for example in data.neg: #for each negative example compute 0 - P
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,data)
+            probabilityOfExample = Utils.sigmoid(logPrior+sumOfGradients)
+            updatedGradient = 0 - probabilityOfExample
+            if data.advice:
+                adviceGradient = Boosting.computeAdviceGradient(example)
+                updatedGradient += adviceGradient
+            data.neg[example] = updatedGradient
+
+def performInference(testData, trees):
+    """
+    Compute the probabilities for test examples.
+
+    @method performInference
+    @param  {object}            testData        Data object for testing.
+    @param  {list}              trees           List of strings representing
+                                                learned decision trees.
+    """
+
+    #import pdb; pdb.set_trace()
+
+    '''computes probability for test examples'''
+    logPrior = Boosting.logPrior
+    if not testData.regression:
+        logPrior = log(0.5/float(1-0.5)) #initialize log odds of assumed prior probability for example
+        for example in testData.pos:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            testData.pos[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
+        for example in testData.neg:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData) #compute sum of gradients
+            testData.neg[example] = Utils.sigmoid(logPrior+sumOfGradients) #calculate probability as sigmoid(log odds)
+    elif testData.regression:
+        for example in testData.examples:
+            sumOfGradients = Boosting.computeSumOfGradients(example,trees,testData)
+            testData.examples[example] = sumOfGradients
