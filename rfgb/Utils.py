@@ -24,7 +24,11 @@ class Data(object):
     '''contains the relational data'''
 
     def __init__(self, regression=False, advice=False):
-        '''constructor for the Data class'''
+        """
+        An RFGB Data object, which serves as the structure for the positives,
+        negatives, facts, and other parameters.
+        """
+
         self.regression = regression
         self.advice = advice
         self.adviceClauses = {} #advice clauses stored here
@@ -37,8 +41,14 @@ class Data(object):
         self.literals = {} #literals present in facts and their type specs
         self.variableType = {} #type of variable used for facts and target
 
-    def setFacts(self,facts):
-        '''set facts from facts list'''
+    def setFacts(self, facts):
+        """
+        Mutate the facts in the data object.
+
+        @method Data.setFacts
+        @param  {list}          facts
+        @return {}              None
+        """
         self.facts = facts
 
     def getFacts(self):
@@ -71,24 +81,26 @@ class Data(object):
         Sets self.target as a target string.
         Sets self.variableType
 
+        @method Data.setTarget
+        @param  {list}          bk          List of strings representing modes.
+        @param  {str}           target      Target relation or attribute.
+        @return {}              (None)
+
         Example:
 
-            # Instantiate a data object.
-            data = Data(regression=False)
-            background = ['friends(+person,-person)', friends(-person,+person),
+        >>> data = Data(regression=False)
+        >>> background = ['friends(+person,-person)', friends(-person,+person),
                           'smokes(+person)', 'cancer(+person)']
-            target = 'cancer'
+        >>> target = 'cancer'
+        >>> data.setTarget(background, target)
+        >>> print(data.target)
+        'cancer(C)'
 
-            # set the target as a string we will try to prove.
-            data.setTarget(background, target)
-            
-            print(data.target)
-            'cancer(C)'
         """
         # targetTypes are the types of variables in the target predicate.
         targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
         targetTypes = list(map(Utils.removeModeSymbols, targetTypes))
-        
+
         targetArity = len(targetTypes)
         targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
 
@@ -97,7 +109,7 @@ class Data(object):
             self.target += variable + ','
             self.variableType[variable] = targetTypes[targetVariables.index(variable)]
         self.target = self.target[:-1] + ')'
-        
+
     def getTarget(self):
         '''returns the target'''
         return self.target
@@ -111,12 +123,11 @@ class Data(object):
         Returns the regression value for an example.
 
         Example:
-        
-            trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
-            x = trainingData.getValue('cancer(watson)')
 
-            x == -0.5
-            True
+        >>> trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
+        >>> x = trainingData.getValue('cancer(watson)')
+        >>> x
+        -0.5
         """
         if self.regression:
             return self.examples[example]
@@ -135,7 +146,7 @@ class Data(object):
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
             self.literals[literalName] = literalTypeSpecification
-            
+
     def getLiterals(self):
         '''gets all the literals in the facts'''
         return self.literals
@@ -148,21 +159,21 @@ class Data(object):
 
         if not examples:
             return 0
-        
+
         total = sum([self.getValue(example) for example in examples])
         numberOfExamples = len(examples)
         mean = total/float(numberOfExamples)
         sumOfSquaredError = sum([(self.getValue(example) - mean)**2 for example in examples])
 
         return sumOfSquaredError/float(numberOfExamples) #return variance
-        
+
 class Utils(object):
     '''class for utilities used by program
        reading files
     '''
 
     """@batflyer
-    
+
     'string' module can cause compatability issues between Python 2 and Python 3,
     switched from using string.uppercase to using string.ascii_uppsercase,
     the latter should work with both versions.
@@ -219,7 +230,7 @@ class Utils(object):
 
     @staticmethod
     def readTrainingData(target, path='train/', regression=False, advice=False):
-        
+
         """
         Reads the training data from files.
 
@@ -239,7 +250,7 @@ class Utils(object):
         Returns:
             A Data object representing the train data.
         """
-        
+
         Utils.data = Data(regression=regression, advice=advice)
         #trainData = Data(regression=regression, advice=advice)
         #Utils.data.regression = regression
@@ -251,7 +262,7 @@ class Utils(object):
 
                 for line in adviceFileLines:
                     adviceClause = line.split(' ')[0] #get advice clause
-                    
+
                     Utils.data.adviceClauses[adviceClause] = {}
                     #trainData.adviceClauses[adviceClause] = {}
 
@@ -262,7 +273,7 @@ class Utils(object):
                     elif not preferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['preferred'] = []
                         #trainData.adviceClauses[adviceClause]['preferred'] = []
-                    
+
                     nonPreferredTargets = line.split(' ')[2][1:-1].split(',')
                     if nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
@@ -270,7 +281,7 @@ class Utils(object):
                     elif not nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
                         #trainData.adviceClauses[adviceClause]['nonPreferred'] = []
-        
+
         with open(path + "facts.txt") as fac:
             Utils.data.setFacts(fac.read().splitlines())
             #trainData.setFacts(fac.read().splitlines())
@@ -294,7 +305,7 @@ class Utils(object):
             Utils.data.setTarget(bk, target)
             #trainData.setBackground(bk)
             #trainData.setTarget(bk, target, regression=regression)
-        
+
         return Utils.data
         #return trainData
 
@@ -323,7 +334,7 @@ class Utils(object):
 
         with open(path + "facts.txt") as facts:
             testData.setFacts(facts.read().splitlines())
-        
+
         if regression:
             with open(path + "examples.txt") as exam:
                 examples = exam.read().splitlines()
@@ -334,7 +345,7 @@ class Utils(object):
                 testData.setPos(pos.read().splitlines(), target)
             with open(path + "neg.txt") as neg:
                 testData.setNeg(neg.read().splitlines(), target)
-        
+
         return testData
 
 
@@ -360,4 +371,3 @@ class Utils(object):
             modifiedItemSets.remove(set2)
             modifiedItemSets.insert(0,pairWiseProducts) #insert cartesian product in its place and repeat
         return modifiedItemSets[0] #return the final cartesian product sets
-            
