@@ -33,10 +33,10 @@ Unit tests for Utils.py
 Tests should be ordered in the same manner as they are defined in Utils.py
 """
 
-sys.path.append('./rfgb/')
+sys.path.append('./')
 
-from Utils import Data
-from Utils import Utils
+from rfgb.Utils import Data
+from rfgb.Utils import Utils
 
 class UtilsTest(unittest.TestCase):
 
@@ -67,7 +67,7 @@ class UtilsTest(unittest.TestCase):
         """
 
         # Some setup that needs to take place.
-        
+
         target = 'cancer'
         background = ['friends(+person,-person)', 'friends(-person,+person)',
                       'smokes(+person)', 'cancer(person)']
@@ -122,7 +122,7 @@ class UtilsTest(unittest.TestCase):
 
         target = 'drinks'
         background = ['drinks(+person,-drink,-city)']
-        
+
         for _ in range(100):
             # Set the target (introducing three random variables).
             data = Data(regression=False)
@@ -147,7 +147,7 @@ class UtilsTest(unittest.TestCase):
         tests: readTestData on the ToyCancer dataset.
         """
         sampleData = Utils.readTestData('cancer', path='testDomains/ToyCancer/test/')
-        
+
         # Verify that regression and advice were not specified.
         self.assertEqual(sampleData.regression, False)
         self.assertEqual(sampleData.advice, False)
@@ -194,6 +194,6 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(sampleData.examples, {'medv(id348)': 23.1, 'medv(id369)': 50.0, 'medv(id344)': 23.9, 'medv(id152)': 19.6, 'medv(id120)': 19.3, 'medv(id53)': 25.0, 'medv(id422)': 14.2, 'medv(id115)': 18.5, 'medv(id235)': 29.0, 'medv(id448)': 12.6, 'medv(id3)': 34.7, 'medv(id211)': 21.7, 'medv(id334)': 22.2, 'medv(id313)': 19.4, 'medv(id13)': 21.7, 'medv(id42)': 26.6, 'medv(id439)': 84.0, 'medv(id45)': 21.2, 'medv(id183)': 37.9, 'medv(id212)': 19.3, 'medv(id374)': 13.8, 'medv(id238)': 31.5, 'medv(id294)': 23.9, 'medv(id7)': 22.9, 'medv(id62)': 16.0, 'medv(id153)': 15.3, 'medv(id345)': 31.2, 'medv(id163)': 50.0, 'medv(id341)': 18.7, 'medv(id50)': 19.4, 'medv(id208)': 22.5, 'medv(id167)': 50.0, 'medv(id70)': 20.9, 'medv(id143)': 13.4, 'medv(id217)': 23.3, 'medv(id29)': 18.4, 'medv(id181)': 39.8, 'medv(id342)': 32.7, 'medv(id59)': 23.3, 'medv(id27)': 16.6, 'medv(id188)': 32.0, 'medv(id435)': 11.7, 'medv(id173)': 23.1, 'medv(id10)': 18.9})
 
 
-        
+
 if __name__ == '__main__':
     unittest.main()
