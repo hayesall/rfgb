@@ -19,8 +19,8 @@ see <http://www.gnu.org/licenses/>
 from __future__ import print_function
 from __future__ import division
 
-from Utils import Utils
-from Logic import Logic,Prover
+from .Utils import Utils
+from .Logic import Logic, Prover
 from copy import deepcopy
 
 class node(object):
@@ -61,11 +61,11 @@ class node(object):
     @staticmethod
     def initTree(trainingData):
         """Method for creating the root node."""
-        
+
         node.data = trainingData
         node.expandQueue = [] #reset node queue for every tree to be learned
         node.learnedDecisionTree = [] #reset clauses for every tree to be learned
-        
+
         if trainingData.regression:
             # Regression examples can be collected from trainingData.examples (since there are no pos/neg).
             examples = trainingData.examples.keys()
@@ -85,7 +85,7 @@ class node(object):
             curr.expandOnBestTest(data)
         node.learnedDecisionTree.sort(key = len)
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
-        
+
     def getTrueExamples(self, clause, test, data):
         '''returns all examples that satisfy clause
            with conjoined test literal
@@ -156,13 +156,13 @@ class node(object):
             fExamples = [example for example in self.examples if example not in tExamples]
             # Total number of examples.
             example_len = len(self.examples)
-            
+
             # Calculated the weighted variance:
             score = ((len(tExamples)/example_len) * data.variance(tExamples) +
                      (len(fExamples)/example_len) * data.variance(fExamples))
 
             #score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples))
-            
+
             if score < minScore: #if score lower than current lowest
                 minScore = score #assign new minimum
                 bestTest = test #assign new best test
@@ -178,18 +178,18 @@ class node(object):
         if len(bestTExamples) > 0:
 
             self.left = node(None, bestTExamples, data.variance(bestTExamples), self.level+1, self, "left")
-            
+
             #self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
 
         # If False examples need further explaining, create right node and add to the queue.
         if len(bestFExamples) > 0:
-            
+
             self.right = node(None, bestFExamples, data.variance(bestFExamples), self.level+1, self, "right")
 
             #self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
-            
+
             if self.level+1 > node.depth:
                 node.depth = self.level+1
         if self.test == "" or round(self.information,3) == 0: #if no examples append clause as is

@@ -24,7 +24,11 @@ class Data(object):
     '''contains the relational data'''
 
     def __init__(self, regression=False, advice=False):
-        '''constructor for the Data class'''
+        """
+        An RFGB Data object, which serves as the structure for the positives,
+        negatives, facts, and other parameters.
+        """
+
         self.regression = regression
         self.advice = advice
         self.adviceClauses = {} #advice clauses stored here
@@ -37,8 +41,14 @@ class Data(object):
         self.literals = {} #literals present in facts and their type specs
         self.variableType = {} #type of variable used for facts and target
 
-    def setFacts(self,facts):
-        '''set facts from facts list'''
+    def setFacts(self, facts):
+        """
+        Mutate the facts in the data object.
+
+        @method Data.setFacts
+        @param  {list}          facts
+        @return {}              None
+        """
         self.facts = facts
 
     def getFacts(self):
@@ -52,22 +62,13 @@ class Data(object):
                 self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
 
     def setExamples(self,examples,target):
-        #set examples for regression'''
-        values = []
-        for example in examples:
-            predicate = examples.split(' ')[0] #get predicate
-            value = float(example.split(' ')[1]) #get true regression value
-            if predicate.split('(')[0] == target:
-                self.examplesTrueValue[predicate] = value #store true value of example
-                self.examples[predicate] = value - sum(values)/float(len(values)) #set value for example as average
-        '''
+        '''set examples for regression'''
         for example in examples:
             predicate = example.split(' ')[0] #get predicate
             value = float(example.split(' ')[1]) # get true regression value
             if predicate.split('(')[0] == target:
                 self.examplesTrueValue[predicate] = value #store true value of example
                 self.examples[predicate] = value #set value for example, otherwise no variance
-        '''
 
     def setNeg(self,neg,target):
         '''set negative examples from neg list'''
@@ -75,33 +76,39 @@ class Data(object):
             if example.split('(')[0] == target:
                 self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
 
-    def setTarget(self, bk, target, regression = False):
-        '''sets the target'''
-        targetSpecification = None
-        for line in bk:
-            if line.split('(')[0] == target:
-                targetSpecification = line
-        targetSpecification = targetSpecification[:-1].split('(')[1].split(',')
-        firstPositiveInstance = None
-        if not regression:
-            for posEx in self.pos.keys(): #get the first positive example in the dictionary
-                if posEx.split('(')[0] == target:
-                    firstPositiveInstance = posEx
-                    break
-        elif regression:
-            for example in self.examples.keys(): #get first regression example
-                predicate = example.split(' ')[0]
-                if predicate.split('(')[0] == target:
-                    firstPositiveInstance = predicate
-                    break
-        targetPredicate = firstPositiveInstance.split('(')[0] #get predicate name
-        targetArity = len(firstPositiveInstance.split('(')[1].split(',')) #get predicate arity
-        targetVariables = sample(Utils.UniqueVariableCollection,targetArity) #get some variables according to arity
-        self.target = targetPredicate+"(" #construct target string
+    def setTarget(self, bk, target):
+        """
+        Sets self.target as a target string.
+        Sets self.variableType
+
+        @method Data.setTarget
+        @param  {list}          bk          List of strings representing modes.
+        @param  {str}           target      Target relation or attribute.
+        @return {}              (None)
+
+        Example:
+
+        >>> data = Data(regression=False)
+        >>> background = ['friends(+person,-person)', friends(-person,+person),
+                          'smokes(+person)', 'cancer(+person)']
+        >>> target = 'cancer'
+        >>> data.setTarget(background, target)
+        >>> print(data.target)
+        'cancer(C)'
+
+        """
+        # targetTypes are the types of variables in the target predicate.
+        targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
+        targetTypes = list(map(Utils.removeModeSymbols, targetTypes))
+
+        targetArity = len(targetTypes)
+        targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
+
+        self.target = target + '('
         for variable in targetVariables:
-            self.target += variable+","
-            self.variableType[variable] = targetSpecification[targetVariables.index(variable)]
-        self.target = self.target[:-1]+")"
+            self.target += variable + ','
+            self.variableType[variable] = targetTypes[targetVariables.index(variable)]
+        self.target = self.target[:-1] + ')'
 
     def getTarget(self):
         '''returns the target'''
@@ -116,12 +123,11 @@ class Data(object):
         Returns the regression value for an example.
 
         Example:
-        
-            trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
-            x = trainingData.getValue('cancer(watson)')
 
-            x == -0.5
-            True
+        >>> trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
+        >>> x = trainingData.getValue('cancer(watson)')
+        >>> x
+        -0.5
         """
         if self.regression:
             return self.examples[example]
@@ -140,7 +146,7 @@ class Data(object):
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
             self.literals[literalName] = literalTypeSpecification
-            
+
     def getLiterals(self):
         '''gets all the literals in the facts'''
         return self.literals
@@ -149,25 +155,25 @@ class Data(object):
         '''
         Calculates the variance of the regression values from a subset of the data.
         '''
-        print(examples)
+        #print(examples)
 
         if not examples:
             return 0
-        
+
         total = sum([self.getValue(example) for example in examples])
         numberOfExamples = len(examples)
         mean = total/float(numberOfExamples)
         sumOfSquaredError = sum([(self.getValue(example) - mean)**2 for example in examples])
 
         return sumOfSquaredError/float(numberOfExamples) #return variance
-        
+
 class Utils(object):
     '''class for utilities used by program
        reading files
     '''
 
     """@batflyer
-    
+
     'string' module can cause compatability issues between Python 2 and Python 3,
     switched from using string.uppercase to using string.ascii_uppsercase,
     the latter should work with both versions.
@@ -175,6 +181,29 @@ class Utils(object):
 
     data = None #attribute to store data (facts,positive and negative examples)
     UniqueVariableCollection = set(list(string.ascii_uppercase))
+
+    @staticmethod
+    def sigmoid(x):
+        '''returns sigmoid of x'''
+        return exp(x)/float(1+exp(x))
+
+    @staticmethod
+    def removeModeSymbols(inputString):
+        """
+        Returns a string with the mode symbols (+,-,#) removed.
+
+        Example:
+            >>> i = "#city"
+            >>> o = removeModeSymbols(i)
+            >>> print(o)
+            city
+
+            >>> i = ["+drinks", "-drink", "-city"]
+            >>> o = list(map(removeModeSymbols, i))
+            >>> print(o)
+            ["drinks", "drink", "city"]
+        """
+        return inputString.replace('+', '').replace('-', '').replace('#', '')
 
     @staticmethod
     def addVariableTypes(literal):
@@ -201,7 +230,7 @@ class Utils(object):
 
     @staticmethod
     def readTrainingData(target, path='train/', regression=False, advice=False):
-        
+
         """
         Reads the training data from files.
 
@@ -221,7 +250,7 @@ class Utils(object):
         Returns:
             A Data object representing the train data.
         """
-        
+
         Utils.data = Data(regression=regression, advice=advice)
         #trainData = Data(regression=regression, advice=advice)
         #Utils.data.regression = regression
@@ -233,7 +262,7 @@ class Utils(object):
 
                 for line in adviceFileLines:
                     adviceClause = line.split(' ')[0] #get advice clause
-                    
+
                     Utils.data.adviceClauses[adviceClause] = {}
                     #trainData.adviceClauses[adviceClause] = {}
 
@@ -244,7 +273,7 @@ class Utils(object):
                     elif not preferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['preferred'] = []
                         #trainData.adviceClauses[adviceClause]['preferred'] = []
-                    
+
                     nonPreferredTargets = line.split(' ')[2][1:-1].split(',')
                     if nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
@@ -252,7 +281,7 @@ class Utils(object):
                     elif not nonPreferredTargets[0]:
                         Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
                         #trainData.adviceClauses[adviceClause]['nonPreferred'] = []
-        
+
         with open(path + "facts.txt") as fac:
             Utils.data.setFacts(fac.read().splitlines())
             #trainData.setFacts(fac.read().splitlines())
@@ -273,10 +302,10 @@ class Utils(object):
             bk = fp.read().splitlines()
 
             Utils.data.setBackground(bk)
-            Utils.data.setTarget(bk, target, regression=regression)
+            Utils.data.setTarget(bk, target)
             #trainData.setBackground(bk)
             #trainData.setTarget(bk, target, regression=regression)
-        
+
         return Utils.data
         #return trainData
 
@@ -305,7 +334,7 @@ class Utils(object):
 
         with open(path + "facts.txt") as facts:
             testData.setFacts(facts.read().splitlines())
-        
+
         if regression:
             with open(path + "examples.txt") as exam:
                 examples = exam.read().splitlines()
@@ -316,38 +345,9 @@ class Utils(object):
                 testData.setPos(pos.read().splitlines(), target)
             with open(path + "neg.txt") as neg:
                 testData.setNeg(neg.read().splitlines(), target)
-        
+
         return testData
 
-    """
-    @batflyer:
-    It makes very little sense to declare something as a static method when
-    it references the contents of a data object. This was moved into the
-    Data object.
-
-    @staticmethod
-    def variance(examples):
-        '''method to calculate variance
-           in regression values for all
-           examples
-        '''
-        print(examples)
-
-        if not examples:
-            return 0
-        
-        total = sum([Utils.data.getValue(example) for example in examples])
-        numberOfExamples = len(examples)
-        mean = total/float(numberOfExamples)
-        sumOfSquaredError = sum([(Utils.data.getValue(example) - mean)**2 for example in examples])
-
-        return sumOfSquaredError/float(numberOfExamples) #return variance
-    """
-
-    @staticmethod
-    def sigmoid(x):
-        '''returns sigmoid of x'''
-        return exp(x)/float(1+exp(x))
 
     @staticmethod
     def cartesianProduct(itemSets):
@@ -371,4 +371,3 @@ class Utils(object):
             modifiedItemSets.remove(set2)
             modifiedItemSets.insert(0,pairWiseProducts) #insert cartesian product in its place and repeat
         return modifiedItemSets[0] #return the final cartesian product sets
-            
