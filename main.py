@@ -18,13 +18,10 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import print_function
 
-#import rfgb
-
-from rfgb.Utils import Utils
-from rfgb.Tree import node
-#from Boosting import Boosting
-from rfgb.Boosting import updateGradients
-from rfgb.Boosting import performInference
+from rfgb.utils import Utils
+from rfgb.tree import node
+from rfgb.boosting import updateGradients
+from rfgb.boosting import performInference
 
 import argparse
 

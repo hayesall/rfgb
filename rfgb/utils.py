@@ -16,9 +16,10 @@ along with this program (at the base of this repository). If not,
 see <http://www.gnu.org/licenses/>
 """
 
-import string
 from random import sample
 from math import exp
+
+import string
 
 class Data(object):
     '''contains the relational data'''

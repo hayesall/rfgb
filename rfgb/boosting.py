@@ -31,8 +31,8 @@ see <http://www.gnu.org/licenses/>
 
 from __future__ import division
 
-from .Utils import Utils
-from .Logic import Prover
+from .utils import Utils
+from .logic import Prover
 
 from math import log
 from math import exp
