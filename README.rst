@@ -68,22 +68,30 @@ Targets
 | **Dataset**   | **Target**             |
 +---------------+------------------------+
 | BlocksWorld   | ``putdown``            |
++---------------+------------------------+
 | BostonHousing | ``medv``               |
++---------------+------------------------+
 | HeartAttack   | ``ha``                 |
++---------------+------------------------+
 | Insurance     | ``value``              |
++---------------+------------------------+
 | Logistics     | ``unload``             |
++---------------+------------------------+
 | MoodDisorder  | ``bipolar``            |
++---------------+------------------------+
 | TicTacToe     | ``put`` or ``dontput`` |
++---------------+------------------------+
 | ToyCancer     | ``cancer``             |
++---------------+------------------------+
 | XOR           | ``xor``                |
 +---------------+------------------------+
 
 In Development
 --------------
 
-* [ ] Test cases (codecov >90%)
-* [ ] Learning Markov Logic Networks
-* [ ] Learning with Soft-Margin
+- [ ] Test cases (codecov >90%)
+- [ ] Learning Markov Logic Networks
+- [ ] Learning with Soft-Margin
 
 License
 -------
