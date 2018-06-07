@@ -69,13 +69,13 @@ A full [copy of the license](https://github.com/starling-lab/RFGB/blob/master/LI
 The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and fellow members of the [StARLinG Lab](https://starling.utdallas.edu) at the University of Texas at Dallas.
 
 [license]:LICENSE
-[license img]:https://img.shields.io/github/license/starling-lab/RFGB.svg?style=flat-square
+[license img]:https://img.shields.io/github/license/starling-lab/rfgb.py.svg?style=flat-square
 
-[release]: https://github.com/starling-lab/RFGB/releases
-[release img]:https://img.shields.io/github/tag/starling-lab/RFGB.svg?style=flat-square
+[release]: https://github.com/starling-lab/rfgb.py/releases
+[release img]:https://img.shields.io/github/tag/starling-lab/rfgb.py.svg?style=flat-square
 
-[build link]:https://travis-ci.org/starling-lab/RFGB.svg?branch=master
-[build img]:https://img.shields.io/travis/starling-lab/RFGB.svg?style=flat-square
+[build link]:https://travis-ci.org/starling-lab/rfgb.py.svg?branch=master
+[build img]:https://img.shields.io/travis/starling-lab/rfgb.py.svg?style=flat-square
 
-[codecov link]:https://codecov.io/gh/starling-lab/RFGB?branch=master
-[codecov img]:https://img.shields.io/codecov/c/github/starling-lab/RFGB/master.svg?style=flat-square
+[codecov link]:https://codecov.io/gh/starling-lab/rfgb.py?branch=master
+[codecov img]:https://img.shields.io/codecov/c/github/starling-lab/rfgb.py/master.svg?style=flat-square
