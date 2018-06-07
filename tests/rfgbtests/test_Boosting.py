@@ -23,7 +23,7 @@ import unittest
 
 sys.path.append('./')
 
-import rfgb.Boosting
+import rfgb.boosting
 
 class BoostingTest(unittest.TestCase):
 

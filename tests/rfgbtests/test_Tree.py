@@ -23,7 +23,7 @@ import unittest
 
 sys.path.append('./')
 
-from rfgb.Tree import node
+from rfgb.tree import node
 
 class TreeTest(unittest.TestCase):
 

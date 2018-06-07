@@ -35,8 +35,8 @@ Tests should be ordered in the same manner as they are defined in Utils.py
 
 sys.path.append('./')
 
-from rfgb.Utils import Data
-from rfgb.Utils import Utils
+from rfgb.utils import Data
+from rfgb.utils import Utils
 
 class UtilsTest(unittest.TestCase):
 
