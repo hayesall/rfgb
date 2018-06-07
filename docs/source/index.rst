@@ -10,7 +10,7 @@ Welcome to rfgb.py's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   rfgb
 
 Indices and tables
 ==================
