@@ -113,7 +113,7 @@ for target in parameters.target:
     # Read the training data:
     trainData = Utils.readTrainingData(target, path=parameters.train,
                                        regression=parameters.reg,
-                                       advice=parameters.advice)
+                                       advice=parameters.expAdvice)
 
     # Initialize an empty list for the trees.
     trees = []
