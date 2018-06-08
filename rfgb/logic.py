@@ -1,16 +1,16 @@
 
 # Copyright (C) 2017-2018 RFGB Contributors
-# 
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
@@ -28,37 +28,52 @@ import re
 
 from .utils import Utils
 
-#Thanks to Chris Meyers for some of this code --> http://www.openbookproject.net/py4fun/prolog/prolog1.html.
+# Thanks to Chris Meyers for some of this code:
+# http://www.openbookproject.net/py4fun/prolog/prolog1.html.
+
 
 class Term(object):
-    '''class for term in prolog proof'''
-    def __init__ (self, s) :   # expect "x(y,z...)"
-        if s[-1] != ')' : fatal("Syntax error in term: %s" % [s])
+    """
+    Class for term in prolog proof.
+    """
+    # Expect "x(y,z...)"
+    def __init__(self, s):
+        if s[-1] != ')':
+            raise(Exception("Syntax error in term: %s" % [s]))
         flds = s.split('(')
-        if len(flds) != 2 : fatal("Syntax error in term: %s" % [s])
+        if len(flds) != 2:
+            raise(Exception("Syntax error in term: %s" % [s]))
         self.args = flds[1][:-1].split(',')
         self.pred = flds[0]
 
+
 class Rule(object):
-    '''class for logic rules in prolog proof'''
-    def __init__ (self, s) :   # expect "term-:term;term;..."
+    """
+    Class for logic rules in prolog proof.
+    """
+    # Expect "term:-term;term;..."
+    def __init__(self, s):
         flds = s.split(":-")
         self.head = Term(flds[0])
         self.goals = []
-        if len(flds) == 2 :
-            flds = re.sub("\),",");",flds[1]).split(";")
-            for fld in flds : self.goals.append(Term(fld))
+        if len(flds) == 2:
+            flds = re.sub("\),", ");", flds[1]).split(";")
+            for fld in flds:
+                self.goals.append(Term(fld))
+
 
 class Goal(object):
     '''class for each goal in rule during prolog search'''
-    def __init__ (self, rule, parent=None, env={}) :
+    def __init__(self, rule, parent=None, env={}):
         goalId = Prover.goalId
         goalId += 1
         self.id = goalId
         self.rule = rule
         self.parent = parent
         self.env = deepcopy(env)
-        self.inx = 0      # start search with 1st subgoal
+        # Start search with 1st subgoal
+        self.inx = 0
+
 
 class Prover(object):
     '''class for prolog style proof of query'''
@@ -67,140 +82,240 @@ class Prover(object):
     trace = 0
 
     @staticmethod
-    def unify (srcTerm, srcEnv, destTerm, destEnv) :
-        "unification method"
+    def unify(srcTerm, srcEnv, destTerm, destEnv):
+        """
+        Unification method.
+        """
         nargs = len(srcTerm.args)
-        if nargs        != len(destTerm.args) : return 0
-        if srcTerm.pred != destTerm.pred      : return 0
-        for i in range(nargs) :
-            srcArg  = srcTerm.args[i]
+        if nargs != len(destTerm.args):
+            return 0
+        if srcTerm.pred != destTerm.pred:
+            return 0
+        for i in range(nargs):
+            srcArg = srcTerm.args[i]
             destArg = destTerm.args[i]
-            if srcArg <= 'Z' : srcVal = srcEnv.get(srcArg)
-            else             : srcVal = srcArg
-            if srcVal :    # constant or defined Variable in source
-                if destArg <= 'Z' :  # Variable in destination
+            if srcArg <= 'Z':
+                srcVal = srcEnv.get(srcArg)
+            else:
+                srcVal = srcArg
+            if srcVal:
+                # Constant or defined Variable in source
+                if destArg <= 'Z':
+                    # Variable in destination
                     destVal = destEnv.get(destArg)
-                    if not destVal : destEnv[destArg] = srcVal  # Unify !
-                    elif destVal != srcVal : return 0           # Won't unify
-                elif     destArg != srcVal : return 0           # Won't unify
+                    if not destVal:
+                        # Unify
+                        destEnv[destArg] = srcVal
+                    elif destVal != srcVal:
+                        # Won't unify
+                        return 0
+                elif destArg != srcVal:
+                    # Won't unify
+                    return 0
         return 1
 
     @staticmethod
-    def search (term) :
-        '''method to perform prolog style query search'''
+    def search(term):
+        """
+        Method to perform prolog style query search.
+        """
         goalId = Prover.goalId
         trace = Prover.trace
         rules = Prover.rules
         unify = Prover.unify
         goalId = 0
         returnValue = False
-        if trace : print("search", term)
-        goal = Goal(Rule("got(goal):-x(y)"))      # Anything- just get a rule object
-        goal.rule.goals = [term]                  # target is the single goal
-        if trace : print("stack", goal)
-        stack = [goal]                            # Start our search
-        while stack :
-            c = stack.pop()        # Next goal to consider
-            if trace : print("  pop", c)
-            if c.inx >= len(c.rule.goals) :       # Is this one finished?
-                if c.parent == None :             # Yes. Our original goal?
-                    if c.env : print(c.env)       # Yes. tell user we
-                    else     : returnValue = True #print "Yes"        # have a solution
+        if trace:
+            print("search", term)
+
+        # Anything- just get a rule object.
+        goal = Goal(Rule("got(goal):-x(y)"))
+        # Target is the single goal
+        goal.rule.goals = [term]
+        if trace:
+            print("stack", goal)
+
+        # Begin the search.
+        stack = [goal]
+        while stack:
+            # Next goal to consider:
+            c = stack.pop()
+            if trace:
+                print("  pop", c)
+
+            # Is this one finished?
+            if c.inx >= len(c.rule.goals):
+                # Yes. Our original goal?
+                if c.parent is None:
+                    if c.env:
+                        # Yes. tell user we
+                        print(c.env)
+                    else:
+                        # have a solution
+                        returnValue = True
                     continue
-                parent = deepcopy(c.parent)  # Otherwise resume parent goal
-                unify (c.rule.head,c.env,parent.rule.goals[parent.inx],parent.env)
-                parent.inx = parent.inx+1         # advance to next goal in body
-                if trace : print("stack", parent)
-                stack.append(parent)              # let it wait its turn
+
+                # Otherwise, resume parent goal.
+                parent = deepcopy(c.parent)
+
+                unify(c.rule.head,
+                      c.env,
+                      parent.rule.goals[parent.inx],
+                      parent.env)
+
+                # Advance to next goal in body.
+                parent.inx = parent.inx + 1
+                if trace:
+                    print("stack", parent)
+                # Let it wait its turn.
+                stack.append(parent)
                 continue
+
             # No. more to do with this goal.
-            term = c.rule.goals[c.inx]            # What we want to solve
-            for rule in rules :                     # Walk down the rule database
-                if rule.head.pred      != term.pred      : continue
-                if len(rule.head.args) != len(term.args) : continue
-                child = Goal(rule, c)               # A possible subgoal
-                ans = unify (term, c.env, rule.head, child.env)
-                if ans :                            # if unifies, stack it up
-                    if trace : print("stack", child)
+            # What we want to solve:
+            term = c.rule.goals[c.inx]
+            for rule in rules:
+                # Walk down the rule database.
+                if rule.head.pred != term.pred:
+                    continue
+                if len(rule.head.args) != len(term.args):
+                    continue
+                # A possible subgoal.
+                child = Goal(rule, c)
+                ans = unify(term, c.env, rule.head, child.env)
+                if ans:
+                    # if unifies, stack it up
+                    if trace:
+                        print("stack", child)
                     stack.append(child)
         return returnValue
 
     @staticmethod
-    def prove(data,example,clause):
-        '''proves if example satisfies clause given the data
-           returns True if satisfies else returns False
-        '''
-        Prover.rules = [] #contains all rules
-        Prover.trace = 0  #if trace is 1 displays proof tree
-        Prover.goalId = 100 #stores goal Id
+    def prove(data, example, clause):
+        """
+        Proves if example satisfies clause given the data.
+        Returns True if it satisfies, else return False.
+
+        Prover.rules: contains all of the rules.
+        Prover.trace: If this is 1, displays the proof tree.
+        Prover.goalID: stores the goal ID.
+        """
+        Prover.rules = []
+        Prover.trace = 0
+        Prover.goalId = 100
         Prover.rules += [Rule(fact) for fact in data.getFacts()]
         Prover.rules += [Rule(clause)]
-        proofOutcome = Prover.search(Term(example)) #proves query prolog style
+
+        # Proves query prolog-style:
+        proofOutcome = Prover.search(Term(example))
         return proofOutcome
 
-class Logic(object):
-    '''class for logic operations'''
 
+class Logic(object):
+    """
+    Class for logic operations.
+    """
     @staticmethod
     def constantsPresentInLiteral(literalTypeSpecification):
-        '''returns true if constants present in type spec'''
-        for item in literalTypeSpecification: #check if there is a single non variable
+        """
+        Returns true if constants present in type specification.
+        """
+        # Check if there is a single non-variable.
+        for item in literalTypeSpecification:
             if item[0] == '[':
                 return True
         return False
 
     @staticmethod
     def getVariables(literal):
-        '''returns variables in the literal'''
-        variablesAndConstants = literal[:-1].split('(')[1].split(',') #get variables and constants in body literal
-        variables = [item for item in variablesAndConstants if item in Utils.UniqueVariableCollection] #get only the variables
+        """
+        Returns variables in the literal.
+        """
+        # Get variables and constants in body literal.
+        variablesAndConstants = literal[:-1].split('(')[1].split(',')
+
+        # Get only the variables.
+        variables = []
+        for item in variablesAndConstants:
+            if item in Utils.UniqueVariableCollection:
+                variables.append(item)
+
         return variables
 
     @staticmethod
-    def generateTests(literalName,literalTypeSpecification,clause):
-        '''generates tests for literal according to modes and types'''
-        target = clause.split(":-")[0] #get clause target
-        body = clause.split(":-")[1] #get clause body
-        targetVariables = target[:-1].split('(')[1].split(',') #obtain target variables
-        bodyVariables = [] #initialize body variables list
+    def generateTests(literalName, literalTypeSpecification, clause):
+        """
+        Generates tests for literal according to modes and types.
+        """
+
+        target = clause.split(':-')[0]
+        body = clause.split(':-')[1]
+        targetVariables = target[:-1].split('(')[1].split(',')
+
+        # Initialize a list of body variables.
+        bodyVariables = []
         if body:
-            bodyLiterals = [literal for literal in body.split(";") if literal] #get clause body literals
+            # Get clause body literals
+            bodyLiterals = [literal for literal in body.split(";") if literal]
             for literal in bodyLiterals:
                 bodyVariables += Logic.getVariables(literal)
-        clauseVariables = set(targetVariables+bodyVariables) #get all clause variables
-        lengthOfSpecification = len(literalTypeSpecification) #get length of specification
+
+        clauseVariables = set(targetVariables + bodyVariables)
+        lengthOfSpecification = len(literalTypeSpecification)
+
         testSpecification = []
         for i in range(lengthOfSpecification):
-            variable = False #check if data type is variable or constant
-            if literalTypeSpecification[i][0]!='[':
+            # Check if data type is variable or constant.
+            variable = False
+            if literalTypeSpecification[i][0] != '[':
                 variable = True
-            if variable: #if data type is variable
-                mode = literalTypeSpecification[i][0] #get mode + or -
-                variableType = literalTypeSpecification[i][1:] #get variable type
-                if mode == '+': #variable must be an already existing variable in the clause of same type if exists
-                    variableOfSameTypeInClause = [var for var in clauseVariables if Utils.data.variableType[var]==variableType] #get all clause variables of same type
-                    if variableOfSameTypeInClause: #if variables of same type exist in clause
+            # If the data type is variable.
+            if variable:
+                # Get mode (+ or -)
+                mode = literalTypeSpecification[i][0]
+                # Get the variable type.
+                variableType = literalTypeSpecification[i][1:]
+
+                # Variable must be an already existing variable in the clause
+                # of the same type if it exists.
+                if mode == '+':
+                    # Get all clause variables of same type:
+
+                    variableOfSameTypeInClause = []
+                    for var in clauseVariables:
+                        if Utils.data.variableType[var] == variableType:
+                            variableOfSameTypeInClause.append(var)
+
+                    if variableOfSameTypeInClause:
+                        # If variables of same type exist in clause
                         testSpecification.append(variableOfSameTypeInClause)
                     else:
                         newVar = None
                         while True:
-                            newVar = sample(Utils.UniqueVariableCollection,1)
+                            newVar = sample(Utils.UniqueVariableCollection, 1)
                             if newVar[0] not in clauseVariables:
                                 break
                         testSpecification.append([newVar[0]])
-                if mode == '-': #use new variable
+
+                # Use new variable.
+                if mode == '-':
                     newVar = None
                     while True:
-                        newVar = sample(Utils.UniqueVariableCollection,1)
+                        newVar = sample(Utils.UniqueVariableCollection, 1)
                         if newVar[0] not in clauseVariables:
                             break
                     testSpecification.append([newVar[0]])
-            else: #if data type is constant
+
+            # If data type is constant:
+            else:
                 listToAppend = literalTypeSpecification[i][1:-1].split(';')
                 testSpecification.append(listToAppend)
-        testVariablesAndConstants =  Utils.cartesianProduct(testSpecification)
+
+        testVariablesAndConstants = Utils.cartesianProduct(testSpecification)
         literalCandidates = []
-        for item in testVariablesAndConstants: #form predicates and return all the test candidates for this literal
-            literalCandidate = literalName+"("+",".join(item)+")"
+
+        # Form predicates and return all the test candidates for this literal
+        for item in testVariablesAndConstants:
+            literalCandidate = literalName + "(" + ",".join(item) + ")"
             literalCandidates.append(literalCandidate)
         return literalCandidates

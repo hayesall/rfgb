@@ -32,6 +32,7 @@ from .utils import Utils
 
 import argparse
 
+
 class Arguments:
     """
     For backwards compatability with the Java codebase, flags should ideally
