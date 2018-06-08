@@ -29,7 +29,7 @@ rfgb\.tree module
     :show-inheritance:
 
 rfgb\.utils module
------------------
+------------------
 
 .. automodule:: rfgb.utils
     :members:

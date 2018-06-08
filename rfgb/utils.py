@@ -1,22 +1,22 @@
 
 # Copyright (C) 2017-2018 RFGB Contributors
-# 
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
 
 """
-(docstring)
+(docstring for utils)
 """
 
 from random import sample
@@ -24,34 +24,46 @@ from math import exp
 
 import string
 
+
 class Data(object):
-    '''contains the relational data'''
+    """Object containing the relational data."""
 
     def __init__(self, regression=False, advice=False):
         """
         An RFGB Data object, which serves as the structure for the positives,
         negatives, facts, and other parameters.
+
+        adviceClauses: dictionary of advice clauses.
+        facts: list of strings representing facts.
+        pos: dictionary of positive examples.
+        neg: dictionary of negative examples.
+        examples: dictionary of examples for regression.
+        examplesTrueValue: true value for use during regression.
+        target: Target(s) to be learned or inferred.
+        literals: Literals present in facts or their type specifications.
+        variableType: Type of variable for facts and target.
         """
 
         self.regression = regression
         self.advice = advice
-        self.adviceClauses = {} #advice clauses stored here
-        self.facts = [] #facts
-        self.pos = {} #positive examples
-        self.neg = {} #negative examples
-        self.examples = {} #for regression
-        self.examplesTrueValue = {} #for regression
-        self.target = None #target to be learned
-        self.literals = {} #literals present in facts and their type specs
-        self.variableType = {} #type of variable used for facts and target
+        self.adviceClauses = {}
+        self.facts = []
+        self.pos = {}
+        self.neg = {}
+        self.examples = {}
+        self.examplesTrueValue = {}
+        self.target = None
+        self.literals = {}
+        self.variableType = {}
 
     def setFacts(self, facts):
         """
         Mutate the facts in the data object.
 
-        @method Data.setFacts
-        @param  {list}          facts
-        @return {}              None
+        :param facts: List of strings representing the facts.
+        :type facts: list.
+
+        :returns: None
         """
         self.facts = facts
 
@@ -59,47 +71,69 @@ class Data(object):
         '''returns the facts in the data'''
         return self.facts
 
-    def setPos(self,pos,target):
-        '''set positive examples from pos list'''
+    def setPos(self, pos, target):
+        """
+        Set positive examples based on the contents of a list.
+        """
         for example in pos:
             if example.split('(')[0] == target:
-                self.pos[example] = 0.5 #set initial gradient to 1-0.5 for positive
+                # Set initial gradient to 0.5 for positives.
+                self.pos[example] = 0.5
 
-    def setExamples(self,examples,target):
-        '''set examples for regression'''
+    def setExamples(self, examples, target):
+        """
+        Set examples for regression.
+        """
         for example in examples:
-            predicate = example.split(' ')[0] #get predicate
-            value = float(example.split(' ')[1]) # get true regression value
+            # Get the predicate.
+            predicate = example.split(' ')[0]
+            # Get the true regression value.
+            value = float(example.split(' ')[1])
             if predicate.split('(')[0] == target:
-                self.examplesTrueValue[predicate] = value #store true value of example
-                self.examples[predicate] = value #set value for example, otherwise no variance
+                # Store the true value in examplesTrueValue dictionary.
+                self.examplesTrueValue[predicate] = value
+                # Set the value, otherwise none.
+                self.examples[predicate] = value
 
-    def setNeg(self,neg,target):
-        '''set negative examples from neg list'''
+    def setNeg(self, neg, target):
+        """
+        Set negative examples based on the contents of a list.
+        """
         for example in neg:
             if example.split('(')[0] == target:
-                self.neg[example] = -0.5 #set initial gradient to 0-0.5 for negative
+                # Set initial gradient to -0.5 for negative examples.
+                self.neg[example] = -0.5
 
     def setTarget(self, bk, target):
         """
         Sets self.target as a target string.
         Sets self.variableType
 
-        @method Data.setTarget
-        @param  {list}          bk          List of strings representing modes.
-        @param  {str}           target      Target relation or attribute.
-        @return {}              (None)
+        :param bk: List of strings representing modes.
+        :type bk: list.
+
+        :param target: Target relation or attribute.
+        :type target: str.
+
+        :returns: None
 
         Example:
 
-        >>> data = Data(regression=False)
-        >>> background = ['friends(+person,-person)', friends(-person,+person),
-                          'smokes(+person)', 'cancer(+person)']
-        >>> target = 'cancer'
-        >>> data.setTarget(background, target)
-        >>> print(data.target)
-        'cancer(C)'
+        .. code-block:: python
 
+                        from rfgb.utils import Data
+
+                        data = Data(regression=False)
+                        background = ['friends(+person,-person)',
+                                      'friends(-person,+person)',
+                                      'smokes(+person)',
+                                      'cancer(-person)']
+                        target = 'cancer'
+
+                        data.setTarget(background, target)
+
+                        print(data.target)
+                        # 'cancer(C)'
         """
         # targetTypes are the types of variables in the target predicate.
         targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
@@ -115,11 +149,15 @@ class Data(object):
         self.target = self.target[:-1] + ')'
 
     def getTarget(self):
-        '''returns the target'''
+        """
+        Returns the target.
+        """
         return self.target
 
-    def getExampleTrueValue(self,example):
-        '''returns true regression value of example during regression'''
+    def getExampleTrueValue(self, example):
+        """
+        Returns true regression value of an example for regression learning.
+        """
         return self.examplesTrueValue[example]
 
     def getValue(self, example):
@@ -128,10 +166,19 @@ class Data(object):
 
         Example:
 
-        >>> trainingData = Utils.readTrainingData('cancer', path='testDomains/ToyCancer/train/')
-        >>> x = trainingData.getValue('cancer(watson)')
-        >>> x
-        -0.5
+        .. code-block:: python
+
+                        from rfgb.utils import Utils
+                        from rfgb.utils import Data
+
+                        trainingData = Utils.readTrainingData('cancer',
+                                            path='testDomain/ToyCancer/train/')
+
+                        x = trainingData.getValue('cancer(earl)')
+                        # x == -0.5, since earl doesn't have cancer.
+
+                        y = trainingData.getValue('cancer(alice)')
+                        # y == 0.5, since alice does have cancer
         """
         if self.regression:
             return self.examples[example]
@@ -141,12 +188,16 @@ class Data(object):
         else:
             return self.neg[example]
 
-    def setBackground(self,bk):
-        '''obtains the literals and their type specifications
-           types can be variable or a list of constants
-        '''
+    def setBackground(self, bk):
+        """
+        Obtains the literals and their type specifications. Types can be
+        either variable or a list of constants.
+        """
+
         bkWithoutTargets = [line for line in bk if '+' in line or '-' in line]
-        for literalBk in bkWithoutTargets: #for every literal obtain name and type specification
+
+        # For every literal, obtain name and type specifications.
+        for literalBk in bkWithoutTargets:
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
             self.literals[literalName] = literalTypeSpecification
@@ -156,10 +207,10 @@ class Data(object):
         return self.literals
 
     def variance(self, examples):
-        '''
-        Calculates the variance of the regression values from a subset of the data.
-        '''
-        #print(examples)
+        """
+        Calculates the variance of the regression values from a subset of the
+        data.
+        """
 
         if not examples:
             return 0
@@ -171,24 +222,26 @@ class Data(object):
 
         return sumOfSquaredError/float(numberOfExamples) #return variance
 
+
 class Utils(object):
-    '''class for utilities used by program
-       reading files
-    '''
-
-    """@batflyer
-
-    'string' module can cause compatability issues between Python 2 and Python 3,
-    switched from using string.uppercase to using string.ascii_uppsercase,
-    the latter should work with both versions.
+    """
+    Class of utilities used by rfgb, such as reading files, removing mode
+    symbols, calculating Cartesian Products, etc.
     """
 
-    data = None #attribute to store data (facts,positive and negative examples)
+    # Attribute to store data (facts, positves, negatives)
+    data = None
     UniqueVariableCollection = set(list(string.ascii_uppercase))
 
     @staticmethod
     def sigmoid(x):
-        '''returns sigmoid of x'''
+        """
+        :param x: Number to apply sigmoid to.
+        :type x: int or float
+
+        :returns: ``exp(x)/float(1+exp(x))``
+        :rtype: float
+        """
         return exp(x)/float(1+exp(x))
 
     @staticmethod
@@ -197,15 +250,17 @@ class Utils(object):
         Returns a string with the mode symbols (+,-,#) removed.
 
         Example:
-            >>> i = "#city"
-            >>> o = removeModeSymbols(i)
-            >>> print(o)
-            city
 
-            >>> i = ["+drinks", "-drink", "-city"]
-            >>> o = list(map(removeModeSymbols, i))
-            >>> print(o)
-            ["drinks", "drink", "city"]
+        .. code-block:: python
+
+                        from rfgb.utils import Utils
+
+                        removeModeSymbols('#city')
+                        # == 'city'
+
+                        i = ['+drinks', '-drink', '-city']
+                        o = list(map(removeModeSymbols, i))
+                        # o == ['drinks', 'drink', 'city']
         """
         return inputString.replace('+', '').replace('-', '').replace('#', '')
 
@@ -233,26 +288,31 @@ class Utils(object):
         return total/float(len(examples))
 
     @staticmethod
-    def readTrainingData(target, path='train/', regression=False, advice=False):
-
+    def readTrainingData(target, path='train/',
+                         regression=False, advice=False):
         """
         Reads the training data from files.
 
-        Required Arguments:
-            target: the target predicate.
+        :param target: The target predicate.
+        :type target: str.
 
-        Optional Arguments:
-            path: (default: 'train/')
-                The path to the testing data.
-            regression: (default: False)
-                If regression is true, reads from 'examples.txt' instead of
-                'pos.txt' and 'neg.txt'
-            advice: (default: False)
-                If advice is true, reads from an advice file, which should
-                be contained in the same directory as 'pos.txt' and 'neg.txt'
+        :param path: Path to the training data.
+        :type path: str.
 
-        Returns:
-            A Data object representing the train data.
+        :param regression: Read from ``examples.txt`` instead of ``pos.txt``
+                           and ``neg.txt``.
+        :type regression: bool
+
+        :param advice: Read advice from an advice file, which should be
+                       contained in the same directory as the examples.
+        :type advice: bool
+
+        :default path: 'train/'
+        :default regression: False
+        :default advice: False
+
+        :returns: A Data object representing the training data.
+        :rtype: :py:class:`.utils.Data`
         """
 
         Utils.data = Data(regression=regression, advice=advice)
@@ -315,22 +375,24 @@ class Utils(object):
 
     @staticmethod
     def readTestData(target, path='test/', regression=False):
-
         """
         Reads the testing data from files.
 
-        Required Arguments:
-            target: the target predicate.
+        :param target: The target predicate.
+        :type target: str.
 
-        Optional Arguments:
-            path: (default: 'test/')
-                The path to the testing data.
-            regression: (default: False)
-                If regression is true, reads from 'examples.txt' instead of
-                'pos.txt' and 'neg.txt'
+        :param path: Path to the training data.
+        :type path: str.
 
-        Returns:
-            A Data object representing the test data.
+        :param regression: Read from ``examples.txt`` instead of ``pos.txt``
+                           and ``neg.txt``.
+        :type regression: bool
+
+        :default path: 'train/'
+        :default regression: False
+
+        :returns: A Data object representing the training data.
+        :rtype: :py:class:`.utils.Data`
         """
 
         testData = Data()
@@ -352,26 +414,35 @@ class Utils(object):
 
         return testData
 
-
     @staticmethod
     def cartesianProduct(itemSets):
-        '''returns cartesian product of all the sets
-           contained in the item sets
-        '''
-        modifiedItemSets = [] #have to create new input where each single element is in its own set
+        """
+        Returns the Cartesian Product of all sets contained in the item sets.
+        """
+
+        # Create new input where each element is in its own set.
+        modifiedItemSets = []
         for itemSet in itemSets:
             modifiedItemSet = []
             for element in itemSet:
-                modifiedItemSet.append([element]) #does the above task
+                modifiedItemSet.append([element])
             modifiedItemSets.append(modifiedItemSet)
-        while len(modifiedItemSets) > 1: #perform cartesian product of first 2 sets
+
+        # Perform Cartesian Product of the first two sets.
+        while len(modifiedItemSets) > 1:
             set1 = modifiedItemSets[0]
             set2 = modifiedItemSets[1]
             pairWiseProducts = []
             for item1 in set1:
                 for item2 in set2:
-                    pairWiseProducts.append(item1+item2) #cartesian product performed here
-            modifiedItemSets.remove(set1) #remove first 2 sets
+                    # Cartesian Product performed here.
+                    pairWiseProducts.append(item1+item2)
+
+            # Remove the first two sets.
+            modifiedItemSets.remove(set1)
             modifiedItemSets.remove(set2)
-            modifiedItemSets.insert(0,pairWiseProducts) #insert cartesian product in its place and repeat
-        return modifiedItemSets[0] #return the final cartesian product sets
+            # Insert the Cartesian Product in their place and repeat.
+            modifiedItemSets.insert(0,pairWiseProducts)
+
+        # Return the final Cartesian Product Sets
+        return modifiedItemSets[0]

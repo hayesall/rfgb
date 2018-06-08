@@ -18,10 +18,10 @@ python:
 cache: pip
 
 install:
-  - "pip install -r tests/requirements.txt"
+  - "pip install -r rfgb/tests/requirements.txt"
 
 script:
-  - coverage run tests/tests.py
+  - coverage run rfgb/tests/tests.py
 
 before_install:
   pip install codecov
