@@ -11,6 +11,8 @@ Relational Functional Gradient Boosting (RFGB)
 	   :target: https://travis-ci.org/starling-lab/rfgb.py.svg?branch=master
   .. image:: https://img.shields.io/codecov/c/github/starling-lab/rfgb.py/master.svg?style=flat-square
 	   :target: https://codecov.io/gh/starling-lab/rfgb.py?branch=master
+  .. image:: https://readthedocs.org/projects/rfgbpy/badge/?version=stable&style=flat-square
+	   :target: https://rfgbpy.readthedocs.io/en/stable/
 
 **Kaushik Roy** (`@kkroy36`_) and **Alexander L. Hayes** (`@batflyer`_)
 
