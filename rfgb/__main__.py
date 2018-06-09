@@ -78,6 +78,11 @@ class Arguments:
                             help="Incrase verbosity to help with debugging.",
                             default=False,
                             action="store_true")
+        parser.add_argument("-f", "-forest", "--forest",
+                            help="""Specify the number of forests to learn.
+                            Default: 1.""",
+                            type=int,
+                            default=1)
         parser.add_argument("-trees", "--trees",
                             help="""Specify the number of boosted regression
                             trees to learn. Default: 10.""",
@@ -109,51 +114,102 @@ class Arguments:
 
 parameters = Arguments().args
 
-for target in parameters.target:
+if parameters.forest > 1:
+    # Learn a forest of 10 * parameters.trees
+
+    from copy import deepcopy
+
+    from joblib import Parallel
+    from joblib import delayed
+    import multiprocessing as mp
 
     # Read the training data:
+    target = parameters.target[0]
     trainData = Utils.readTrainingData(target, path=parameters.train,
                                        regression=parameters.reg,
                                        advice=parameters.expAdvice)
 
-    # Initialize an empty list for the trees.
-    trees = []
+    # Set the number of available cores.
+    num_cores = mp.cpu_count()
 
-    # Learn each tree and update the gradients.
-    for i in range(parameters.trees):
+    # Learn a set of trees on each core.
+    forest = []
 
-        if parameters.verbose:
-            print('=' * 20, "Learning Tree", str(i), "=" * 20)
+    def LT(trainData):
 
-        node.setMaxDepth(2)
-        node.learnTree(trainData)
-        trees.append(node.learnedDecisionTree)
-        updateGradients(trainData, trees)
+        t_d = deepcopy(trainData)
+        trees = []
 
-    for tree in trees:
+        for i in range(parameters.trees):
+            node.setMaxDepth(2)
+            node.learnTree(t_d)
+            trees.append(node.learnedDecisionTree)
+            updateGradients(t_d, trees)
 
-        if parameters.verbose:
-            print('=' * 20, "Tree", str(trees.index(tree)), "=" * 20)
+        return trees
 
-        for clause in tree:
+    # Set the number of available cores.
+    num_cores = mp.cpu_count()
 
-            if parameters.verbose:
-                print(clause)
+    # Learn a forest of (parameters.forest * parameters.trees)
+    forest = Parallel(n_jobs=num_cores)(delayed(LT)(trainData) for _ in range(parameters.forest))
 
     # Read the testing data.
     testData = Utils.readTestData(target, path=parameters.test,
                                   regression=parameters.reg)
 
-    # Get the probability of the test examples.
-    performInference(testData, trees)
-
-    if parameters.reg:
-        # View test example values (for regression).
-        print(testData.examples)
-    else:
-        # View test query probabilities (for classification).
+    for trees in forest:
+        performInference(testData, trees)
         print(testData.pos)
         print(testData.neg)
+
+else:
+    # Not parallell execution: learn boosted decision trees rather than forest.
+    for target in parameters.target:
+
+        # Read the training data:
+        trainData = Utils.readTrainingData(target, path=parameters.train,
+                                           regression=parameters.reg,
+                                           advice=parameters.expAdvice)
+
+        # Initialize an empty list for the trees.
+        trees = []
+
+        # Learn each tree and update the gradients.
+        for i in range(parameters.trees):
+
+            if parameters.verbose:
+                print('=' * 20, "Learning Tree", str(i), "=" * 20)
+
+            node.setMaxDepth(2)
+            node.learnTree(trainData)
+            trees.append(node.learnedDecisionTree)
+            updateGradients(trainData, trees)
+
+        for tree in trees:
+
+            if parameters.verbose:
+                print('=' * 20, "Tree", str(trees.index(tree)), "=" * 20)
+
+            for clause in tree:
+
+                if parameters.verbose:
+                    print(clause)
+
+        # Read the testing data.
+        testData = Utils.readTestData(target, path=parameters.test,
+                                      regression=parameters.reg)
+
+        # Get the probability of the test examples.
+        performInference(testData, trees)
+
+        if parameters.reg:
+            # View test example values (for regression).
+            print(testData.examples)
+        else:
+            # View test query probabilities (for classification).
+            print(testData.pos)
+            print(testData.neg)
 
 # Exit with no errors if the bottom is reached successfully.
 exit(0)
