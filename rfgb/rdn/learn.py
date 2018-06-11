@@ -22,8 +22,9 @@ from ..boosting import updateGradients
 from ..tree import node
 from ..utils import Utils
 
-def learn(targets, numTrees=10, trainPath='',
-              regression=False, advice=False):
+
+def learn(targets, numTrees=10, path='',
+          regression=False, advice=False):
     """
     .. versionadded:: 0.3.0
 
@@ -39,8 +40,8 @@ def learn(targets, numTrees=10, trainPath='',
     :param numTrees: Number of trees to learn.
     :type numTrees: int.
 
-    :param trainPath: Path to the location training data is stored.
-    :type trainPath: str.
+    :param path: Path to the location training data is stored.
+    :type path: str.
 
     :param regression: Learn a regression model instead of classification.
     :type regression: bool.
@@ -63,7 +64,7 @@ def learn(targets, numTrees=10, trainPath='',
     for target in targets:
 
         # Read the training data.
-        trainData = Utils.readTrainingData(target, path=trainPath,
+        trainData = Utils.readTrainingData(target, path=path,
                                            regression=regression,
                                            advice=advice)
 
