@@ -15,4 +15,32 @@
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
 
+"""
+.. versionadded:: 0.3.0
+
+Learn and infer with relational dependency networks.
+
+.. code-block:: python
+
+    # Example script for performing learning and inference.
+
+    from rfgb import rdn
+
+    # rdn.learn requires a list of targets as strings.
+    trees = rdn.learn(['cancer'], path='testDomains/ToyCancer/train/')
+
+    # rdn.learn returns a dictionary mapping targets to trees.
+    cancer_trees = trees['cancer']
+
+    # rdn.infer classification returns a tuple of pos and neg.
+    results = rdn.infer('cancer', cancer_trees, path='testDomains/ToyCancer/test/')
+
+    # ({'cancer(xena)': 0.34460796550872186,
+    #   'cancer(yoda)': 0.34460796550872186,
+    #   'cancer(zod)': 0.34460796550872186},
+    #  {'cancer(watson)': 0.34460796550872186,
+    #   'cancer(voldemort)': 0.34460796550872186})
+"""
+
 from .learn import learn
+from .infer import infer
