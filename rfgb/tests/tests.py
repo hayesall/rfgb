@@ -19,5 +19,57 @@ from rfgbtests import *
 import unittest
 
 if __name__ == '__main__':
+    """
+    Main testing module for ``rfgb``, must be ran from the base of the
+    project repository.
+
+    For example:
+
+    .. code-block:: bash
+
+                    python rfgb/tests/tests.py
+
+    Verbosity may be explicitly set by passing an integer with the ``-v``
+    flag. The value will be passed into unittest.TextTestRunner, so integers
+    higher than 1 will lead to more verbose outputs.
+
+    .. code-block:: bash
+
+                    python rfgb/tests/tests.py -v 2
+
+    Individual modules may be tested with unittest via the command line.
+
+    .. code-block:: bash
+
+                    python -m unittest rfgb/tests/rfgbtests/test_Utils.py
+                    .......
+                    --------------------------------------------------
+                    Ran 7 tests in 0.005s
+
+                    OK
+    """
+
+
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose',
+                        default=1,
+                        type=int)
+    args = parser.parse_args()
+
     testsuite = unittest.TestLoader().discover('.')
-    unittest.TextTestRunner(verbosity=1).run(testsuite)
+    runner = unittest.TextTestRunner(verbosity=args.verbose)
+
+    '''
+    @batflyer:
+
+    I have not found a more elegant way to handle this problem, but
+    to summarize: coverage and Travis-ci only seem to recognize errors
+    when an exception is raised. TextTestRunner.run does not appear to
+    raise exceptions on failures, so instead this must be done explicitly.
+    '''
+
+    results = runner.run(testsuite)
+    if results.failures:
+        raise(Exception('Encountered errors during runner.run'))
