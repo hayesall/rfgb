@@ -94,6 +94,20 @@ class Arguments:
                             in the same location as the data.""",
                             default=False,
                             action="store_true")
+        parser.add_argument("-softm", "--softm",
+                            help="""Softmax boosting. Set the false positive
+                            weight (alpha) and false negative weight (beta)
+                            along with this parameter.""",
+                            default=False,
+                            action="store_true")
+        parser.add_argument("-alpha", "--alpha",
+                            help="""Set the alpha value for use with softm.""",
+                            type=float,
+                            default=0.0)
+        parser.add_argument("-beta", "--beta",
+                            help="""Set the beta value for use with softm.""",
+                            type=float,
+                            default=0.0)
         parser.add_argument("-reg", "--reg",
                             help="""Learn a relational regression model instead
                             of learning for classification.""",
