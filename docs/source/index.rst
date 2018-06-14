@@ -14,6 +14,7 @@ rfgb.py
 
    getting_started*
    rfgb
+   rfgb.rdn
 
 Indices and tables
 ==================

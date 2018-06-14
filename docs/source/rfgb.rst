@@ -35,4 +35,3 @@ rfgb\.utils module
     :members:
     :undoc-members:
     :show-inheritance:
-
