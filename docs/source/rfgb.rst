@@ -36,3 +36,10 @@ rfgb\.utils module
     :undoc-members:
     :show-inheritance:
 
+rfgb\.tests module
+------------------
+
+.. automodule:: rfgb.tests
+    :members:
+    :undoc-members:
+    :show-inheritance:

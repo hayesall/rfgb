@@ -13,7 +13,9 @@ rfgb.py
    :caption: Contents:
 
    getting_started*
+   development*
    rfgb
+   rfgb.rdn
 
 Indices and tables
 ==================

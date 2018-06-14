@@ -1,6 +1,6 @@
-====================
-Contributing to rfgb
-====================
+============
+Contributing
+============
 
   .. toctree::
      :glob:

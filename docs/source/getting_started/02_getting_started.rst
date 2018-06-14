@@ -1,6 +1,6 @@
-=========================
-Getting Started with rfgb
-=========================
+===============
+Getting Started
+===============
 
   .. toctree::
      :glob:
