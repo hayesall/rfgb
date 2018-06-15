@@ -28,42 +28,65 @@ from .logic import Logic
 from .logic import Prover
 
 from copy import deepcopy
+import random
 
 
-class node(object):
-    '''this is a node in a tree'''
-    expandQueue = [] #Breadth first search node expansion strategy
-    depth = 0 #initial depth is 0 because no node present
-    maxDepth = 1 #max depth set to 1 because we want to at least learn a tree of depth 1
-    learnedDecisionTree = [] #this will hold all the clauses learned
-    data = None #stores all the facts, positive and negative examples
+class node:
+    """
+    A node in a tree.
 
-    @staticmethod
-    def setMaxDepth(depth):
-        '''method to set max depth'''
-        node.maxDepth = depth
+    Overview of the following variables and structures:
 
-    def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
-        '''constructor for node class
-           contains test condition or clause
-           contains examples
-           contains information notion (some score)
-           contains level in the tree of node
-           contains parent node pointer
-           and contains position in the tree
-        '''
-        self.test = test #set test condition, which will be a horn clause
-        if level > 0: #check if root
-            self.parent = parent #if not root set parent as the nodes parent
+    - ``expandQueue``: Breadth-first search node expansion strategy.
+    - ``depth``: Initially set to 0 because no node is present.
+    - ``maxDepth``: 1 because we want to learn a tree with at least depth 1.
+    - ``learnedDecisionTree``: will hold all of the learned clauses.
+    - ``data``: stores the facts and positive/negative examples.
+
+    Constructor for the node class.
+
+    :param test: Test condition or a horn clause.
+    :param exampels: All examples that are available for testing at
+                     this node.
+    :param information: Information notion (some score) contained at this
+                        node.
+    :param level: Level in the tree of node.
+    :param parent: Pointer to the parent node.
+    :param pos: Position in the tree (i.e. "left" or "right").
+    """
+
+    expandQueue = []
+    depth = 0
+    maxDepth = 1
+    learnedDecisionTree = []
+    data = None
+
+    def __init__(self, test=None, examples=None, information=None,
+                 level=None, parent=None, pos=None):
+        self.test = test
+
+        if level > 0:
+            # If not root, set the parent node.
+            self.parent = parent
         else:
-            self.parent = "root" #if root, set parent to "root" to signify root
-        self.pos = pos #position of the node, i.e. "left" or "right"
+            # otherwise, set parent to 'root' to signify the root.
+            self.parent = 'root'
+
+        # Position of the node, i.e. 'left' or 'right'.
+        self.pos = pos
         self.examples = examples #all examples that are available for testing at this node
         self.information = information #information contained at this node
         self.level = level #level of the node, 0 for root
         self.left = None #left subtree
         self.right = None #right subtree
         node.expandQueue.insert(0,self) #add to the queue of nodes to expand
+
+    @staticmethod
+    def setMaxDepth(depth):
+        """
+        Method for setting the max depth of the tree.
+        """
+        node.maxDepth = depth
 
     @staticmethod
     def initTree(trainingData):
@@ -250,15 +273,18 @@ class node(object):
             return
         if clause[-2] == '-':
             clause = clause[:-1]
-        print('-'*80)
-        #print "facts: ",data.getFacts()
-        print("pos: ",self.pos)
-        print("node depth: ",self.level)
-        print("parent: ",self.parent)
-        print("examples at node: ",self.examples)
-        if self.parent != "root":
-            print("test at parent: ",self.parent.test)
-        print("clause for generate test at current node: ",clause)
+
+        if verbose:
+            print('-'*80)
+            #print "facts: ",data.getFacts()
+            print("pos: ",self.pos)
+            print("node depth: ",self.level)
+            print("parent: ",self.parent)
+            print("examples at node: ",self.examples)
+            if self.parent != "root":
+                print("test at parent: ",self.parent.test)
+            print("clause for generate test at current node: ",clause)
+
         #print "examples at current node: ",self.examples
         minScore = float('inf') #initialize minimum weighted variance to be 0
         bestTest = "" #initalize best test to empty string
@@ -266,18 +292,21 @@ class node(object):
         bestFExamples = [] #list for best test examples that don't satisfy clause
         literals = data.getLiterals() #get all the literals that the data (facts) contains
         tests = []
+
         for literal in literals: #for every literal generate test conditions
             literalName = literal
             literalTypeSpecification = literals[literal]
             tests += Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
-        if self.parent!="root":
+
+        if self.parent != 'root':
                 tests = [test for test in tests if not test in ancestorTests]
+
         tests = set(tests)
 
         # Check which test scores the best.
         for test in tests:
             # Examples which are satisfied.
-            tExamples = self.getTrueExamples(clause, test, data)
+            tExamples = self.getTrueExamples(clause, test, data, verbose=True)
             # Examples which are not satisfied (under closed world assumption).
             fExamples = [example for example in self.examples if example not in tExamples]
             # Total number of examples.
@@ -297,8 +326,7 @@ class node(object):
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
 
-        print("best test found at current node: ",self.test)
-
+        print("Best test found at the current node:", self.test, score)
 
         # If True examples need further explaining, create left node and add to the queue.
         if len(bestTExamples) > 0:
