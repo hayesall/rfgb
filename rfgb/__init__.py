@@ -38,11 +38,12 @@ from rfgb.utils import Utils
 from rfgb.tree import node
 from rfgb.boosting import updateGradients
 from rfgb.boosting import performInference
+import rfgb._metadata
 
-__author__ = 'Kaushik Roy (@kkroy36)'
-__copyright__ = 'Copyright (c) 2017-2018 RFGB Contributors'
-__license__ = 'GNU General Public License v3.0 (GPLv3)'
-__version__ = '0.2.2'
-__maintainer__ = 'Alexander L. Hayes'
-__email__ = 'alexander.hayes@utdallas.edu'
-__status__ = 'Prototype'
+__author__ = rfgb._metadata.__author__
+__copyright__ = rfgb._metadata.__copyright__
+__license__ = rfgb._metadata.__license__
+__version__ = rfgb._metadata.__version__
+__maintainer__ = rfgb._metadata.__maintainer__
+__email__ = rfgb._metadata.__email__
+__status__ = rfgb._metadata.__status__
