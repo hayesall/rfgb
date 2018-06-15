@@ -39,11 +39,11 @@ class Term(object):
     # Expect "x(y,z...)"
     def __init__(self, s):
         if s[-1] != ')':
-            raise(Exception("Syntax error in term: %s" % [s]))
+            raise(Exception("Term should end with ')': %s" % [s]))
         flds = s.split('(')
         if len(flds) != 2:
-            raise(Exception("Syntax error in term: %s" % [s]))
-        self.args = flds[1][:-1].split(',')
+            raise(Exception("Term should be composed of two fields: %s" % [s]))
+        self.args = flds[1][:-1].replace(' ', '').split(',')
         self.pred = flds[0]
 
 

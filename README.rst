@@ -8,7 +8,7 @@ Relational Functional Gradient Boosting (RFGB)
   .. image:: https://img.shields.io/github/tag/starling-lab/rfgb.py.svg?style=flat-square
 	   :target: https://github.com/starling-lab/rfgb.py/releases
   .. image:: https://img.shields.io/travis/starling-lab/rfgb.py.svg?style=flat-square
-	   :target: https://travis-ci.org/starling-lab/rfgb.py.svg?branch=master
+	   :target: https://travis-ci.org/starling-lab/rfgb.py
   .. image:: https://img.shields.io/codecov/c/github/starling-lab/rfgb.py/master.svg?style=flat-square
 	   :target: https://codecov.io/gh/starling-lab/rfgb.py?branch=master
   .. image:: https://readthedocs.org/projects/rfgbpy/badge/?version=stable&style=flat-square
