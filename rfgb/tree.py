@@ -93,24 +93,143 @@ class node(object):
         node.learnedDecisionTree.sort(key = len)
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
 
-    def getTrueExamples(self, clause, test, data):
-        '''returns all examples that satisfy clause
-           with conjoined test literal
-        '''
-        tExamples = [] #intialize list of true examples
+    def getTrueExamples(self, clause, test, data, verbose=False):
+        """
+        Returns all examples that satisfy the clause with
+        conjoined test literal.
+        """
+
+        # Initialize list of true examples.
+        tExamples = []
         clauseCopy = deepcopy(clause)
-        if clauseCopy[-1] == "-": #construct clause for prover
+
+        # Construct clause for prover.
+        if clauseCopy[-1] == "-":
             clauseCopy += test
         elif clauseCopy[-1] == ';':
             clauseCopy = clauseCopy.replace(';', ',') + test
-        print ("testing clause: ",clauseCopy) # --> to keep track of output, following for loop can be parallelized
+
+        if verbose:
+            print("Testing clause", clauseCopy)
+
+        # To keep track of output, the following for loop can be parallellized
         for example in self.examples:
-            if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
+            # Prove if example satisfies clause.
+            if Prover.prove(data, example, clauseCopy):
                 tExamples.append(example)
         return tExamples
 
-    def expandOnBestTest(self, data=None):
-        '''expands the node based on the best test'''
+    def expandOnRandomTest(self, data=None, verbose=False):
+        """
+        Expands the node randomly.
+        """
+
+        # Get the target, initialize the clause learned at this node with an
+        # empty body. Loop to obtain clause learned at this node.
+        target = data.getTarget()
+        clause = target + ':-'
+        curr = self
+        ancestorTests = []
+
+        while curr.parent != 'root':
+            if curr.pos == 'left':
+                clause += curr.parent.test + ';'
+                ancestorTests.append(curr.parent.test)
+            elif curr.pos == 'right':
+                ancestorTests.append(curr.parent.test)
+                # What is this?
+                clause += '' # "!" + curr.parent.test + ','
+            curr = curr.parent
+
+        if self.level == node.maxDepth or round(self.information, 3) == 0:
+            if clause[-1] != '-':
+                node.learnedDecisionTree.append(clause[:-1] + ' ' +
+                                        str(Utils.getleafValue(self.examples)))
+            else:
+                node.learnedDecisionTree.append(clause + ' ' +
+                                        str(Utils.getleafValue(self.examples)))
+            return
+
+        if clause[-2] == '-':
+            clause = clause[:-1]
+
+        if verbose:
+            print('-' * 80)
+            print('pos:', self.pos)
+            print('node depth:', self.level)
+            print('parent:', self.parent)
+            print('examples at node:', self.examples)
+            if self.parent != 'root':
+                print('test at parent:', self.parent.test)
+            print('clause for generate test at current node', clause)
+
+        # Initialize values for deciding the test to expand on.
+        minScore = float('inf')
+        bestTest = ''
+        # Initialize lists for test examples that do or do not satisfy the
+        # clause. Then get all literals that the facts contain.
+        bestTExamples = []
+        bestFExamples = []
+        literals = data.getLiterals()
+
+        tests = []
+        # For each literal, generate test conditions.
+        for literal in literals:
+            literalName = literal
+            literalTypeSpecification = literals[literal]
+            # Generate all literal, variable, and constant combinations.
+            tests += Logic.generateTests(literalName,
+                                         literalTypeSpecification,
+                                         clause)
+        if self.parent != 'root':
+            tests = set([test for test in tests if not test in ancestorTests])
+
+        # Select a random test:
+        bestTest = random.sample(tests, 1)
+
+        # Examples which are satisfied by this test are the "best".
+        bestTExamples = self.getTrueExamples(clause, bestTest, data)
+        bestFExamples = [example for example in self.examples if example not in bestTExamples]
+        example_len = len(self.examples)
+
+        self.test = bestTest
+
+        if verbose:
+            print('Random test selected at current node:', self.test)
+
+        # If True examples need further explaining,
+        # create left node and add to the queue.
+        if len(bestTExamples) > 0:
+
+            self.left = node(None, bestTExamples, data.variance(bestTExamples),
+                             self.level + 1, self, 'left')
+            if self.level + 1 > node.depth:
+                node.depth = self.level + 1
+
+        # If False examples need further explaining,
+        # create right node and add to the queue.
+        if len(bestFExamples) > 0:
+
+            self.right = node(None, bestFExamples, data.variance(bestFExamples),
+                              self.level + 1, self, 'right')
+
+            if self.level + 1 > node.depth:
+                node.depth = self.level + 1
+
+        # If no examples append to clause as is.
+        if self.test == '' or round(self.information, 3) == 0:
+            if clause[-1] != '-':
+                node.learnedDecisionTree.append(clause[:-1])
+            else:
+                node.learnedDecisionTree.append(clause)
+            return
+
+
+    def expandOnBestTest(self, data=None, verbose=False):
+        """
+        Expands the node based on the best test.
+        """
+
         target = data.getTarget() #get the target
         clause = target+":-" #initialize clause learned at this node with empty body
         curr = self #while loop to obtain clause learned at this node
