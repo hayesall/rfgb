@@ -18,7 +18,14 @@ rfgb.py
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Advanced:
+   :caption: Commandline Utilities
+
+   commandline
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+   :caption: API:
 
    submodules*
    rfgb.rdn
