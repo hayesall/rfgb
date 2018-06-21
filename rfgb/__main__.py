@@ -1,4 +1,6 @@
 
+# -*- coding: utf-8 -*-
+
 # Copyright (C) 2017-2018 RFGB Contributors
 #
 # This program is free software: you can redistribute it and/or modify
@@ -34,7 +36,7 @@ from ._metadata import __version__
 from . import rdn
 
 import argparse
-
+import os
 
 """
 For backwards compatability with the Java codebase, flags should ideally
@@ -74,15 +76,51 @@ parser.add_argument('-V', '--version', action="store_true",
 # This is different from BoostSRL's codebase, where the default is RDN and
 # MLNs are learned by supplying a -mln flag. This change is to make things
 # more-easily extended in the future.
-subparsers = parser.add_subparsers(title='Models',
-                                   description="""Subcommands for learning
-                                   different types of models.""",
-                                   help="""$ python -m rfgb rdn""",
-                                   dest='model')
-rdn_parser = subparsers.add_parser('rdn', description="""Relational Dependency
-                                   Networks""")
-mln_parser = subparsers.add_parser('mln', description="""Markov Logic
-                                   Networks: Hopefully coming soon! (TM)""")
+subparsers = parser.add_subparsers(title='rfgb Subcommands',
+                                   description="""Commands and subcommands
+                                   for rfgb.""",
+                                   help="""$ rfgb --help""",
+                                   dest='_rfgb')
+init_parser = subparsers.add_parser('init', description="""Initialize an rfgb
+                                    package in the current directory for
+                                    saving, loading, and managing models.""",
+                                    help='Initialize a .rfgb directory.')
+learn_parser = subparsers.add_parser('learn', description="""Specify the model
+                                     to learn.""",
+                                     help='Learn various SRL models.')
+infer_parser = subparsers.add_parser('infer', description="""Make inferences
+                                     using the working model.""",
+                                     help='Infer with various SRL models.')
+#rm_parser = subparsers.add_parser('rm', description="""Remove target model.""",
+#                                  help='$ rfgb rm --help')
+#status_parser = subparsers.add_parser('status', description="""Show information
+#                                      for the model in working space.""",
+#                                      help='$ rfgb status --help')
+
+# Sub-commands specific to learning different models.
+learn_subparser = learn_parser.add_subparsers(title="RFGB Learn",
+                                              description="""Learning various
+                                              types of statistical relational
+                                              models.""",
+                                              help='$ rfgb learn --help',
+                                              dest='_learn')
+rdn_parser = learn_subparser.add_parser('rdn', description="""Relational
+                                        Dependency Networks""",
+                                        help='Relational Dependency Networks')
+mln_parser = learn_subparser.add_parser('mln', description="""Markov Logic
+                                        Networks""",
+                                        help="Markov Logic Networks")
+spn_parser = learn_subparser.add_parser('spn', description="""Sum-Product
+                                        Networks""",
+                                        help="Sum-Product Networks")
+rrbm_parser = learn_subparser.add_parser('rrbm', description="""Relational
+                                         Restricted Boltzmann Machines""",
+                                         help="""Relational Restricted
+                                         Boltzmann Machines""")
+
+# init-specific arguments
+init_parser.add_argument('-q', '--quiet', help="""Quiet output.""",
+                         action='store_true')
 
 # RDN-specific arguments.
 rdn_parser.add_argument('-advice', '--advice', help="""Trigger learning with
@@ -132,78 +170,50 @@ if parameters.version:
     print(__version__)
     exit(0)
 
-def LearnMLN():
-    print('Coming Soon.')
+if parameters._rfgb == 'init':
+    # Initialize an empty rfgb repository for loading and saving models.
 
-# RDN Learning and Inference
-if parameters.model == 'rdn':
+    if not os.path.exists('.rfgb'):
+        os.makedirs('.rfgb')
+        os.makedirs('.rfgb/models')
 
-    # Learn a set of trees.
-    trees = rdn.learn(parameters.target, path=parameters.train,
-                      numTrees=parameters.trees,
-                      regression=parameters.regression,
-                      advice=parameters.advice)
+        if not parameters.rfgb_subcommand.quiet:
+            print('Initialized empty rfgb repository at',
+                  os.path.abspath('.') + '/.rfgb/')
 
-    # Make inferences for each target.
-    for target in trees:
-        results = rdn.infer(target, trees[target], path=parameters.test,
-                            regression=parameters.regression)
+elif parameters._rfgb == 'learn':
+
+    if parameters._learn == 'rdn':
+        print('Learning RDN')
+
+        # RDN Learning and Inference
+        # Namespace should contain the the parameters set by the user or
+        # set by default.
+
+        # Raise exception early to alert the user if the target is not set.
+        if not parameters.target:
+            raise(Exception('Target must be provided.'))
+
+        # Learn a set of trees.
+        trees = rdn.learn(parameters.target, path=parameters.train,
+                          numTrees=parameters.trees,
+                          regression=parameters.regression,
+                          advice=parameters.advice)
+
+        # Perform inference for demonstration.
+        for target in trees:
+            results = rdn.infer(target, trees[target], path=parameters.test,
+                                regression=parameters.regression)
 
         print(results)
 
-elif parameters.model == 'mln':
-    LearnMLN()
+    elif parameters._learn == 'mln':
+        print('Learning MLN (planned)')
+    elif parameters._learn == 'spn':
+        print('Learning SPN (planned)')
+    elif parameters._learn == 'rrbm':
+        print('Learning RRBM (planned).')
+
 else:
-    raise(Exception('Tried to invoke a model that is not possible.'))
-
-exit(0)
-"""
-for target in parameters.target:
-
-    # Read the training data:
-    trainData = Utils.readTrainingData(target, path=parameters.train,
-                                       regression=parameters.regression,
-                                       advice=parameters.advice)
-
-    # Initialize an empty list for the trees.
-    trees = []
-
-    # Learn each tree and update the gradients.
-    for i in range(parameters.trees):
-
-        if parameters.verbose:
-            print('=' * 20, "Learning Tree", str(i), "=" * 20)
-
-        node.setMaxDepth(2)
-        node.learnTree(trainData)
-        trees.append(node.learnedDecisionTree)
-        updateGradients(trainData, trees)
-
-    for tree in trees:
-
-        if parameters.verbose:
-            print('=' * 20, "Tree", str(trees.index(tree)), "=" * 20)
-
-        for clause in tree:
-
-            if parameters.verbose:
-                print(clause)
-
-    # Read the testing data.
-    testData = Utils.readTestData(target, path=parameters.test,
-                                  regression=parameters.regression)
-
-    # Get the probability of the test examples.
-    performInference(testData, trees)
-
-    if parameters.regression:
-        # View test example values (for regression).
-        print(testData.examples)
-    else:
-        # View test query probabilities (for classification).
-        print(testData.pos)
-        print(testData.neg)
-
-# Exit with no errors if the bottom is reached successfully.
-exit(0)
-"""
+    print('Reached end of program.')
+    exit(0)
