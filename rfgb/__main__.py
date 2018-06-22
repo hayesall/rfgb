@@ -37,34 +37,23 @@ from . import rdn
 
 import argparse
 import os
-
-"""
-For backwards compatability with the Java codebase, flags should ideally
-perform the same functions. In cases where performing the same functions
-would be grossly misguided, follow with appropriate documentation.
-
-For example:
-
-.. code-block:: bash
-
-                $ java rfgb.jar ...
-                $ python rfgb.py ...
-"""
+import sys
 
 # Create an argument parser for interpretting user inputs.
-parser = argparse.ArgumentParser(description="""rfgb.py: Relational Functional
-                                 Gradient Boosting is a gradient-boosting
-                                 approach to learning statistical relational
-                                 models.
-                                 """,
-                                 epilog="""Copyright 2017-2018 RFGB
-                                 Contributors. Distributed under the terms of
-                                 the GNU GPL version 3 or later.
-                                 <http://gnu.org/licenses/gpl.html>
+parser = argparse.ArgumentParser(prog='rfgb',
+formatter_class=argparse.RawDescriptionHelpFormatter,
+description="""\
+rfgb: Relational Functional Gradient Boosting is a gradient-boosting
+approach to learning statistical relational models.
 
-                                 This is free software: you are free to change
-                                 and redistribute it. There is NO WARRANTY, to
-                                 the extent permitted by law.""")
+Start a working area (see also: rfgb help tutorial)
+    init    Initialize an empty .rfgb directory at current location.
+""",
+epilog="""Copyright 2017-2018 RFGB Contributors. Distributed under the terms of
+the GNU GPL version 3 or later. <http://gnu.org/licenses/gpl.html>
+
+This is free software: you are free to change and redistribute it. There is
+NO WARRANTY, to the extent permitted by law.""")
 
 parser.add_argument('-V', '--version', action="store_true",
                     help="show version number and exit")
@@ -77,14 +66,15 @@ parser.add_argument('-V', '--version', action="store_true",
 # MLNs are learned by supplying a -mln flag. This change is to make things
 # more-easily extended in the future.
 subparsers = parser.add_subparsers(title='rfgb Subcommands',
-                                   description="""Commands and subcommands
-                                   for rfgb.""",
-                                   help="""$ rfgb --help""",
-                                   dest='_rfgb')
+description="""Subcommands for rfgb.""",
+help="""$ rfgb --help""", dest='_rfgb')
+
 init_parser = subparsers.add_parser('init', description="""Initialize an rfgb
                                     package in the current directory for
                                     saving, loading, and managing models.""",
                                     help='Initialize a .rfgb directory.')
+help_parser = subparsers.add_parser('help', description="""Commandline
+                                    references for common actions.""")
 learn_parser = subparsers.add_parser('learn', description="""Specify the model
                                      to learn.""",
                                      help='Learn various SRL models.')
@@ -151,17 +141,17 @@ output_style.add_argument("-log", "--log", action="store_true",
                           help="Log outputs to a file.")
 
 rdn_parser.add_argument("-trees", "--trees", type=int, default=10,
-                    help="""Specify the number of boosted regression
-                    trees to learn. Default: 10.""")
+                        help="""Specify the number of boosted regression
+                        trees to learn. Default: 10.""")
 rdn_parser.add_argument("-target", "--target",
-                    type=str, default=None, action='append',
-                    help="Target predicate(s) to learn/infer about.")
+                        type=str, default=None, action='append',
+                        help="Target predicate(s) to learn/infer about.")
 
 # Arguments for setting inputs and outputs.
 rdn_parser.add_argument("-train", "--train", type=str, default="train/",
-                    help="""Set the training directory.""")
+                        help="""Set the training directory.""")
 rdn_parser.add_argument("-test", "--test", type=str, default="test/",
-                    help="""Set the testing directory.""")
+                        help="""Set the testing directory.""")
 
 # Get the arguments
 parameters = parser.parse_args()
@@ -177,9 +167,16 @@ if parameters._rfgb == 'init':
         os.makedirs('.rfgb')
         os.makedirs('.rfgb/models')
 
-        if not parameters.rfgb_subcommand.quiet:
+        if not parameters.quiet:
             print('Initialized empty rfgb repository at',
                   os.path.abspath('.') + '/.rfgb/')
+    else:
+        print('.rfgb already exists.', file=sys.stderr)
+        exit(1)
+
+elif parameters._rfgb == 'help':
+
+    print('Help information')
 
 elif parameters._rfgb == 'learn':
 
@@ -209,11 +206,20 @@ elif parameters._rfgb == 'learn':
 
     elif parameters._learn == 'mln':
         print('Learning MLN (planned)')
+        exit(1)
     elif parameters._learn == 'spn':
         print('Learning SPN (planned)')
+        exit(1)
     elif parameters._learn == 'rrbm':
         print('Learning RRBM (planned).')
+        exit(1)
+
+elif parameters._rfgb == 'infer':
+
+    print('Inference based on working model (planned).')
+    exit(0)
 
 else:
-    print('Reached end of program.')
-    exit(0)
+    print('Reached end of program without performing any action.')
+    exit(1)
+exit(0)
