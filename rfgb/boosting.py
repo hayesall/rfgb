@@ -215,11 +215,6 @@ def updateGradients(data, trees, loss='LS', delta=None):
     else:
         # If this is classification data, compute 1 - P for each positive.
         """
-        logPrior = __logPrior__
-
-        for example in data.pos:
-            sumOfGradients = computeSumOfGradients(example, trees, data)
-        """
 
         logPrior = __logPrior__
 
@@ -228,8 +223,8 @@ def updateGradients(data, trees, loss='LS', delta=None):
         for example in data.pos:
             # For each positive example compute 1 - P
             sumOfGradients = computeSumOfGradients(example, trees, data)
-            probabilityOfExample = Utils.sigmoid(logPrior + sumOfGradients)
-            updatedGradient = 1 - probabilityOfExample
+            prob = Utils.sigmoid(logPrior + sumOfGradients)
+            updatedGradient = 1 - prob
             if data.advice:
                 adviceGradient = computeAdviceGradient(example)
                 updatedGradient += adviceGradient
@@ -238,9 +233,53 @@ def updateGradients(data, trees, loss='LS', delta=None):
         for example in data.neg:
             # For each negative example compute 0 - P
             sumOfGradients = computeSumOfGradients(example, trees, data)
-            probabilityOfExample = Utils.sigmoid(logPrior + sumOfGradients)
-            updatedGradient = 0 - probabilityOfExample
+            prob = Utils.sigmoid(logPrior + sumOfGradients)
+            updatedGradient = 0 - prob
             if data.advice:
                 adviceGradient = computeAdviceGradient(example)
                 updatedGradient += adviceGradient
             data.neg[example] = updatedGradient
+
+        """
+
+        logPrior = __logPrior__
+
+        if data.softm:
+
+            for example in data.pos:
+
+                sumOfGradients = computeSumOfGradients(example, trees, data)
+                prob = Utils.sigmoid(logPrior + sumOfGradients)
+                updatedGradient = 1 - prob / (prob + (1 - prob) * exp(data.alpha))
+                data.pos[example] = updatedGradient
+
+            for example in data.neg:
+
+                sumOfGradients = computeSumOfGradients(example, trees, data)
+                prob = Utils.sigmoid(logPrior + sumOfGradients)
+                updatedGradient = 1 - prob / (prob + (1 - prob) * exp(-data.beta))
+                data.neg[example] = updatedGradient
+
+        else:
+
+            for example in data.pos:
+
+                sumOfGradients = computeSumOfGradients(example, trees, data)
+                prob = Utils.sigmoid(logPrior + sumOfGradients)
+                updatedGradient = 1 - prob
+
+                if data.advice:
+                    updatedGradient += computeAdviceGradient(example)
+
+                data.pos[example] = updatedGradient
+
+            for example in data.neg:
+
+                sumOfGradients = computeSumOfGradients(example, trees, data)
+                prob = Utils.sigmoid(logPrior + sumOfGradients)
+                updatedGradient = 0 - prob
+
+                if data.advice:
+                    updatedGradient += computeAdviceGradient(example)
+
+                data.neg[example] = updatedGradient
