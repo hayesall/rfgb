@@ -9,4 +9,3 @@ Installation and a few motivating examples.
      :maxdepth: 1
 
      getting_started/*
-

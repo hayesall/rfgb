@@ -33,16 +33,16 @@ Development builds on GitHub
 
 Quick-Start
 -----------
-		
+
 1. ``git clone https://github.com/starling-lab/rfgb.py.git``
 2. ``cd rfgb.py``
 3. Perform classification in a logistics domain:
 
    .. code-block:: bash
 
-		   python -m rfgb -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+		   python -m rfgb rdn -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
 
-Classification with Expert Advice (``-expAdvice``)
+Classification with Expert Advice (``-advice``)
 --------------------------------------------------
 
 Preferred and non-preferred labels may be provided as advice during classification via logical rules. This advice may be specified in a file named ``advice.txt`` in the train directory for a dataset.
@@ -53,13 +53,13 @@ Four datasets (BlocksWorld, HeartAttack, Logistics, and MoodDisorder) have an ad
 
    .. code-block:: bash
 
-		   python -m rfgb -expAdvice -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+		   python -m rfgb rdn -advice -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
 
 2. HeartAttack
 
    .. code-block:: bash
 
-		   python -m rfgb -expAdvice -target ha -train testDomains/HeartAttack/train/ -test testDomains/HeartAttack/test/ -trees 10
+		   python -m rfgb rdn -advice -target ha -train testDomains/HeartAttack/train/ -test testDomains/HeartAttack/test/ -trees 10
 
 Targets
 -------
@@ -97,7 +97,7 @@ In Development
 
 License
 -------
-  
+
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
