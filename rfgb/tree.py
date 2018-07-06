@@ -28,6 +28,8 @@ from .logic import Logic
 from .logic import Prover
 
 from copy import deepcopy
+import codecs
+import json
 
 
 class node(object):
@@ -43,13 +45,29 @@ class node(object):
         '''method to set max depth'''
         node.maxDepth = depth
 
-    @staticmethod
-    def save():
-        pass
+    def save(location):
+        """
+        Dumps json version of learnedDecisionTree to location.
 
-    @staticmethod
-    def load():
-        pass
+        :param location: Name of the file to write.
+        :type location: str.
+
+        :returns: None.
+        """
+        with codecs.open(location, encoding='utf-8', mode='a') as f:
+            json.dump(node.learnedDecisionTree, f, indent=2)
+
+    def load(location):
+        """
+        Loads json version of learnedDecisionTree from location.
+
+        :param location: Name of the file to load.
+        :type location: str.
+
+        :returns: None.
+        """
+        with codecs.open(location, encoding='utf-8', mode='r') as f:
+            node.learnedDecisionTree = json.load(f)
 
     def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
         '''constructor for node class
