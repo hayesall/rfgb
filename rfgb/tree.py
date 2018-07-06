@@ -43,6 +43,14 @@ class node(object):
         '''method to set max depth'''
         node.maxDepth = depth
 
+    @staticmethod
+    def save():
+        pass
+
+    @staticmethod
+    def load():
+        pass
+
     def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
         '''constructor for node class
            contains test condition or clause
