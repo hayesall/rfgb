@@ -15,3 +15,4 @@
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
 
+from .init import init

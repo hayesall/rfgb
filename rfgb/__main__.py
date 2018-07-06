@@ -33,6 +33,9 @@ from .boosting import performInference
 from .tree import node
 from .utils import Utils
 from ._metadata import __version__
+
+# Imports for subpackages
+from . import cmd
 from . import rdn
 
 import argparse
@@ -177,17 +180,7 @@ if parameters.version:
 
 if parameters._rfgb == 'init':
     # Initialize an empty rfgb repository for loading and saving models.
-
-    if not os.path.exists('.rfgb'):
-        os.makedirs('.rfgb')
-        os.makedirs('.rfgb/models')
-
-        if not parameters.quiet:
-            print('Initialized empty rfgb repository at',
-                  os.path.abspath('.') + '/.rfgb/')
-    else:
-        print('.rfgb already exists.', file=sys.stderr)
-        exit(1)
+    cmd.init(quiet=parameters.quiet)
 
 elif parameters._rfgb == 'help':
     print('Help information')
