@@ -10,11 +10,24 @@ rfgb.py
 .. toctree::
    :glob:
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Overview:
 
    getting_started*
    development*
-   rfgb
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+   :caption: Commandline Utilities
+
+   commandline
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+   :caption: API:
+
+   submodules*
    rfgb.rdn
 
 Indices and tables
@@ -22,4 +35,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`

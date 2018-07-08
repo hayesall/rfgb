@@ -24,7 +24,8 @@ from ..utils import Utils
 
 
 def learn(targets, numTrees=10, path='',
-          regression=False, advice=False):
+          regression=False, advice=False,
+          softm=False, alpha=0.0, beta=0.0):
     """
     .. versionadded:: 0.3.0
 
@@ -66,7 +67,10 @@ def learn(targets, numTrees=10, path='',
         # Read the training data.
         trainData = Utils.readTrainingData(target, path=path,
                                            regression=regression,
-                                           advice=advice)
+                                           advice=advice,
+                                           softm=softm,
+                                           alpha=alpha,
+                                           beta=beta)
 
         # Initialize an empty list for the trees.
         trees = []

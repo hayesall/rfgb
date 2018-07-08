@@ -28,7 +28,8 @@ import string
 class Data(object):
     """Object containing the relational data."""
 
-    def __init__(self, regression=False, advice=False):
+    def __init__(self, regression=False, advice=False,
+                 softm=False, alpha=0.0, beta=0.0):
         """
         An RFGB Data object, which serves as the structure for the positives,
         negatives, facts, and other parameters.
@@ -55,6 +56,10 @@ class Data(object):
         self.target = None
         self.literals = {}
         self.variableType = {}
+
+        self.softm = softm
+        self.alpha = alpha
+        self.beta = beta
 
     def setFacts(self, facts):
         """
@@ -289,7 +294,8 @@ class Utils(object):
 
     @staticmethod
     def readTrainingData(target, path='train/',
-                         regression=False, advice=False):
+                         regression=False, advice=False,
+                         softm=False, alpha=0.0, beta=0.0):
         """
         Reads the training data from files.
 
@@ -315,7 +321,8 @@ class Utils(object):
         :rtype: :py:class:`.utils.Data`
         """
 
-        Utils.data = Data(regression=regression, advice=advice)
+        Utils.data = Data(regression=regression, advice=advice,
+                          softm=softm, alpha=alpha, beta=beta)
         #trainData = Data(regression=regression, advice=advice)
         #Utils.data.regression = regression
         #Utils.data.advice = advice

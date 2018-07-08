@@ -47,5 +47,9 @@ setup(
         'Tracker': 'https://github.com/starling-lab/rfgb.py/issues'
     },
 
+    entry_points={
+        'console_scripts': ['rfgb=rfgb.__main__']
+    },
+
     packages=find_packages(exclude=['tests'])
 )
