@@ -19,28 +19,37 @@ Relational Functional Gradient Boosting (RFGB)
 Installation
 ------------
 
-Stable builds on PyPi
+Stable builds may be installed from PyPi
 
 .. code-block:: bash
 
 		pip install rfgb
 
-Development builds on GitHub
+Or develop further by cloning the repository
 
 .. code-block:: bash
 
-		pip install git+git://github.com/starling-lab/rfgb.py.git
+		git clone https://github.com/starling-lab/rfgb.py.git
+		cd rfgb.py/
+		python setup.py develop
 
 Quick-Start
 -----------
 
-1. ``git clone https://github.com/starling-lab/rfgb.py.git``
-2. ``cd rfgb.py``
-3. Perform classification in a logistics domain:
+Learning with a relational dependency network.
 
    .. code-block:: bash
 
-		   python -m rfgb rdn -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+		   cd testDomains/Logistics/
+		   rfgb learn rdn -target unload
+
+Additional options for each subcommand may be viewed by passing ``-h`` as a parameter.
+
+   .. code-block:: bash
+
+		   rfgb -h
+		   rfgb learn rdn -h
+		   
 
 Classification with Expert Advice (``-advice``)
 --------------------------------------------------
@@ -52,14 +61,16 @@ Four datasets (BlocksWorld, HeartAttack, Logistics, and MoodDisorder) have an ad
 1. Logistics
 
    .. code-block:: bash
-
-		   python -m rfgb rdn -advice -target unload -train testDomains/Logistics/train/ -test testDomains/Logistics/test/ -trees 10
+		   
+		   cd testDomains/Logistics/
+		   rfgb learn rdn -advice -target unload
 
 2. HeartAttack
 
    .. code-block:: bash
 
-		   python -m rfgb rdn -advice -target ha -train testDomains/HeartAttack/train/ -test testDomains/HeartAttack/test/ -trees 10
+		   cd testDomains/HeartAttack/
+		   rfgb learn rdn -advice -target ha
 
 Targets
 -------
@@ -93,7 +104,6 @@ In Development
 
 - [ ] Test cases (codecov >90%)
 - [ ] Learning Markov Logic Networks
-- [ ] Learning with Soft-Margin
 
 License
 -------
