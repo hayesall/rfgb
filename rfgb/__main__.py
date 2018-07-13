@@ -111,6 +111,13 @@ rrbm_parser = learn_subparser.add_parser('rrbm', description="""Relational
                                          help="""Relational Restricted
                                          Boltzmann Machines""")
 
+# infer-specific arguments
+infer_parser.add_argument('-target', '--target',
+                          type=str, default=None, action='append',
+                          help='Target predicate(s) to infer about.')
+infer_parser.add_argument("-test", "--test", type=str, default="test/",
+                          help="""Set the testing directory.""")
+
 # init-specific arguments
 init_parser.add_argument('-q', '--quiet', help="""Quiet output.""",
                          action='store_true')
@@ -137,13 +144,13 @@ rdn_parser.add_argument("-beta", "--beta",
                         help="""Set the beta value for use with softm.""",
                         type=float,
                         default=0.0)
-
+'''
 rdn_learn_or_infer = rdn_parser.add_mutually_exclusive_group()
 rdn_learn_or_infer.add_argument('-l', '--learn', action='store_true',
                                 help='Learn an RDN.')
 rdn_learn_or_infer.add_argument('-i', '--infer', action='store_true',
                                 help='Infer with an RDN.')
-
+'''
 # Control what is displayed on the console,
 # either a verbose output, a progress bar, or nothing at all.
 console = rdn_parser.add_mutually_exclusive_group()
@@ -163,13 +170,11 @@ rdn_parser.add_argument("-trees", "--trees", type=int, default=10,
                         trees to learn. Default: 10.""")
 rdn_parser.add_argument("-target", "--target",
                         type=str, default=None, action='append',
-                        help="Target predicate(s) to learn/infer about.")
+                        help="Target predicate(s) to learn about.")
 
 # Arguments for setting inputs and outputs.
 rdn_parser.add_argument("-train", "--train", type=str, default="train/",
                         help="""Set the training directory.""")
-rdn_parser.add_argument("-test", "--test", type=str, default="test/",
-                        help="""Set the testing directory.""")
 
 # Get the arguments
 parameters = parser.parse_args()
@@ -207,12 +212,13 @@ elif parameters._rfgb == 'learn':
                           alpha=parameters.alpha,
                           beta=parameters.beta)
 
+        '''
         # Perform inference for demonstration.
         for target in trees:
             results = rdn.infer(target, trees[target], path=parameters.test,
                                 regression=parameters.regression)
-
         print(results)
+        '''
 
     elif parameters._learn == 'mln':
         print('Learning MLN (planned)')
@@ -226,7 +232,14 @@ elif parameters._rfgb == 'learn':
 
 elif parameters._rfgb == 'infer':
 
-    print('Inference based on working model (planned).')
+    for target in parameters.target:
+        # Load the models saved during learning.
+        trees = Utils.load('.rfgb/models/' + target + '.trees')
+
+        # Infer with an rdn
+        results = rdn.infer(target, trees, path=parameters.test,
+                            regression=False)
+        print(results)
     exit(0)
 
 else:
