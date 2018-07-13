@@ -22,13 +22,10 @@ from ..boosting import updateGradients
 from ..tree import node
 from ..utils import Utils
 
-import codecs
-import json
-
 
 def learn(targets, numTrees=10, path='',
           regression=False, advice=False,
-          softm=False, alpha=0.0, beta=0.0):
+          softm=False, alpha=0.0, beta=0.0, saveJson=True):
     """
     .. versionadded:: 0.3.0
 
@@ -87,7 +84,8 @@ def learn(targets, numTrees=10, path='',
             updateGradients(trainData, trees)
 
             # Save the models learned at this step.
-            node.save('.rfgb/models/' + target + '.tree')
+            if saveJson:
+                Utils.save('.rfgb/models/' + target + '.trees', trees)
 
         models[target] = trees
 
