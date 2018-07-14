@@ -49,7 +49,7 @@ Additional options for each subcommand may be viewed by passing ``-h`` as a para
 
 		   rfgb -h
 		   rfgb learn rdn -h
-		   
+
 
 Classification with Expert Advice (``-advice``)
 --------------------------------------------------
@@ -60,17 +60,20 @@ Four datasets (BlocksWorld, HeartAttack, Logistics, and MoodDisorder) have an ad
 
 1. Logistics
 
-   .. code-block:: bash
-		   
-		   cd testDomains/Logistics/
-		   rfgb learn rdn -advice -target unload
+.. code-block:: bash
+
+    cd testDomains/Logistics/
+    rfgb init
+    rfgb learn rdn -advice -target unload
 
 2. HeartAttack
 
-   .. code-block:: bash
+.. code-block:: bash
 
-		   cd testDomains/HeartAttack/
-		   rfgb learn rdn -advice -target ha
+    cd testDomains/HeartAttack/
+    rfgb init
+    rfgb learn rdn -advice -target ha
+
 
 Targets
 -------
@@ -102,8 +105,9 @@ Targets
 In Development
 --------------
 
-- [ ] Test cases (codecov >90%)
-- [ ] Learning Markov Logic Networks
+- Test cases (codecov >90%)
+- General interaction improvements for commandline and library
+- Learning Markov Logic Networks
 
 License
 -------
