@@ -85,7 +85,21 @@ def learn(targets, numTrees=10, path='',
 
             # Save the models learned at this step.
             if saveJson:
-                Utils.save('.rfgb/models/' + target + '.trees', trees)
+
+                # Collect the parameters used to learn these trees:
+                params = {
+                    'target': target,
+                    'trees': i + 1,
+                    'regression': regression,
+                    'advice': advice,
+                    'softm': softm,
+                    'alpha': alpha,
+                    'beta': beta
+                }
+
+                # Save a json file containing parameters and trees learned.
+                model = [params, trees]
+                Utils.save('.rfgb/models/' + target + '.json', model)
 
         models[target] = trees
 
