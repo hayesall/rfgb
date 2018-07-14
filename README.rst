@@ -38,17 +38,18 @@ Quick-Start
 
 Learning with a relational dependency network.
 
-   .. code-block:: bash
+.. code-block:: bash
 
-		   cd testDomains/Logistics/
-		   rfgb learn rdn -target unload
+   cd testDomains/Logistics/
+   rfgb init
+   rfgb learn rdn -target unload
 
 Additional options for each subcommand may be viewed by passing ``-h`` as a parameter.
 
-   .. code-block:: bash
+.. code-block:: bash
 
-		   rfgb -h
-		   rfgb learn rdn -h
+   rfgb -h
+   rfgb learn rdn -h
 
 
 Classification with Expert Advice (``-advice``)
