@@ -19,6 +19,8 @@
 Initializes an empty .rfgb directory for storing models and metadata.
 """
 
+from __future__ import print_function
+
 import os
 import sys
 
