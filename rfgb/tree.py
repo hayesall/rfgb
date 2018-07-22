@@ -145,13 +145,19 @@ class node(object):
         bestTest = "" #initalize best test to empty string
         bestTExamples = [] #list for best test examples that satisfy clause
         bestFExamples = [] #list for best test examples that don't satisfy clause
-        literals = data.getLiterals() #get all the literals that the data (facts) contains
+        # Get all literals that the data (facts) contain
+        literals = data.getLiterals()
+
         tests = []
-        for literal in literals: #for every literal generate test conditions
-            literalName = literal
-            literalTypeSpecification = literals[literal]
-            tests += Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
-        if self.parent!="root":
+        # For each literal, generate test conditions.
+        for literal in literals:
+            literalName = literal[0]
+            literalTypeSpecification = literal[1]
+
+            # Generate all possible literal, variable, and constant combinations
+            tests += Logic.generateTests(literalName,literalTypeSpecification,clause)
+
+        if self.parent != "root":
                 tests = [test for test in tests if not test in ancestorTests]
         tests = set(tests)
 
