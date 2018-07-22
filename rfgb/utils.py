@@ -273,12 +273,25 @@ class Utils(object):
 
     @staticmethod
     def addVariableTypes(literal):
-        '''adds type of variables contained in literal'''
-        literalName = literal.split('(')[0] #get literal name
-        literalTypeSpecification = Utils.data.literals[literalName] #get background info
-        literalArguments = literal[:-1].split('(')[1].split(',') #get arguments
-        numberOfArguments = len(literalArguments)
-        for i in range(numberOfArguments):
+        """
+        As literals are encountered, update Utils.data.variableType with the
+        type of the variables encountered.
+
+        :param literal: A literal of the form smokes(W) or friends(A,B)
+        :type literal: str.
+        """
+
+        # Get the name of the literal.
+        literalName =  literal.split('(')[0]
+
+        # Get background info for the literal
+        literalTypeSpecification = Utils.data.literalTypes[literalName]
+
+        # Get the arguments
+        literalArguments = literal[:-1].split('(')[1].split(',')
+
+        # Get the number of arguments.
+        for i in range(len(literalArguments)):
             if literalTypeSpecification[i][0]!='[':
                 variable = literalArguments[i]
                 if variable not in Utils.data.variableType.keys():
