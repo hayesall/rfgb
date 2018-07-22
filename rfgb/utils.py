@@ -55,6 +55,7 @@ class Data(object):
         self.examplesTrueValue = {}
         self.target = None
         self.literals = []
+        self.literalTypes = {}
         self.variableType = {}
 
         self.softm = softm
@@ -205,6 +206,7 @@ class Data(object):
         for literalBk in bkWithoutTargets:
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
+            self.literalTypes[literalName] = literalTypeSpecification
             self.literals.append([literalName, literalTypeSpecification])
 
     def getLiterals(self):
