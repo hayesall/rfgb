@@ -54,7 +54,7 @@ class Data(object):
         self.examples = {}
         self.examplesTrueValue = {}
         self.target = None
-        self.literals = {}
+        self.literals = []
         self.variableType = {}
 
         self.softm = softm
@@ -205,7 +205,7 @@ class Data(object):
         for literalBk in bkWithoutTargets:
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
-            self.literals[literalName] = literalTypeSpecification
+            self.literals.append([literalName, literalTypeSpecification])
 
     def getLiterals(self):
         '''gets all the literals in the facts'''
