@@ -25,7 +25,7 @@ from ..utils import Utils
 
 def learn(targets, numTrees=10, path='',
           regression=False, advice=False,
-          softm=False, alpha=0.0, beta=0.0):
+          softm=False, alpha=0.0, beta=0.0, saveJson=True):
     """
     .. versionadded:: 0.3.0
 
@@ -82,6 +82,24 @@ def learn(targets, numTrees=10, path='',
             node.learnTree(trainData)
             trees.append(node.learnedDecisionTree)
             updateGradients(trainData, trees)
+
+            # Save the models learned at this step.
+            if saveJson:
+
+                # Collect the parameters used to learn these trees:
+                params = {
+                    'target': target,
+                    'trees': i + 1,
+                    'regression': regression,
+                    'advice': advice,
+                    'softm': softm,
+                    'alpha': alpha,
+                    'beta': beta
+                }
+
+                # Save a json file containing parameters and trees learned.
+                model = [params, trees]
+                Utils.save('.rfgb/models/' + target + '.json', model)
 
         models[target] = trees
 

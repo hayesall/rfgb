@@ -71,5 +71,5 @@ if __name__ == '__main__':
     '''
 
     results = runner.run(testsuite)
-    if results.failures:
+    if results.failures or results.errors:
         raise(Exception('Encountered errors during runner.run'))

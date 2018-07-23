@@ -22,6 +22,8 @@
 from random import sample
 from math import exp
 
+import codecs
+import json
 import string
 
 
@@ -291,6 +293,32 @@ class Utils(object):
         for example in examples:
             total += Utils.data.getValue(example)
         return total/float(len(examples))
+
+    @staticmethod
+    def save(location, saveItem):
+        """
+        Dumps json version of learnedDecisionTree to location.
+
+        :param location: Name of the file to write.
+        :type location: str.
+
+        :returns: None.
+        """
+        with codecs.open(location, encoding='utf-8', mode='w') as f:
+            json.dump(saveItem, f, indent=2)
+
+    @staticmethod
+    def load(location):
+        """
+        Loads json version of learnedDecisionTree from location.
+
+        :param location: Name of the file to load.
+        :type location: str.
+
+        :returns: None.
+        """
+        with codecs.open(location, encoding='utf-8', mode='r') as f:
+            return json.load(f)
 
     @staticmethod
     def readTrainingData(target, path='train/',

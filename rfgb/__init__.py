@@ -39,6 +39,7 @@ from rfgb.tree import node
 from rfgb.boosting import updateGradients
 from rfgb.boosting import performInference
 import rfgb._metadata
+import rfgb.cmd
 
 __author__ = rfgb._metadata.__author__
 __copyright__ = rfgb._metadata.__copyright__

@@ -33,6 +33,9 @@ from .boosting import performInference
 from .tree import node
 from .utils import Utils
 from ._metadata import __version__
+
+# Imports for subpackages
+from . import cmd
 from . import rdn
 
 import argparse
@@ -108,6 +111,13 @@ rrbm_parser = learn_subparser.add_parser('rrbm', description="""Relational
                                          help="""Relational Restricted
                                          Boltzmann Machines""")
 
+# infer-specific arguments
+infer_parser.add_argument('-target', '--target',
+                          type=str, default=None, action='append',
+                          help='Target predicate(s) to infer about.')
+infer_parser.add_argument("-test", "--test", type=str, default="test/",
+                          help="""Set the testing directory.""")
+
 # init-specific arguments
 init_parser.add_argument('-q', '--quiet', help="""Quiet output.""",
                          action='store_true')
@@ -135,14 +145,9 @@ rdn_parser.add_argument("-beta", "--beta",
                         type=float,
                         default=0.0)
 
-rdn_learn_or_infer = rdn_parser.add_mutually_exclusive_group()
-rdn_learn_or_infer.add_argument('-l', '--learn', action='store_true',
-                                help='Learn an RDN.')
-rdn_learn_or_infer.add_argument('-i', '--infer', action='store_true',
-                                help='Infer with an RDN.')
-
 # Control what is displayed on the console,
 # either a verbose output, a progress bar, or nothing at all.
+'''
 console = rdn_parser.add_mutually_exclusive_group()
 console.add_argument("-v", "-verbose", "--verbose", action="store_true",
                      help="Print outputs and logs to console.")
@@ -154,19 +159,18 @@ console.add_argument("-p", "-progress", "--progress", action="store_true",
 output_style = rdn_parser.add_mutually_exclusive_group()
 output_style.add_argument("-log", "--log", action="store_true",
                           help="Log outputs to a file.")
+'''
 
 rdn_parser.add_argument("-trees", "--trees", type=int, default=10,
                         help="""Specify the number of boosted regression
                         trees to learn. Default: 10.""")
 rdn_parser.add_argument("-target", "--target",
                         type=str, default=None, action='append',
-                        help="Target predicate(s) to learn/infer about.")
+                        help="Target predicate(s) to learn about.")
 
 # Arguments for setting inputs and outputs.
 rdn_parser.add_argument("-train", "--train", type=str, default="train/",
                         help="""Set the training directory.""")
-rdn_parser.add_argument("-test", "--test", type=str, default="test/",
-                        help="""Set the testing directory.""")
 
 # Get the arguments
 parameters = parser.parse_args()
@@ -177,17 +181,7 @@ if parameters.version:
 
 if parameters._rfgb == 'init':
     # Initialize an empty rfgb repository for loading and saving models.
-
-    if not os.path.exists('.rfgb'):
-        os.makedirs('.rfgb')
-        os.makedirs('.rfgb/models')
-
-        if not parameters.quiet:
-            print('Initialized empty rfgb repository at',
-                  os.path.abspath('.') + '/.rfgb/')
-    else:
-        print('.rfgb already exists.', file=sys.stderr)
-        exit(1)
+    cmd.init(quiet=parameters.quiet)
 
 elif parameters._rfgb == 'help':
     print('Help information')
@@ -214,13 +208,6 @@ elif parameters._rfgb == 'learn':
                           alpha=parameters.alpha,
                           beta=parameters.beta)
 
-        # Perform inference for demonstration.
-        for target in trees:
-            results = rdn.infer(target, trees[target], path=parameters.test,
-                                regression=parameters.regression)
-
-        print(results)
-
     elif parameters._learn == 'mln':
         print('Learning MLN (planned)')
         exit(1)
@@ -233,7 +220,25 @@ elif parameters._rfgb == 'learn':
 
 elif parameters._rfgb == 'infer':
 
-    print('Inference based on working model (planned).')
+    # Collect targets based on user preferences.
+    if parameters.target:
+        # Use the targets set at the commandline.
+        targets = parameters.target
+    else:
+        # Collect each target from files in the .rfgb/models/ directory.
+        targets = list(map(lambda s: s.replace('.json', ''),
+                                     os.listdir('.rfgb/models/')))
+
+    for target in targets:
+
+        model = Utils.load('.rfgb/models/' + target + '.json')
+        settings, trees = model[0], model[1]
+
+        results = rdn.infer(target, trees, path=parameters.test,
+                            regression=settings['regression'])
+        # Print results for easy viewing.
+        print(results)
+
     exit(0)
 
 else:
