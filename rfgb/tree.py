@@ -16,7 +16,7 @@
 # see <http://www.gnu.org/licenses/>
 
 """
-(docstring)
+Data structures and methods for learning decision trees.
 """
 
 from __future__ import print_function
@@ -28,156 +28,180 @@ from .logic import Logic
 from .logic import Prover
 
 from copy import deepcopy
-import codecs
-import json
 
+class node:
+    """
+    A node in a tree.
 
-class node(object):
-    '''this is a node in a tree'''
-    expandQueue = [] #Breadth first search node expansion strategy
-    depth = 0 #initial depth is 0 because no node present
-    maxDepth = 1 #max depth set to 1 because we want to at least learn a tree of depth 1
-    learnedDecisionTree = [] #this will hold all the clauses learned
-    data = None #stores all the facts, positive and negative examples
+    :param expandQueue: Breadth first search node expansion strategy
+    :param depth: initial depth is 0 because no node present
+    :param maxDepth: max depth set to 1 because we want to at least learn a tree of depth 1
+    :param learnedDecisionTree: this will hold all the clauses learned
+    :param data: stores all the facts, positive and negative examples
+    """
+
+    expandQueue = []
+    depth = 0
+    maxDepth = 1
+    learnedDecisionTree = []
+    data = None
+
+    def __init__(self, test=None, examples=None, information=None,
+                 level=None, parent=None, pos=None):
+        """
+        Constructor for node class.
+
+        :param test: Test condition in the form of a horn clause.
+        :param examples: Examples available for testing at this node.
+        :param information: Information contained at this node.
+        :param level: Level of this node in the tree (0 for root).
+        :param parent: "root", or a pointer to the parent.
+        :param pos: Position in the tree ('left' or 'right')
+        """
+        self.test = test
+        if level > 0:
+            self.parent = parent
+        else:
+            self.parent = 'root'
+        self.pos = pos
+        self.examples = examples
+        self.information = information
+        self.level = level
+        self.left = None
+        self.right = None
+
+        # Add to the queue of nodes to expand.
+        node.expandQueue.insert(0,self)
+
 
     @staticmethod
     def setMaxDepth(depth):
-        '''method to set max depth'''
+        """
+        Set the maximum depth of the tree.
+        """
         node.maxDepth = depth
 
-    def save(location):
-        """
-        Dumps json version of learnedDecisionTree to location.
-
-        :param location: Name of the file to write.
-        :type location: str.
-
-        :returns: None.
-        """
-        with codecs.open(location, encoding='utf-8', mode='a') as f:
-            json.dump(node.learnedDecisionTree, f, indent=2)
-
-    def load(location):
-        """
-        Loads json version of learnedDecisionTree from location.
-
-        :param location: Name of the file to load.
-        :type location: str.
-
-        :returns: None.
-        """
-        with codecs.open(location, encoding='utf-8', mode='r') as f:
-            node.learnedDecisionTree = json.load(f)
-
-    def __init__(self, test=None, examples=None, information=None, level=None, parent=None, pos=None):
-        '''constructor for node class
-           contains test condition or clause
-           contains examples
-           contains information notion (some score)
-           contains level in the tree of node
-           contains parent node pointer
-           and contains position in the tree
-        '''
-        self.test = test #set test condition, which will be a horn clause
-        if level > 0: #check if root
-            self.parent = parent #if not root set parent as the nodes parent
-        else:
-            self.parent = "root" #if root, set parent to "root" to signify root
-        self.pos = pos #position of the node, i.e. "left" or "right"
-        self.examples = examples #all examples that are available for testing at this node
-        self.information = information #information contained at this node
-        self.level = level #level of the node, 0 for root
-        self.left = None #left subtree
-        self.right = None #right subtree
-        node.expandQueue.insert(0,self) #add to the queue of nodes to expand
 
     @staticmethod
     def initTree(trainingData):
-        """Method for creating the root node."""
+        """
+        Create the root node of the tree.
+        """
 
         node.data = trainingData
-        node.expandQueue = [] #reset node queue for every tree to be learned
-        node.learnedDecisionTree = [] #reset clauses for every tree to be learned
+
+        # Reset node queue for every tree to be learned.
+        node.expandQueue = []
+        # Reset clauses for every tree to be learned.
+        node.learnedDecisionTree = []
 
         if trainingData.regression:
-            # Regression examples can be collected from trainingData.examples (since there are no pos/neg).
+            # Regression examples can be collected from trainingData.examples
+            # (since there are no pos/neg).
             examples = trainingData.examples.keys()
         else:
-            # For all other models, we consider a set of positive and negative examples.
+            # For all other models, we consider a set of positive and
+            # negative examples.
             examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys())
 
-        node(None, examples, trainingData.variance(examples), 0, 'root')
+        node(test=None,
+             examples=examples,
+             information=trainingData.variance(examples),
+             level=0,
+             parent='root')
+
 
     @staticmethod
     def learnTree(data):
-        '''method to learn the decision tree'''
+        """
+        Method to create and learn the decision tree.
+        """
 
-        node.initTree(data) #create the root
+        # Create the root
+        node.initTree(data)
+
         while len(node.expandQueue) > 0:
-            curr = node.expandQueue.pop()
-            curr.expandOnBestTest(data)
+            current = node.expandQueue.pop()
+            current.expandOnBestTest(data)
+
         node.learnedDecisionTree.sort(key = len)
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
 
+
     def getTrueExamples(self, clause, test, data):
-        '''returns all examples that satisfy clause
-           with conjoined test literal
-        '''
-        tExamples = [] #intialize list of true examples
+        """
+        Returns all examples that satisfy the clause
+        with conjoined test literal.
+        """
+
+        # Initialize a list of true examples.
+        trueExamples = []
         clauseCopy = deepcopy(clause)
-        if clauseCopy[-1] == "-": #construct clause for prover
+
+        # Construct clause for prover
+        if clauseCopy[-1] == '-':
             clauseCopy += test
         elif clauseCopy[-1] == ';':
             clauseCopy = clauseCopy.replace(';', ',') + test
-        print ("testing clause: ",clauseCopy) # --> to keep track of output, following for loop can be parallelized
+
+        # Prove if example satisfies clause.
         for example in self.examples:
-            if Prover.prove(data,example,clauseCopy): #prove if example satisfies clause
-                tExamples.append(example)
-        return tExamples
+            if Prover.prove(data, example, clauseCopy):
+                trueExamples.append(example)
+        return trueExamples
+
 
     def expandOnBestTest(self, data=None):
-        '''expands the node based on the best test'''
-        target = data.getTarget() #get the target
-        clause = target+":-" #initialize clause learned at this node with empty body
-        curr = self #while loop to obtain clause learned at this node
+        """
+        Expand the node based on the best test.
+        """
+
+        target = data.getTarget()
+        # Initialize clause learned at this node with empty body.
+        clause = target + ':-'
+
+        current = self
         ancestorTests = []
-        while curr.parent!="root":
-            if curr.pos == "left":
-                clause += curr.parent.test+";"
-                ancestorTests.append(curr.parent.test)
-            elif curr.pos == "right":
-                ancestorTests.append(curr.parent.test)
-                clause += ""#"!"+curr.parent.test+","
-            curr = curr.parent
-        if self.level == node.maxDepth or round(self.information,3) == 0:
-            if clause[-1]!='-':
-                node.learnedDecisionTree.append(clause[:-1]+" "+str(Utils.getleafValue(self.examples)))
+        while current.parent != 'root':
+
+            if current.pos == 'left':
+                clause += current.parent.test + ';'
+                ancestorTests.append(current.parent.test)
+            elif current.pos == 'right':
+                ancestorTests.append(current.parent.test)
+
+            current = current.parent
+
+        if self.level == node.maxDepth or round(self.information, 3) == 0:
+
+            if clause[-1] != '-':
+                node.learnedDecisionTree.append(clause[:-1] + ' ' + str(Utils.getleafValue(self.examples)))
             else:
-                node.learnedDecisionTree.append(clause+" "+str(Utils.getleafValue(self.examples)))
+                node.learnedDecisionTree.append(clause + ' ' + str(Utils.getleafValue(self.examples)))
             return
+
         if clause[-2] == '-':
-            clause = clause[:-1]
-        print('-'*80)
-        #print "facts: ",data.getFacts()
-        print("pos: ",self.pos)
-        print("node depth: ",self.level)
-        print("parent: ",self.parent)
-        print("examples at node: ",self.examples)
-        if self.parent != "root":
-            print("test at parent: ",self.parent.test)
-        print("clause for generate test at current node: ",clause)
-        #print "examples at current node: ",self.examples
-        minScore = float('inf') #initialize minimum weighted variance to be 0
-        bestTest = "" #initalize best test to empty string
-        bestTExamples = [] #list for best test examples that satisfy clause
-        bestFExamples = [] #list for best test examples that don't satisfy clause
-        literals = data.getLiterals() #get all the literals that the data (facts) contains
+            clause = clause[-1]
+
+        # Initialize minimum weighted variance to a low value.
+        minScore = float('inf')
+        bestTest = ''
+
+        # List for best test examples which satisfy or do not satisfy clause.
+        bestTExamples, bestFExamples = [], []
+        # Get all the literals contained in the facts.
+        literals = data.getLiterals()
+
         tests = []
-        for literal in literals: #for every literal generate test conditions
+        # For every literal generate test conditions
+        for literal in literals:
             literalName = literal
             literalTypeSpecification = literals[literal]
-            tests += Logic.generateTests(literalName,literalTypeSpecification,clause) #generate all possible literal, variable and constant combinations
-        if self.parent!="root":
+
+            # Generate all possible literal, variable, and constant combinations.
+            tests += Logic.generateTests(literalName, literalTypeSpecification, clause)
+
+        if self.parent != "root":
                 tests = [test for test in tests if not test in ancestorTests]
         tests = set(tests)
 
@@ -194,8 +218,6 @@ class node(object):
             score = ((len(tExamples)/example_len) * data.variance(tExamples) +
                      (len(fExamples)/example_len) * data.variance(fExamples))
 
-            #score = ((len(tExamples)/float(len(self.examples)))*Utils.variance(tExamples) + (len(fExamples)/float(len(self.examples)))*Utils.variance(fExamples))
-
             if score < minScore: #if score lower than current lowest
                 minScore = score #assign new minimum
                 bestTest = test #assign new best test
@@ -204,28 +226,39 @@ class node(object):
         Utils.addVariableTypes(bestTest) #add variable types of new variables
         self.test = bestTest #assign best test after going through all literal specs
 
-        print("best test found at current node: ",self.test)
+        print("Best test found at the current node: ", self.test)
 
-
-        # If True examples need further explaining, create left node and add to the queue.
+        # If True examples need further explaining,
+        # create left node and add to the queue.
         if len(bestTExamples) > 0:
 
-            self.left = node(None, bestTExamples, data.variance(bestTExamples), self.level+1, self, "left")
+            self.left = node(test=None,
+                             examples=bestTExamples,
+                             information=data.variance(bestTExamples),
+                             level=self.level+1,
+                             parent=self,
+                             pos="left")
 
-            #self.left = node(None,bestTExamples,Utils.variance(bestTExamples),self.level+1,self,"left")
             if self.level+1 > node.depth:
                 node.depth = self.level+1
 
-        # If False examples need further explaining, create right node and add to the queue.
+        # If False examples need further explaining,
+        # create right node and add to the queue.
         if len(bestFExamples) > 0:
 
-            self.right = node(None, bestFExamples, data.variance(bestFExamples), self.level+1, self, "right")
+            self.right = node(test=None,
+                              examples=bestFExamples,
+                              information=data.variance(bestFExamples),
+                              level=self.level+1,
+                              parent=self,
+                              pos="right")
 
-            #self.right = node(None,bestFExamples,Utils.variance(bestFExamples),self.level+1,self,"right")
+            if self.level + 1 > node.depth:
+                node.depth = self.level + 1
 
-            if self.level+1 > node.depth:
-                node.depth = self.level+1
-        if self.test == "" or round(self.information,3) == 0: #if no examples append clause as is
+        # If there are no examples, append clause as it is.
+        #if no examples append clause as is
+        if self.test == "" or round(self.information, 3) == 0:
             if clause[-1]!='-':
                 node.learnedDecisionTree.append(clause[:-1])
             else:
