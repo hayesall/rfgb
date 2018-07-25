@@ -124,7 +124,7 @@ class node:
             current = node.expandQueue.pop()
             current.expandOnBestTest(data)
 
-        node.learnedDecisionTree.sort(key = len)
+        node.learnedDecisionTree.sort(key = lambda x: len(x.split(' ')[0]))
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
 
 
