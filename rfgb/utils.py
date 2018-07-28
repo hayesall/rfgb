@@ -85,7 +85,7 @@ class Data(object):
         for example in pos:
             if example.split('(')[0] == target:
                 # Set initial gradient to 0.5 for positives.
-                self.pos[example] = 0.5
+                self.pos[example] = 1-Utils.sigmoid(-1.8)
 
     def setExamples(self, examples, target):
         """
@@ -109,7 +109,7 @@ class Data(object):
         for example in neg:
             if example.split('(')[0] == target:
                 # Set initial gradient to -0.5 for negative examples.
-                self.neg[example] = -0.5
+                self.neg[example] = -Utils.sigmoid(-1.8)
 
     def setTarget(self, bk, target):
         """
