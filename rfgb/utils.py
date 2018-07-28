@@ -56,7 +56,8 @@ class Data(object):
         self.examples = {}
         self.examplesTrueValue = {}
         self.target = None
-        self.literals = {}
+        self.literals = []
+        self.literalTypes = {}
         self.variableType = {}
 
         self.softm = softm
@@ -207,7 +208,8 @@ class Data(object):
         for literalBk in bkWithoutTargets:
             literalName = literalBk.split('(')[0]
             literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
-            self.literals[literalName] = literalTypeSpecification
+            self.literalTypes[literalName] = literalTypeSpecification
+            self.literals.append([literalName, literalTypeSpecification])
 
     def getLiterals(self):
         '''gets all the literals in the facts'''
@@ -273,12 +275,25 @@ class Utils(object):
 
     @staticmethod
     def addVariableTypes(literal):
-        '''adds type of variables contained in literal'''
-        literalName = literal.split('(')[0] #get literal name
-        literalTypeSpecification = Utils.data.literals[literalName] #get background info
-        literalArguments = literal[:-1].split('(')[1].split(',') #get arguments
-        numberOfArguments = len(literalArguments)
-        for i in range(numberOfArguments):
+        """
+        As literals are encountered, update Utils.data.variableType with the
+        type of the variables encountered.
+
+        :param literal: A literal of the form smokes(W) or friends(A,B)
+        :type literal: str.
+        """
+
+        # Get the name of the literal.
+        literalName =  literal.split('(')[0]
+
+        # Get background info for the literal
+        literalTypeSpecification = Utils.data.literalTypes[literalName]
+
+        # Get the arguments
+        literalArguments = literal[:-1].split('(')[1].split(',')
+
+        # Get the number of arguments.
+        for i in range(len(literalArguments)):
             if literalTypeSpecification[i][0]!='[':
                 variable = literalArguments[i]
                 if variable not in Utils.data.variableType.keys():

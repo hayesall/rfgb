@@ -176,7 +176,7 @@ class UtilsTest(unittest.TestCase):
                           'cancer(watson)': -0.1418510649004878})
 
         # sampleData.literals should be an empty dictionary.
-        self.assertEqual(sampleData.literals, {})
+        self.assertEqual(sampleData.literals, [])
 
         # Test some of the Data object functions, they should not
         # mutate contents.
