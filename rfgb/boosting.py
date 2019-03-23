@@ -32,7 +32,7 @@ from math import log
 from math import exp
 from copy import deepcopy
 
-__logPrior__ = log(0.5/float(1-0.5))
+__logPrior__ = -1.8
 
 """
 class Boosting(object):
@@ -134,7 +134,7 @@ def performInference(testData, trees):
     if not testData.regression:
 
         # Initialize log odds of assumed prior probability for example.
-        logPrior = log(0.5/float(1-0.5))
+        
         for example in testData.pos:
 
             # Compute sum of gradients
@@ -152,6 +152,7 @@ def performInference(testData, trees):
             testData.neg[example] = Utils.sigmoid(logPrior + sumOfGradients)
 
     elif testData.regression:
+        logPrior = 0.0
         for example in testData.examples:
             sumOfGradients = computeSumOfGradients(example, trees, testData)
             testData.examples[example] = sumOfGradients

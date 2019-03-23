@@ -166,16 +166,17 @@ class UtilsTest(unittest.TestCase):
 
         # sampleData.pos should return a dictionary with the
         # initial gradients set to 0.5
-        self.assertEqual(sampleData.pos, {'cancer(zod)': 0.5,
-                                          'cancer(xena)': 0.5,
-                                          'cancer(yoda)': 0.5})
+        self.assertEqual(sampleData.pos, {'cancer(zod)': 0.8581489350995122,
+                                          'cancer(xena)': 0.8581489350995122,
+                                          'cancer(yoda)': 0.8581489350995122})
         # sampleData.neg should return a dictionary with the
         # initial gradients set to -0.5
-        self.assertEqual(sampleData.neg, {'cancer(voldemort)': -0.5,
-                                          'cancer(watson)': -0.5})
+        self.assertEqual(sampleData.neg,
+                         {'cancer(voldemort)': -0.1418510649004878,
+                          'cancer(watson)': -0.1418510649004878})
 
         # sampleData.literals should be an empty dictionary.
-        self.assertEqual(sampleData.literals, {})
+        self.assertEqual(sampleData.literals, [])
 
         # Test some of the Data object functions, they should not
         # mutate contents.
