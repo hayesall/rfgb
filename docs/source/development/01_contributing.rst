@@ -26,12 +26,12 @@ Development Cheat-Sheet
 
    .. code-block:: bash
 
-		   git clone https://github.com/starling-lab/rfgb.py.git
+		   git clone https://github.com/hayesall/rfgb.git
 
 2. **Building local copy of documentation**
 
    We use Sphinx autodoc with a combination of inline docstrings and reStructuredText for documenting this project. Pull requests and further updates should include appropriate documentation.
-   
+
    A local copy of the documentation may be built from the Makefile:
 
    .. code-block:: bash

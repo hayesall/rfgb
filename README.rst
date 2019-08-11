@@ -1,20 +1,33 @@
-Relational Functional Gradient Boosting (RFGB)
-==============================================
+##############################################
+Relational Functional Gradient Boosting (rfgb)
+##############################################
 
-*Relational Functional Gradient Boosting in Python.*
+|PyPi|_ |License|_ |Travis|_ |Codecov|_ |ReadTheDocs|_
 
-  .. image:: https://img.shields.io/github/license/starling-lab/rfgb.py.svg?style=flat-square
-	   :target: https://github.com/starling-lab/rfgb.py/blob/master/LICENSE
-  .. image:: https://img.shields.io/github/tag/starling-lab/rfgb.py.svg?style=flat-square
-	   :target: https://github.com/starling-lab/rfgb.py/releases
-  .. image:: https://img.shields.io/travis/starling-lab/rfgb.py.svg?style=flat-square
-	   :target: https://travis-ci.org/starling-lab/rfgb.py
-  .. image:: https://img.shields.io/codecov/c/github/starling-lab/rfgb.py/master.svg?style=flat-square
-	   :target: https://codecov.io/gh/starling-lab/rfgb.py?branch=master
-  .. image:: https://readthedocs.org/projects/rfgbpy/badge/?version=stable&style=flat-square
-	   :target: https://rfgbpy.readthedocs.io/en/stable/
+.. |PyPi| image:: https://img.shields.io/pypi/v/rfgb.svg
+  :alt: Python Package Index (PyPi) latest version.
+.. _PyPi: https://pypi.org/project/rfgb/
 
-**Kaushik Roy** (`@kkroy36`_) and **Alexander L. Hayes** (`@batflyer`_)
+.. |License| image:: https://img.shields.io/github/license/hayesall/rfgb.svg
+  :alt: License.
+.. _License: https://github.com/hayesall/rfgb/blob/master/LICENSE
+
+.. |Travis| image:: https://travis-ci.org/hayesall/rfgb.svg?branch=master
+  :alt: Master branch build status.
+.. _Travis: https://travis-ci.org/hayesall/rfgb
+
+.. |Codecov| image:: https://codecov.io/gh/hayesall/rfgb/branch/master/graphs/badge.svg?branch=master
+  :alt: Master branch code coverage.
+.. _Codecov: https://codecov.io/github/hayesall/rfgb?branch=master
+
+.. |ReadTheDocs| image:: https://readthedocs.org/projects/rfgb/badge/?version=latest
+  :alt: Documentation build status and link to documentation.
+.. _ReadTheDocs: http://rfgb.readthedocs.io/en/latest/
+
+**rfgb**: Relational Functional Gradient Boosting (in Python).
+
+- **Documentation**: https://rfgb.readthedocs.io/en/latest/
+- **Questions?** Contact `Alexander L. Hayes (hayesall) <https://hayesall.com>`_
 
 Installation
 ------------
@@ -29,8 +42,8 @@ Or develop further by cloning the repository
 
 .. code-block:: bash
 
-		git clone https://github.com/starling-lab/rfgb.py.git
-		cd rfgb.py/
+		git clone https://github.com/hayesall/rfgb.git
+		cd rfgb/
 		python setup.py develop
 
 Quick-Start
@@ -117,12 +130,4 @@ This program is free software: you can redistribute it and/or modify it under th
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-A full `copy of the license <https://github.com/starling-lab/rfgb.py/blob/master/LICENSE>`_ is available in the base of this repository. For more information, see https://www.gnu.org/licenses/
-
-Acknowledgements
-----------------
-
-The authors would like to thank Professor Sriraam Natarajan, Professor Gautam Kunapuli, and fellow members of the `StARLinG Lab <https://starling.utdallas.edu>`_ at the University of Texas at Dallas.
-
-  .. _`@kkroy36`: https://github.com/kkroy36/
-  .. _`@batflyer`: https://github.com/batflyer/
+A full `copy of the license <https://github.com/hayesall/rfgb/blob/master/LICENSE>`_ is available in the base of this repository. For more information, see https://www.gnu.org/licenses/

@@ -12,7 +12,7 @@ Some of the ideas built here are shamelessly inspired by Git, so the workflows f
                 $ rfgb --help
                 usage: rfgb [-h] [-V] {init,learn,infer} ...
 
-                rfgb.py: Relational Functional Gradient Boosting is a gradient-boosting
+                rfgb: Relational Functional Gradient Boosting is a gradient-boosting
                 approach to learning statistical relational models.
 
                 optional arguments:

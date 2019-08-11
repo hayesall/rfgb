@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
+# Copyright © 2017-2019 rfgb Contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -53,14 +54,14 @@ def computeAdviceGradient(example):
     """
 
     nt, nf = 0, 0
-    target = Utils.data.target.split('(')[0]
+    target = Utils.data.target.split("(")[0]
     for clause in Utils.data.adviceClauses:
         if Prover.prove(Utils.data, example, clause):
-            if target in Utils.data.adviceClauses[clause]['preferred']:
+            if target in Utils.data.adviceClauses[clause]["preferred"]:
                 nt += 1
-            if target in Utils.data.adviceClauses[clause]['nonPreferred']:
+            if target in Utils.data.adviceClauses[clause]["nonPreferred"]:
                 nf += 1
-    return (nt-nf)
+    return nt - nf
 
 
 def computeSumOfGradients(example, trees, data):
@@ -102,10 +103,10 @@ def inferTreeValue(clauses, query, data):
     for clause in clauses:
 
         clauseCopy = deepcopy(clause)
-        clauseValue = float(clauseCopy.split(' ')[1])
-        clauseRule = clauseCopy.split(' ')[0].replace(';', ',')
+        clauseValue = float(clauseCopy.split(" ")[1])
+        clauseRule = clauseCopy.split(" ")[0].replace(";", ",")
 
-        if not clauseRule.split(':-')[1]:
+        if not clauseRule.split(":-")[1]:
             return clauseValue
         if Prover.prove(data, query, clauseRule):
             # Check if query satisifes clause
@@ -134,7 +135,7 @@ def performInference(testData, trees):
     if not testData.regression:
 
         # Initialize log odds of assumed prior probability for example.
-        
+
         for example in testData.pos:
 
             # Compute sum of gradients
@@ -158,7 +159,7 @@ def performInference(testData, trees):
             testData.examples[example] = sumOfGradients
 
 
-def updateGradients(data, trees, loss='LS', delta=None):
+def updateGradients(data, trees, loss="LS", delta=None):
     """
     Update gradients of the data.
 
@@ -199,7 +200,7 @@ def updateGradients(data, trees, loss='LS', delta=None):
                 updatedGradient = 0
                 gradient = trueValue - sumOfGradients
                 if gradient:
-                    updatedGradient = gradient/float(abs(gradient))
+                    updatedGradient = gradient / float(abs(gradient))
                 data.examples[example] = updatedGradient
 
             elif loss == "Huber":
@@ -208,7 +209,7 @@ def updateGradients(data, trees, loss='LS', delta=None):
                 updatedGradient = 0
                 if gradient:
                     if gradient > float(delta):
-                        updatedGradient = gradient/float(abs(gradient))
+                        updatedGradient = gradient / float(abs(gradient))
                     elif gradient <= float(delta):
                         updatedGradient = gradient
                 data.examples[example] = updatedGradient

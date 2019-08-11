@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
-
+# Copyright © 2017-2019 rfgb Contributors
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
@@ -29,6 +30,7 @@ from .logic import Prover
 
 from copy import deepcopy
 
+
 class node:
     """
     A node in a tree.
@@ -46,8 +48,15 @@ class node:
     learnedDecisionTree = []
     data = None
 
-    def __init__(self, test=None, examples=None, information=None,
-                 level=None, parent=None, pos=None):
+    def __init__(
+        self,
+        test=None,
+        examples=None,
+        information=None,
+        level=None,
+        parent=None,
+        pos=None,
+    ):
         """
         Constructor for node class.
 
@@ -62,7 +71,7 @@ class node:
         if level > 0:
             self.parent = parent
         else:
-            self.parent = 'root'
+            self.parent = "root"
         self.pos = pos
         self.examples = examples
         self.information = information
@@ -71,8 +80,7 @@ class node:
         self.right = None
 
         # Add to the queue of nodes to expand.
-        node.expandQueue.insert(0,self)
-
+        node.expandQueue.insert(0, self)
 
     @staticmethod
     def setMaxDepth(depth):
@@ -80,7 +88,6 @@ class node:
         Set the maximum depth of the tree.
         """
         node.maxDepth = depth
-
 
     @staticmethod
     def initTree(trainingData):
@@ -104,12 +111,13 @@ class node:
             # negative examples.
             examples = list(trainingData.pos.keys()) + list(trainingData.neg.keys())
 
-        node(test=None,
-             examples=examples,
-             information=trainingData.variance(examples),
-             level=0,
-             parent='root')
-
+        node(
+            test=None,
+            examples=examples,
+            information=trainingData.variance(examples),
+            level=0,
+            parent="root",
+        )
 
     @staticmethod
     def learnTree(data):
@@ -124,9 +132,8 @@ class node:
             current = node.expandQueue.pop()
             current.expandOnBestTest(data)
 
-        node.learnedDecisionTree.sort(key = lambda x: len(x.split(' ')[0]))
+        node.learnedDecisionTree.sort(key=lambda x: len(x.split(" ")[0]))
         node.learnedDecisionTree = node.learnedDecisionTree[::-1]
-
 
     def getTrueExamples(self, clause, test, data):
         """
@@ -139,17 +146,16 @@ class node:
         clauseCopy = deepcopy(clause)
 
         # Construct clause for prover
-        if clauseCopy[-1] == '-':
+        if clauseCopy[-1] == "-":
             clauseCopy += test
-        elif clauseCopy[-1] == ';':
-            clauseCopy = clauseCopy.replace(';', ',') + test
+        elif clauseCopy[-1] == ";":
+            clauseCopy = clauseCopy.replace(";", ",") + test
 
         # Prove if example satisfies clause.
         for example in self.examples:
             if Prover.prove(data, example, clauseCopy):
                 trueExamples.append(example)
         return trueExamples
-
 
     def expandOnBestTest(self, data=None):
         """
@@ -158,34 +164,38 @@ class node:
 
         target = data.getTarget()
         # Initialize clause learned at this node with empty body.
-        clause = target + ':-'
+        clause = target + ":-"
 
         current = self
         ancestorTests = []
-        while current.parent != 'root':
+        while current.parent != "root":
 
-            if current.pos == 'left':
-                clause += current.parent.test + ';'
+            if current.pos == "left":
+                clause += current.parent.test + ";"
                 ancestorTests.append(current.parent.test)
-            elif current.pos == 'right':
+            elif current.pos == "right":
                 ancestorTests.append(current.parent.test)
 
             current = current.parent
 
         if self.level == node.maxDepth or round(self.information, 3) == 0:
 
-            if clause[-1] != '-':
-                node.learnedDecisionTree.append(clause[:-1] + ' ' + str(Utils.getleafValue(self.examples)))
+            if clause[-1] != "-":
+                node.learnedDecisionTree.append(
+                    clause[:-1] + " " + str(Utils.getleafValue(self.examples))
+                )
             else:
-                node.learnedDecisionTree.append(clause + ' ' + str(Utils.getleafValue(self.examples)))
+                node.learnedDecisionTree.append(
+                    clause + " " + str(Utils.getleafValue(self.examples))
+                )
             return
 
-        if clause[-2] == '-':
+        if clause[-2] == "-":
             clause = clause[:-1]
 
         # Initialize minimum weighted variance to a low value.
-        minScore = float('inf')
-        bestTest = ''
+        minScore = float("inf")
+        bestTest = ""
 
         # List for best test  examples which satisfy  or do not satisfy clause.
         bestTExamples, bestFExamples = [], []
@@ -199,10 +209,10 @@ class node:
             literalTypeSpecification = literal[1]
 
             # Generate all possible literal, variable, and constant combinations
-            tests += Logic.generateTests(literalName,literalTypeSpecification,clause)
+            tests += Logic.generateTests(literalName, literalTypeSpecification, clause)
 
         if self.parent != "root":
-                tests = [test for test in tests if not test in ancestorTests]
+            tests = [test for test in tests if not test in ancestorTests]
         tests = set(tests)
 
         # Check which test scores the best.
@@ -210,21 +220,24 @@ class node:
             # Examples which are satisfied.
             tExamples = self.getTrueExamples(clause, test, data)
             # Examples which are not satisfied (under closed world assumption).
-            fExamples = [example for example in self.examples if example not in tExamples]
+            fExamples = [
+                example for example in self.examples if example not in tExamples
+            ]
             # Total number of examples.
             example_len = len(self.examples)
 
             # Calculated the weighted variance:
-            score = ((len(tExamples)/example_len) * data.variance(tExamples) +
-                     (len(fExamples)/example_len) * data.variance(fExamples))
+            score = (len(tExamples) / example_len) * data.variance(tExamples) + (
+                len(fExamples) / example_len
+            ) * data.variance(fExamples)
 
-            if score < minScore: #if score lower than current lowest
-                minScore = score #assign new minimum
-                bestTest = test #assign new best test
-                bestTExamples = tExamples #collect satisfied examples
-                bestFExamples = fExamples #collect unsatisfied examples
-        Utils.addVariableTypes(bestTest) #add variable types of new variables
-        self.test = bestTest #assign best test after going through all literal specs
+            if score < minScore:  # if score lower than current lowest
+                minScore = score  # assign new minimum
+                bestTest = test  # assign new best test
+                bestTExamples = tExamples  # collect satisfied examples
+                bestFExamples = fExamples  # collect unsatisfied examples
+        Utils.addVariableTypes(bestTest)  # add variable types of new variables
+        self.test = bestTest  # assign best test after going through all literal specs
 
         print("Best test found at the current node: ", self.test)
 
@@ -232,34 +245,38 @@ class node:
         # create left node and add to the queue.
         if len(bestTExamples) > 0:
 
-            self.left = node(test=None,
-                             examples=bestTExamples,
-                             information=data.variance(bestTExamples),
-                             level=self.level+1,
-                             parent=self,
-                             pos="left")
+            self.left = node(
+                test=None,
+                examples=bestTExamples,
+                information=data.variance(bestTExamples),
+                level=self.level + 1,
+                parent=self,
+                pos="left",
+            )
 
-            if self.level+1 > node.depth:
-                node.depth = self.level+1
+            if self.level + 1 > node.depth:
+                node.depth = self.level + 1
 
         # If False examples need further explaining,
         # create right node and add to the queue.
         if len(bestFExamples) > 0:
 
-            self.right = node(test=None,
-                              examples=bestFExamples,
-                              information=data.variance(bestFExamples),
-                              level=self.level+1,
-                              parent=self,
-                              pos="right")
+            self.right = node(
+                test=None,
+                examples=bestFExamples,
+                information=data.variance(bestFExamples),
+                level=self.level + 1,
+                parent=self,
+                pos="right",
+            )
 
             if self.level + 1 > node.depth:
                 node.depth = self.level + 1
 
         # If there are no examples, append clause as it is.
-        #if no examples append clause as is
+        # if no examples append clause as is
         if self.test == "" or round(self.information, 3) == 0:
-            if clause[-1]!='-':
+            if clause[-1] != "-":
                 node.learnedDecisionTree.append(clause[:-1])
             else:
                 node.learnedDecisionTree.append(clause)

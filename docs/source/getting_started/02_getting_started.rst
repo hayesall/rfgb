@@ -17,17 +17,17 @@ Installation
 
 		   pip install rfgb
 
-2. Development builds on `GitHub <https://github.com/starling-lab/rfgb.py>`_
+2. Development builds on `GitHub <https://github.com/hayesall/rfgb>`_
 
    .. code-block:: bash
 
-		   pip install git+git://github.com/starling-lab/rfgb.py.git
+		   pip install git+git://github.com/hayesall/rfgb.git
 
-3. Bleeding-edge development builds on the `GitHub Development Branch <https://github.com/starling-lab/rfgb.py/tree/development>`_
+3. Bleeding-edge development builds on the `GitHub Development Branch <https://github.com/hayesall/rfgb/tree/development>`_
 
    .. code-block:: bash
 
-		   pip install git+git://github.com/starling-lab/rfgb.py.git@development
+		   pip install git+git://github.com/hayesall/rfgb.git@development
 
 
 Background
@@ -38,7 +38,7 @@ The main function of ``rfgb`` is to learn relational dependency networks [#]_ vi
 .. image:: rfgb.svg
 
 This algorithm is implemented as the ``__main__`` method for the ``rfgb`` package.
-	   
+
 .. code-block:: python
 
 		# rfgb.__main__
@@ -48,7 +48,7 @@ This algorithm is implemented as the ``__main__`` method for the ``rfgb`` packag
 		from .utils import Utils
 
 		# ... class Arguments:
-		
+
 		parameters = Arguments().args
 
 		for target in parameters.target:

@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
+# Copyright © 2017-2019 rfgb Contributors
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,8 +31,9 @@ import string
 class Data(object):
     """Object containing the relational data."""
 
-    def __init__(self, regression=False, advice=False,
-                 softm=False, alpha=0.0, beta=0.0):
+    def __init__(
+        self, regression=False, advice=False, softm=False, alpha=0.0, beta=0.0
+    ):
         """
         An RFGB Data object, which serves as the structure for the positives,
         negatives, facts, and other parameters.
@@ -76,7 +78,7 @@ class Data(object):
         self.facts = facts
 
     def getFacts(self):
-        '''returns the facts in the data'''
+        """returns the facts in the data"""
         return self.facts
 
     def setPos(self, pos, target):
@@ -84,9 +86,9 @@ class Data(object):
         Set positive examples based on the contents of a list.
         """
         for example in pos:
-            if example.split('(')[0] == target:
+            if example.split("(")[0] == target:
                 # Set initial gradient to 0.5 for positives.
-                self.pos[example] = 1-Utils.sigmoid(-1.8)
+                self.pos[example] = 1 - Utils.sigmoid(-1.8)
 
     def setExamples(self, examples, target):
         """
@@ -94,10 +96,10 @@ class Data(object):
         """
         for example in examples:
             # Get the predicate.
-            predicate = example.split(' ')[0]
+            predicate = example.split(" ")[0]
             # Get the true regression value.
-            value = float(example.split(' ')[1])
-            if predicate.split('(')[0] == target:
+            value = float(example.split(" ")[1])
+            if predicate.split("(")[0] == target:
                 # Store the true value in examplesTrueValue dictionary.
                 self.examplesTrueValue[predicate] = value
                 # Set the value, otherwise none.
@@ -108,7 +110,7 @@ class Data(object):
         Set negative examples based on the contents of a list.
         """
         for example in neg:
-            if example.split('(')[0] == target:
+            if example.split("(")[0] == target:
                 # Set initial gradient to -0.5 for negative examples.
                 self.neg[example] = -Utils.sigmoid(-1.8)
 
@@ -144,17 +146,17 @@ class Data(object):
                         # 'cancer(C)'
         """
         # targetTypes are the types of variables in the target predicate.
-        targetTypes = [i[:-1].split('(')[1].split(',') for i in bk if target in i][0]
+        targetTypes = [i[:-1].split("(")[1].split(",") for i in bk if target in i][0]
         targetTypes = list(map(Utils.removeModeSymbols, targetTypes))
 
         targetArity = len(targetTypes)
         targetVariables = sample(Utils.UniqueVariableCollection, targetArity)
 
-        self.target = target + '('
+        self.target = target + "("
         for variable in targetVariables:
-            self.target += variable + ','
+            self.target += variable + ","
             self.variableType[variable] = targetTypes[targetVariables.index(variable)]
-        self.target = self.target[:-1] + ')'
+        self.target = self.target[:-1] + ")"
 
     def getTarget(self):
         """
@@ -202,17 +204,17 @@ class Data(object):
         either variable or a list of constants.
         """
 
-        bkWithoutTargets = [line for line in bk if '+' in line or '-' in line]
+        bkWithoutTargets = [line for line in bk if "+" in line or "-" in line]
 
         # For every literal, obtain name and type specifications.
         for literalBk in bkWithoutTargets:
-            literalName = literalBk.split('(')[0]
-            literalTypeSpecification = literalBk[:-1].split('(')[1].split(',')
+            literalName = literalBk.split("(")[0]
+            literalTypeSpecification = literalBk[:-1].split("(")[1].split(",")
             self.literalTypes[literalName] = literalTypeSpecification
             self.literals.append([literalName, literalTypeSpecification])
 
     def getLiterals(self):
-        '''gets all the literals in the facts'''
+        """gets all the literals in the facts"""
         return self.literals
 
     def variance(self, examples):
@@ -226,10 +228,12 @@ class Data(object):
 
         total = sum([self.getValue(example) for example in examples])
         numberOfExamples = len(examples)
-        mean = total/float(numberOfExamples)
-        sumOfSquaredError = sum([(self.getValue(example) - mean)**2 for example in examples])
+        mean = total / float(numberOfExamples)
+        sumOfSquaredError = sum(
+            [(self.getValue(example) - mean) ** 2 for example in examples]
+        )
 
-        return sumOfSquaredError/float(numberOfExamples) #return variance
+        return sumOfSquaredError / float(numberOfExamples)  # return variance
 
 
 class Utils(object):
@@ -251,7 +255,7 @@ class Utils(object):
         :returns: ``exp(x)/float(1+exp(x))``
         :rtype: float
         """
-        return exp(x)/float(1+exp(x))
+        return exp(x) / float(1 + exp(x))
 
     @staticmethod
     def removeModeSymbols(inputString):
@@ -271,7 +275,7 @@ class Utils(object):
                         o = list(map(removeModeSymbols, i))
                         # o == ['drinks', 'drink', 'city']
         """
-        return inputString.replace('+', '').replace('-', '').replace('#', '')
+        return inputString.replace("+", "").replace("-", "").replace("#", "")
 
     @staticmethod
     def addVariableTypes(literal):
@@ -284,30 +288,30 @@ class Utils(object):
         """
 
         # Get the name of the literal.
-        literalName =  literal.split('(')[0]
+        literalName = literal.split("(")[0]
 
         # Get background info for the literal
         literalTypeSpecification = Utils.data.literalTypes[literalName]
 
         # Get the arguments
-        literalArguments = literal[:-1].split('(')[1].split(',')
+        literalArguments = literal[:-1].split("(")[1].split(",")
 
         # Get the number of arguments.
         for i in range(len(literalArguments)):
-            if literalTypeSpecification[i][0]!='[':
+            if literalTypeSpecification[i][0] != "[":
                 variable = literalArguments[i]
                 if variable not in Utils.data.variableType.keys():
                     Utils.data.variableType[variable] = literalTypeSpecification[i][1:]
 
     @staticmethod
     def getleafValue(examples):
-        '''returns average of regression values for examples'''
+        """returns average of regression values for examples"""
         if not examples:
             return 0
         total = 0
         for example in examples:
             total += Utils.data.getValue(example)
-        return total/float(len(examples))
+        return total / float(len(examples))
 
     @staticmethod
     def save(location, saveItem):
@@ -319,7 +323,7 @@ class Utils(object):
 
         :returns: None.
         """
-        with codecs.open(location, encoding='utf-8', mode='w') as f:
+        with codecs.open(location, encoding="utf-8", mode="w") as f:
             json.dump(saveItem, f, indent=2)
 
     @staticmethod
@@ -332,13 +336,19 @@ class Utils(object):
 
         :returns: None.
         """
-        with codecs.open(location, encoding='utf-8', mode='r') as f:
+        with codecs.open(location, encoding="utf-8", mode="r") as f:
             return json.load(f)
 
     @staticmethod
-    def readTrainingData(target, path='train/',
-                         regression=False, advice=False,
-                         softm=False, alpha=0.0, beta=0.0):
+    def readTrainingData(
+        target,
+        path="train/",
+        regression=False,
+        advice=False,
+        softm=False,
+        alpha=0.0,
+        beta=0.0,
+    ):
         """
         Reads the training data from files.
 
@@ -364,67 +374,72 @@ class Utils(object):
         :rtype: :py:class:`.utils.Data`
         """
 
-        Utils.data = Data(regression=regression, advice=advice,
-                          softm=softm, alpha=alpha, beta=beta)
-        #trainData = Data(regression=regression, advice=advice)
-        #Utils.data.regression = regression
-        #Utils.data.advice = advice
+        Utils.data = Data(
+            regression=regression, advice=advice, softm=softm, alpha=alpha, beta=beta
+        )
+        # trainData = Data(regression=regression, advice=advice)
+        # Utils.data.regression = regression
+        # Utils.data.advice = advice
 
         if advice:
-            with open(path + "advice.txt") as fp: #read advice from train folder
+            with open(path + "advice.txt") as fp:  # read advice from train folder
                 adviceFileLines = fp.read().splitlines()
 
                 for line in adviceFileLines:
-                    adviceClause = line.split(' ')[0] #get advice clause
+                    adviceClause = line.split(" ")[0]  # get advice clause
 
                     Utils.data.adviceClauses[adviceClause] = {}
-                    #trainData.adviceClauses[adviceClause] = {}
+                    # trainData.adviceClauses[adviceClause] = {}
 
-                    preferredTargets = line.split(' ')[1][1:-1].split(',')
+                    preferredTargets = line.split(" ")[1][1:-1].split(",")
                     if preferredTargets[0]:
-                        Utils.data.adviceClauses[adviceClause]['preferred'] = preferredTargets
-                        #trainData.adviceClauses[adviceClause]['preferred'] = preferredTargets
+                        Utils.data.adviceClauses[adviceClause][
+                            "preferred"
+                        ] = preferredTargets
+                        # trainData.adviceClauses[adviceClause]['preferred'] = preferredTargets
                     elif not preferredTargets[0]:
-                        Utils.data.adviceClauses[adviceClause]['preferred'] = []
-                        #trainData.adviceClauses[adviceClause]['preferred'] = []
+                        Utils.data.adviceClauses[adviceClause]["preferred"] = []
+                        # trainData.adviceClauses[adviceClause]['preferred'] = []
 
-                    nonPreferredTargets = line.split(' ')[2][1:-1].split(',')
+                    nonPreferredTargets = line.split(" ")[2][1:-1].split(",")
                     if nonPreferredTargets[0]:
-                        Utils.data.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
-                        #trainData.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
+                        Utils.data.adviceClauses[adviceClause][
+                            "nonPreferred"
+                        ] = nonPreferredTargets
+                        # trainData.adviceClauses[adviceClause]['nonPreferred'] = nonPreferredTargets
                     elif not nonPreferredTargets[0]:
-                        Utils.data.adviceClauses[adviceClause]['nonPreferred'] = []
-                        #trainData.adviceClauses[adviceClause]['nonPreferred'] = []
+                        Utils.data.adviceClauses[adviceClause]["nonPreferred"] = []
+                        # trainData.adviceClauses[adviceClause]['nonPreferred'] = []
 
         with open(path + "facts.txt") as fac:
             Utils.data.setFacts(fac.read().splitlines())
-            #trainData.setFacts(fac.read().splitlines())
+            # trainData.setFacts(fac.read().splitlines())
 
         if regression:
             with open(path + "examples.txt") as exam:
                 Utils.data.setExamples(exam.read().splitlines(), target)
-                #trainData.setExamples(exam.read().splitlines(), target)
+                # trainData.setExamples(exam.read().splitlines(), target)
         else:
             with open(path + "pos.txt") as pos:
                 Utils.data.setPos(pos.read().splitlines(), target)
-                #trainData.setPos(pos.read().splitlines(), target)
+                # trainData.setPos(pos.read().splitlines(), target)
             with open(path + "neg.txt") as neg:
                 Utils.data.setNeg(neg.read().splitlines(), target)
-                #trainData.setNeg(neg.read().splitlines(), target)
+                # trainData.setNeg(neg.read().splitlines(), target)
 
         with open(path + "bk.txt") as fp:
             bk = fp.read().splitlines()
 
             Utils.data.setBackground(bk)
             Utils.data.setTarget(bk, target)
-            #trainData.setBackground(bk)
-            #trainData.setTarget(bk, target, regression=regression)
+            # trainData.setBackground(bk)
+            # trainData.setTarget(bk, target, regression=regression)
 
         return Utils.data
-        #return trainData
+        # return trainData
 
     @staticmethod
-    def readTestData(target, path='test/', regression=False):
+    def readTestData(target, path="test/", regression=False):
         """
         Reads the testing data from files.
 
@@ -486,13 +501,13 @@ class Utils(object):
             for item1 in set1:
                 for item2 in set2:
                     # Cartesian Product performed here.
-                    pairWiseProducts.append(item1+item2)
+                    pairWiseProducts.append(item1 + item2)
 
             # Remove the first two sets.
             modifiedItemSets.remove(set1)
             modifiedItemSets.remove(set2)
             # Insert the Cartesian Product in their place and repeat.
-            modifiedItemSets.insert(0,pairWiseProducts)
+            modifiedItemSets.insert(0, pairWiseProducts)
 
         # Return the final Cartesian Product Sets
         return modifiedItemSets[0]
