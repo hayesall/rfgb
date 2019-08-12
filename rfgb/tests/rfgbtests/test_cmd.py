@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
-
+# Copyright © 2017-2019 rfgb Contributors
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
@@ -31,9 +32,9 @@ import unittest
 
 
 def reset_directories():
-    if os.path.exists('.rfgb/') or os.path.exists('.rfgb/models/'):
-        os.rmdir('.rfgb/models/')
-        os.rmdir('.rfgb/')
+    if os.path.exists(".rfgb/") or os.path.exists(".rfgb/models/"):
+        os.rmdir(".rfgb/models/")
+        os.rmdir(".rfgb/")
 
 
 class InitTest(unittest.TestCase):
@@ -49,8 +50,8 @@ class InitTest(unittest.TestCase):
 
         # First run should create directories.
         init()
-        self.assertTrue(os.path.exists('.rfgb/'))
-        self.assertTrue(os.path.exists('.rfgb/models/'))
+        self.assertTrue(os.path.exists(".rfgb/"))
+        self.assertTrue(os.path.exists(".rfgb/models/"))
 
         # Second should exit and print message to console.
         with self.assertRaises(SystemExit) as ExitCode:
@@ -62,13 +63,14 @@ class InitTest(unittest.TestCase):
 
         # First run should create directories.
         init(quiet=True)
-        self.assertTrue(os.path.exists('.rfgb/'))
-        self.assertTrue(os.path.exists('.rfgb/models/'))
+        self.assertTrue(os.path.exists(".rfgb/"))
+        self.assertTrue(os.path.exists(".rfgb/models/"))
 
         # Second should exit and print message to console.
         with self.assertRaises(SystemExit) as ExitCode:
             init(quiet=True)
         self.assertEqual(ExitCode.exception.code, 1)
+
 
 # Remove directories at end of test.
 reset_directories()

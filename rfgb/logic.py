@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
-
+# Copyright © 2017-2019 rfgb Contributors
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
@@ -36,14 +37,15 @@ class Term(object):
     """
     Class for term in prolog proof.
     """
+
     # Expect "x(y,z...)"
     def __init__(self, s):
-        if s[-1] != ')':
-            raise(Exception("Term should end with ')': %s" % [s]))
-        flds = s.split('(')
+        if s[-1] != ")":
+            raise (Exception("Term should end with ')': %s" % [s]))
+        flds = s.split("(")
         if len(flds) != 2:
-            raise(Exception("Term should be composed of two fields: %s" % [s]))
-        self.args = flds[1][:-1].replace(' ', '').split(',')
+            raise (Exception("Term should be composed of two fields: %s" % [s]))
+        self.args = flds[1][:-1].replace(" ", "").split(",")
         self.pred = flds[0]
 
 
@@ -51,6 +53,7 @@ class Rule(object):
     """
     Class for logic rules in prolog proof.
     """
+
     # Expect "term:-term;term;..."
     def __init__(self, s):
         flds = s.split(":-")
@@ -63,7 +66,8 @@ class Rule(object):
 
 
 class Goal(object):
-    '''class for each goal in rule during prolog search'''
+    """class for each goal in rule during prolog search"""
+
     def __init__(self, rule, parent=None, env={}):
         goalId = Prover.goalId
         goalId += 1
@@ -76,7 +80,8 @@ class Goal(object):
 
 
 class Prover(object):
-    '''class for prolog style proof of query'''
+    """class for prolog style proof of query"""
+
     rules = []
     goalId = 100
     trace = 0
@@ -94,13 +99,13 @@ class Prover(object):
         for i in range(nargs):
             srcArg = srcTerm.args[i]
             destArg = destTerm.args[i]
-            if srcArg <= 'Z':
+            if srcArg <= "Z":
                 srcVal = srcEnv.get(srcArg)
             else:
                 srcVal = srcArg
             if srcVal:
                 # Constant or defined Variable in source
-                if destArg <= 'Z':
+                if destArg <= "Z":
                     # Variable in destination
                     destVal = destEnv.get(destArg)
                     if not destVal:
@@ -158,10 +163,7 @@ class Prover(object):
                 # Otherwise, resume parent goal.
                 parent = deepcopy(c.parent)
 
-                unify(c.rule.head,
-                      c.env,
-                      parent.rule.goals[parent.inx],
-                      parent.env)
+                unify(c.rule.head, c.env, parent.rule.goals[parent.inx], parent.env)
 
                 # Advance to next goal in body.
                 parent.inx = parent.inx + 1
@@ -215,6 +217,7 @@ class Logic(object):
     """
     Class for logic operations.
     """
+
     @staticmethod
     def constantsPresentInLiteral(literalTypeSpecification):
         """
@@ -222,7 +225,7 @@ class Logic(object):
         """
         # Check if there is a single non-variable.
         for item in literalTypeSpecification:
-            if item[0] == '[':
+            if item[0] == "[":
                 return True
         return False
 
@@ -232,7 +235,7 @@ class Logic(object):
         Returns variables in the literal.
         """
         # Get variables and constants in body literal.
-        variablesAndConstants = literal[:-1].split('(')[1].split(',')
+        variablesAndConstants = literal[:-1].split("(")[1].split(",")
 
         # Get only the variables.
         variables = []
@@ -248,9 +251,9 @@ class Logic(object):
         Generates tests for literal according to modes and types.
         """
 
-        target = clause.split(':-')[0]
-        body = clause.split(':-')[1]
-        targetVariables = target[:-1].split('(')[1].split(',')
+        target = clause.split(":-")[0]
+        body = clause.split(":-")[1]
+        targetVariables = target[:-1].split("(")[1].split(",")
 
         # Initialize a list of body variables.
         bodyVariables = []
@@ -267,7 +270,7 @@ class Logic(object):
         for i in range(lengthOfSpecification):
             # Check if data type is variable or constant.
             variable = False
-            if literalTypeSpecification[i][0] != '[':
+            if literalTypeSpecification[i][0] != "[":
                 variable = True
             # If the data type is variable.
             if variable:
@@ -278,7 +281,7 @@ class Logic(object):
 
                 # Variable must be an already existing variable in the clause
                 # of the same type if it exists.
-                if mode == '+':
+                if mode == "+":
                     # Get all clause variables of same type:
 
                     variableOfSameTypeInClause = []
@@ -298,7 +301,7 @@ class Logic(object):
                         testSpecification.append([newVar[0]])
 
                 # Use new variable.
-                if mode == '-':
+                if mode == "-":
                     newVar = None
                     while True:
                         newVar = sample(Utils.UniqueVariableCollection, 1)
@@ -308,7 +311,7 @@ class Logic(object):
 
             # If data type is constant:
             else:
-                listToAppend = literalTypeSpecification[i][1:-1].split(';')
+                listToAppend = literalTypeSpecification[i][1:-1].split(";")
                 testSpecification.append(listToAppend)
 
         testVariablesAndConstants = Utils.cartesianProduct(testSpecification)

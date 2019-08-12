@@ -1,16 +1,17 @@
+# -*- coding: utf-8 -*-
 
-# Copyright (C) 2017-2018 RFGB Contributors
-
+# Copyright © 2017-2019 rfgb Contributors
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
-
+#
 # You should have received a copy of the GNU General Public License
 # along with this program (at the base of this repository). If not,
 # see <http://www.gnu.org/licenses/>
@@ -23,9 +24,17 @@ from ..tree import node
 from ..utils import Utils
 
 
-def learn(targets, numTrees=10, path='',
-          regression=False, advice=False,
-          softm=False, alpha=0.0, beta=0.0, saveJson=True):
+def learn(
+    targets,
+    numTrees=10,
+    path="",
+    regression=False,
+    advice=False,
+    softm=False,
+    alpha=0.0,
+    beta=0.0,
+    saveJson=True,
+):
     """
     .. versionadded:: 0.3.0
 
@@ -65,12 +74,15 @@ def learn(targets, numTrees=10, path='',
     for target in targets:
 
         # Read the training data.
-        trainData = Utils.readTrainingData(target, path=path,
-                                           regression=regression,
-                                           advice=advice,
-                                           softm=softm,
-                                           alpha=alpha,
-                                           beta=beta)
+        trainData = Utils.readTrainingData(
+            target,
+            path=path,
+            regression=regression,
+            advice=advice,
+            softm=softm,
+            alpha=alpha,
+            beta=beta,
+        )
 
         # Initialize an empty list for the trees.
         trees = []
@@ -88,18 +100,18 @@ def learn(targets, numTrees=10, path='',
 
                 # Collect the parameters used to learn these trees:
                 params = {
-                    'target': target,
-                    'trees': i + 1,
-                    'regression': regression,
-                    'advice': advice,
-                    'softm': softm,
-                    'alpha': alpha,
-                    'beta': beta
+                    "target": target,
+                    "trees": i + 1,
+                    "regression": regression,
+                    "advice": advice,
+                    "softm": softm,
+                    "alpha": alpha,
+                    "beta": beta,
                 }
 
                 # Save a json file containing parameters and trees learned.
                 model = [params, trees]
-                Utils.save('.rfgb/models/' + target + '.json', model)
+                Utils.save(".rfgb/models/" + target + ".json", model)
 
         models[target] = trees
 

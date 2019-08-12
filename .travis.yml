@@ -1,5 +1,5 @@
 sudo: false
-
+dist: xenial
 language: python
 
 env:
@@ -7,15 +7,13 @@ env:
 
 python:
   - "2.7"
-  - "3.3"
-  - "3.4"
   - "3.5"
-  - "3.5-dev"
   - "3.6"
-  - "3.6-dev"
-  - "3.7-dev"
+  - "3.7"
+  - "3.8-dev"
 
-cache: pip
+cache:
+  pip: true
 
 install:
   - "pip install -r rfgb/tests/requirements.txt"
