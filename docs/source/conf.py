@@ -55,7 +55,7 @@ author = 'Alexander L. Hayes (@hayesall)'
 from rfgb._metadata import __version__
 
 version = __version__
-release = __release__
+release = __version__
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
