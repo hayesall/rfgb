@@ -24,13 +24,9 @@ Documentation
 -------------
 """
 
-# TODO(@hayesall): Phase out 2.7
 from __future__ import division
 
 from .utils import Utils
-
-# TODO(@hayesall): Proving logical clauses without string parsing
-# TODO(@hayesall): SWI-Prolog?
 from .logic import Prover
 
 from math import log

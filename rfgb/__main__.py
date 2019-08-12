@@ -247,7 +247,7 @@ elif PARAMETERS._rfgb == "infer":
         settings, trees = model[0], model[1]
 
         results = rdn.infer(
-            target, trees, path=parameters.test, regression=settings["regression"]
+            target, trees, path=PARAMETERS.test, regression=settings["regression"]
         )
 
         # Print results for easy viewing.
