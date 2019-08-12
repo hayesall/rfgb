@@ -38,8 +38,9 @@ setup(
 
     keywords='relational-learning',
     project_urls={
-        'Source': 'https://github.com/hayesall/rfgb',
-        'Tracker': 'https://github.com/hayesall/rfgb/issues'
+        'Source Code': 'https://github.com/hayesall/rfgb',
+        'Bug Tracker': 'https://github.com/hayesall/rfgb/issues',
+        'Documentation': 'https://rfgb.readthedocs.io/en/latest/',
     },
 
     entry_points={

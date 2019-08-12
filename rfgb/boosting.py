@@ -24,24 +24,20 @@ Documentation
 -------------
 """
 
+# TODO(@hayesall): Phase out 2.7
 from __future__ import division
 
 from .utils import Utils
+
+# TODO(@hayesall): Proving logical clauses without string parsing
+# TODO(@hayesall): SWI-Prolog?
 from .logic import Prover
 
 from math import log
 from math import exp
 from copy import deepcopy
 
-__logPrior__ = -1.8
-
-"""
-class Boosting(object):
-    '''boosting class'''
-
-    # Wouldn't `logPrior = 0.0` be easier?
-    logPrior = log(0.5/float(1-0.5))
-"""
+_log_prior = -1.8
 
 
 def computeAdviceGradient(example):
@@ -131,7 +127,7 @@ def performInference(testData, trees):
 
     """
 
-    logPrior = __logPrior__
+    logPrior = _log_prior
     if not testData.regression:
 
         # Initialize log odds of assumed prior probability for example.
@@ -244,7 +240,7 @@ def updateGradients(data, trees, loss="LS", delta=None):
 
         """
 
-        logPrior = __logPrior__
+        logPrior = _log_prior
 
         if data.softm:
 
